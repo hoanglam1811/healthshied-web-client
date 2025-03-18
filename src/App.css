@@ -1,7 +1,16 @@
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/src/assets/gilroy1.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #root {
   width: 100%;
   margin: 0 auto;
   text-align: center;
+  height: 100vh;
+  overflow-y: scroll;
 }
 
 .logo {
@@ -38,4 +47,11 @@
 
 .read-the-docs {
   color: #888;
+}
+
+* {
+  font-family: 'CustomFont', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* font-style: normal;
+    font-weight: 400;
+    line-height: 1.429; */
 }

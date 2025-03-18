@@ -58,13 +58,6 @@ const Register = () => {
 
     return (
         <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-            <Link
-                to={RouteNames.HOME}
-                className="absolute top-[20px] left-[20px] bg-white/30 backdrop-blur-md text-black font-semibold px-4 py-2 rounded-lg border border-white/50 hover:bg-white/40"
-            >
-                <ArrowLeftOutlined className="mr-2" />
-                Back
-            </Link>
             <div
                 style={{
                     width: "70%",

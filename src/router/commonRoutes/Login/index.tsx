@@ -10,19 +10,22 @@ import RouteNames from '../../../constants/routeNames';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { Box, Button, Flex, IconButton, Image, Input, InputGroup, Text, VStack } from '@chakra-ui/react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = [LoginImage, LoginnImage];
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const dispatch = useDispatch();
+    const [securePassword, setSecurePassword] = useState(true);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -73,81 +76,137 @@ const Login = () => {
     // };
 
     return (
-        <Flex h="100vh" w="100vw" overflow="hidden">
-            {/* Left Side - Image with Back Button */}
-            <Box w={{ base: "0%", md: "50%" }} h="100vh" position="relative">
-                <Image src={images[currentImageIndex]} alt="Login Image" objectFit="cover" w="full" h="full" />
-                <Link to="/">
-                    <IconButton
-                        aria-label="Back"
-                        position="absolute"
-                        top={4}
-                        left={4}
-                        bg="whiteAlpha.700"
-                        _hover={{ bg: "whiteAlpha.900" }}
-                        size="lg"
-                    >
-                        <ArrowLeftOutlined />
-                    </IconButton>
+        <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+            <div
+                style={{
+                    width: "70%",
+                    height: "100%",
+                    backgroundImage: `url(${images[currentImageIndex]})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    transition: "background-image 1s ease-in-out",
+                    boxShadow: "inset 0 0 50px rgba(0, 0, 0, 0.3)",
+                }}
+            ></div>
 
-                </Link>
-            </Box>
+            <div
+                style={{
+                    minWidth: "500px",
+                    width: "50%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#f9f9f9",
+                    padding: "20px",
+                    height: "100%"
+                }}
+            >
+                <div
+                    style={{
+                        width: "100%",
+                        maxWidth: "380px",
+                        borderRadius: "12px",
+                        padding: "40px",
+                        textAlign: "center",
+                        position: "relative",
+                        animation: "fadeIn 1s ease-in-out",
+                    }}
+                >
+                    <h1 className='font-bold' style={{ color: "#578a3f", marginBottom: "50px" }}>
+                        Welcome to Health Shield
+                    </h1>
 
-            {/* Right Side - Login Form */}
-            <Flex w={{ base: "100%", md: "50%" }} align="center" justify="center" bg="gray.50">
-                <VStack gap={6} p={8} boxShadow="xl" borderRadius="xl" bg="white" w={{ base: "90%", md: "60%" }}>
-                    <Text fontSize="2xl" fontWeight="bold" color="green.500">Welcome to HealthShield</Text>
-                    <Text fontSize="md" color="gray.600" textAlign="center">Protecting your child's health, one vaccine at a time.</Text>
+                    <div  style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={{
+                                width: "80%",
+                                padding: "12px 20px",
+                                marginBottom: "20px",
+                                borderRadius: "10px",
+                                border: "1px solid rgba(255, 255, 255, 0.5)",
+                                fontSize: "16px",
+                                backgroundColor: "transparent",
+                                color: "#fff",
+                                transition: "all 0.3s",
+                                outline: "none",
+                            }}
+                            onFocus={(e) => (e.target.style.borderColor = "#578a3f")}
+                            onBlur={(e) => (e.target.style.borderColor = "rgba(255, 255, 255, 0.5)")}
+                        />
 
-                    {/* Email Input */}
-                    <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        borderColor="green.400"
-                        size="lg"
-                        borderRadius="full"
-                    />
+                        <div style={{ position: "relative", width: "100%" }}>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                onChange={(e) => setPassword(e.target.value)}
+                                style={{
+                                    width: "80%",
+                                    padding: "12px 20px",
+                                    paddingRight: "40px", 
+                                    borderRadius: "10px",
+                                    border: "1px solid rgba(255, 255, 255, 0.5)",
+                                    fontSize: "16px",
+                                    backgroundColor: "transparent",
+                                    color: "#fff",
+                                    transition: "all 0.3s",
+                                    outline: "none",
+                                }}
+                                onFocus={(e) => (e.target.style.borderColor = "#578a3f")}
+                                onBlur={(e) => (e.target.style.borderColor = "rgba(255, 255, 255, 0.5)")}
+                            />
+                            <span
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "40px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer",
+                                    color: "#fff",
+                                }}
+                            >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
+                        </div>
+                    </div>
 
-<InputGroup>
-  <Input
-    type={showPassword ? "text" : "password"}
-    placeholder="Enter your password"
-  />
-  {/* <InputRightElement>
-    <IconButton
-      aria-label="Toggle Password"
-      _icon={showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-      onClick={togglePasswordVisibility}
-      size="sm"
-      variant="ghost"
-    />
-  </InputRightElement> */}
-</InputGroup>
-
-
-                    {/* Login Button */}
-                    <Button
-                        w="full"
-                        colorScheme="green"
-                        size="lg"
-                        borderRadius="full"
-                        loading={isLoading}
+                    <button
+                        style={{
+                            width: "60%",
+                            padding: "12px 20px",
+                            backgroundColor: "#578a3f",
+                            color: "#fff",
+                            borderRadius: "10px",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            transition: "background-color 0.3s ease",
+                            marginBottom: "15px",
+                            marginTop: "15px"
+                        }}
+                        //onClick={handleRegisterSubmit}
+                        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#21618c")}
+                        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#578a3f")}
+                        disabled={isLoading}
                     >
                         {isLoading ? "Logging in..." : "Login"}
-                    </Button>
-
-                    {/* Links */}
-                    <Text fontSize="sm" color="gray.600">
-                        Don't have an account? <Link to="/register" style={{ color: "#2F855A", fontWeight: "bold" }}>Sign up now</Link>
-                    </Text>
-                    <Text fontSize="sm" color="gray.600">
-                        <Link to="/forgot-password" style={{ color: "#2F855A", fontWeight: "bold" }}>Forgot password?</Link>
-                    </Text>
-                </VStack>
-            </Flex>
-        </Flex>
+                    </button>
+                    <p className='font-bold' style={{ fontSize: "14px", color: "#555" }}>
+                        You don't have an account?{" "}
+                        <Link
+                            to="/register"
+                            style={{ color: "#578a3f", textDecoration: "none" }}
+                        >
+                            Register now
+                        </Link>
+                    </p>
+                </div>
+            </div>
+        </div>
     );
 };
 

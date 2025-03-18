@@ -1,31 +1,50 @@
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import NotFoundImage from "../../../assets/Notfound.png";
 
 function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-blue-300">
-      <div className="text-center p-8">
-        <div className="mb-8">
-          <h1 className="text-9xl font-bold text-gray-700">404</h1>
-          <p className="text-lg text-gray-700 mt-4">
-            The page you are looking for does not exist or is in development.
-          </p>
-        </div>
-        <div className="flex flex-col justify-between items-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="mt-6 px-32 py-3 bg-white text-black rounded-full hover:text-white hover:bg-black trnasition duration-300"
-          >
-            Back
-          </button>
-          <button
-            onClick={() => navigate("/")}
-            className="mt-6 px-32 py-3 bg-white text-black rounded-full hover:text-white hover:bg-black trnasition duration-300"
-          >
-            Home
-          </button>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-100 p-6">
+      <motion.img
+        src={NotFoundImage}
+        alt="Page Not Found"
+        className="w-80 h-auto mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      />
+
+      {/* Tiêu đề */}
+      <motion.h1
+        className="text-5xl font-bold text-blue-600 mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        Oops! Page Not Found
+      </motion.h1>
+
+      <p className="text-lg text-gray-700 text-center max-w-md">
+        The page you are looking for does not exist or is under development. Please go back or return to the homepage.
+      </p>
+
+      <div className="flex gap-4 mt-6">
+        <motion.button
+          onClick={() => navigate(-1)}
+          className="px-6 py-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition"
+          whileHover={{ scale: 1.05 }}
+        >
+          Go Back
+        </motion.button>
+        <motion.button
+          onClick={() => navigate("/")}
+          className="px-6 py-3 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition"
+          whileHover={{ scale: 1.05 }}
+        >
+          Home
+        </motion.button>
       </div>
     </div>
   );

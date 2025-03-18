@@ -1,3 +1,3 @@
-// import ProductCard from "./ProductCard"
+import VaccineCard from "./VaccineCard"
 
-// export {ProductCard}
+export {VaccineCard}

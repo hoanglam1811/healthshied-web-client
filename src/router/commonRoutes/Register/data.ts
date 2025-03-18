@@ -1,5 +1,5 @@
 export default interface RegisterType {
-  username: string;
+  fullName: string;
   email: string;
   password: string;
   phone: string;

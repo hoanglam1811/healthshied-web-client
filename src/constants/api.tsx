@@ -1,1 +1,1 @@
-export const BASE_URL = "http://localhost:8080/eclat"
+export const BASE_URL = "http://localhost:5166/eclat"

@@ -116,7 +116,7 @@ const Login = () => {
                         Welcome to Health Shield
                     </h1>
 
-                    <div  style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+                    <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
                         <input
                             type="email"
                             placeholder="Enter your email"
@@ -132,6 +132,7 @@ const Login = () => {
                                 color: "#fff",
                                 transition: "all 0.3s",
                                 outline: "none",
+                                marginLeft: "17px"
                             }}
                             onFocus={(e) => (e.target.style.borderColor = "#578a3f")}
                             onBlur={(e) => (e.target.style.borderColor = "rgba(255, 255, 255, 0.5)")}
@@ -145,7 +146,7 @@ const Login = () => {
                                 style={{
                                     width: "80%",
                                     padding: "12px 20px",
-                                    paddingRight: "40px", 
+                                    paddingRight: "40px",
                                     borderRadius: "10px",
                                     border: "1px solid rgba(255, 255, 255, 0.5)",
                                     fontSize: "16px",
@@ -186,7 +187,7 @@ const Login = () => {
                             fontWeight: "600",
                             transition: "background-color 0.3s ease",
                             marginBottom: "15px",
-                            marginTop: "15px"
+                            marginTop: "25px"
                         }}
                         //onClick={handleRegisterSubmit}
                         onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#21618c")}

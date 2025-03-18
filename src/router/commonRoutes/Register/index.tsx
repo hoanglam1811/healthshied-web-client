@@ -73,7 +73,7 @@ const Register = () => {
             <div
                 style={{
                     minWidth: "500px",
-                    width: "30%",
+                    width: "50%",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
@@ -92,9 +92,9 @@ const Register = () => {
                         animation: "fadeIn 1s ease-in-out",
                     }}
                 >
-                    <h2 className='font-bold' style={{ color: "#578a3f", marginBottom: "30px" }}>
-                        REGISTER HEALTH SHIELD
-                    </h2>
+                    <h1 className='font-bold' style={{ color: "#578a3f", marginBottom: "50px" }}>
+                        Register to Health Shield 
+                    </h1>
 
                     {!isEmailVerify && <><input
                         type="text"

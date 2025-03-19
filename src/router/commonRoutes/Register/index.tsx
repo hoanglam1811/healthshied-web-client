@@ -65,8 +65,8 @@ const Register = () => {
                 registerData.password
             );
             setIsLoading(false);
-    
-            if (user.code === 0) {
+            console.log(user)
+            if (user) {
                 notification.success({ message: "Register successfully!." });
                 navigate("/login");
             }

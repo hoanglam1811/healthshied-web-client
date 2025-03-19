@@ -50,13 +50,13 @@ const Login = () => {
         try {
             const user = await login(email, password);
             setIsLoading(false);
-    
-            dispatch(setToken(user.result.token));
-            const userInfo = parseJwt(user.result.token);
+            console.log(user)
+            dispatch(setToken(user.token));
+            const userInfo = parseJwt(user.token);
             dispatch(setUser(userInfo));
     
             notification.success({ message: "Login successfully!" });
-    
+            console.log(userInfo)
             // Điều hướng theo role
             if (userInfo.role.toUpperCase() === "ADMIN") {
                 navigate("/admin/dashboard");

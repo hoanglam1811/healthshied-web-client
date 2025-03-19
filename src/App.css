@@ -14,6 +14,20 @@
   /* overflow-y: scroll; */
 }
 
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important; /* Giữ nền trắng */
+  -webkit-text-fill-color: black !important; /* Màu chữ */
+  transition: background-color 5000s ease-in-out 0s; 
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: black !important;
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+}
+
+
 .logo {
   height: 6em;
   padding: 1.5em;

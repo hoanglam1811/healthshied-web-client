@@ -3,4 +3,5 @@ export default interface RegisterType {
   email: string;
   password: string;
   phone: string;
+  confirmPassword: string;
 }

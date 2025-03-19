@@ -76,6 +76,7 @@ const Login = () => {
     // };
 
     return (
+      <>
         <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
             <div
                 style={{
@@ -117,26 +118,28 @@ const Login = () => {
                     </h1>
 
                     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                        <input
-                            type="email"
-                            placeholder="Enter your email"
-                            onChange={(e) => setEmail(e.target.value)}
-                            style={{
-                                width: "80%",
-                                padding: "12px 20px",
-                                marginBottom: "20px",
-                                borderRadius: "10px",
-                                border: "1px solid rgba(255, 255, 255, 0.5)",
-                                fontSize: "16px",
-                                backgroundColor: "transparent",
-                                color: "#fff",
-                                transition: "all 0.3s",
-                                outline: "none",
-                                marginLeft: "17px"
-                            }}
-                            onFocus={(e) => (e.target.style.borderColor = "#578a3f")}
-                            onBlur={(e) => (e.target.style.borderColor = "rgba(255, 255, 255, 0.5)")}
-                        />
+                        <div style={{  width: "100%" }}>
+                          <input
+                              type="email"
+                              placeholder="Enter your email"
+                              onChange={(e) => setEmail(e.target.value)}
+                              style={{
+                                  width: "80%",
+                                  padding: "12px 20px",
+                                  marginBottom: "20px",
+                                  borderRadius: "10px",
+                                  border: "1px solid rgba(255, 255, 255, 0.5)",
+                                  fontSize: "16px",
+                                  backgroundColor: "transparent",
+                                  color: "#fff",
+                                  transition: "all 0.3s",
+                                  outline: "none",
+                                  // marginLeft: "17px"
+                              }}
+                              onFocus={(e) => (e.target.style.borderColor = "#578a3f")}
+                              onBlur={(e) => (e.target.style.borderColor = "rgba(255, 255, 255, 0.5)")}
+                          />
+                        </div>
 
                         <div style={{ position: "relative", width: "100%" }}>
                             <input
@@ -146,7 +149,7 @@ const Login = () => {
                                 style={{
                                     width: "80%",
                                     padding: "12px 20px",
-                                    paddingRight: "40px",
+                                    paddingRight: "20px",
                                     borderRadius: "10px",
                                     border: "1px solid rgba(255, 255, 255, 0.5)",
                                     fontSize: "16px",
@@ -207,7 +210,9 @@ const Login = () => {
                     </p>
                 </div>
             </div>
+
         </div>
+      </>
     );
 };
 

@@ -43,6 +43,9 @@ const RouteNames = {
   PAYMENT_ERROR: "/payment-error",
   PAYMENT_RETURN: "/vnpay-return",
   PAYMENT_NOT_FOUND: "/payment-not-found",
+  ORDERS: "/admin/orders",
+  VACCINE_SCHEDULE: "/admin/vaccine-schedule",
+  CUSTOMERS: "/admin/customers",
 };
 
 export default RouteNames;

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { Provider } from 'react-redux'
+import { Provider as ChakraProvider } from "@/components/ui/provider"
 import { RouterProvider } from 'react-router-dom'
 import { Toaster } from './components/ui/toaster';
 import store from './store/store'
@@ -12,8 +13,10 @@ function App() {
   return (
     <>
       <Provider store={store}>
-        <RouterProvider router={router} />
-        <Toaster />
+        <ChakraProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </ChakraProvider>
       </Provider>
     </>
   )

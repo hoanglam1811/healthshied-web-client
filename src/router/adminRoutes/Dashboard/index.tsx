@@ -23,6 +23,8 @@ import {
 import logo from "../../../assets/logo.png";
 import { CardContent } from "../../../components/ui/card";
 import { FaUserTie, FaSyringe, FaUserFriends, FaBaby, FaComments } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import RouteNames from "../../../constants/routeNames";
 
 
 const { Header, Content, Sider } = Layout;
@@ -103,6 +105,8 @@ const totalFeedbacks = 124;
 export default function AdminDashboard() {
     const [collapsed, setCollapsed] = useState(false);
 
+    const navigate = useNavigate();
+
     return (
         <Layout style={{ minHeight: "100vh" }}>
             <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} theme="dark">
@@ -116,7 +120,8 @@ export default function AdminDashboard() {
                 </div>
 
                 <Menu theme="dark" mode="inline" defaultSelectedKeys={["dashboard"]}>
-                    <Menu.Item key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
+                    <Menu.Item onClick={() => navigate(RouteNames.DASHBOARD)} key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
+                    <Menu.Item onClick={() => navigate(RouteNames.STAFF_MANAGEMENT)} key="staff-management" icon={<DashboardOutlined />}>Quản lý nhân viên</Menu.Item>
                     <Menu.Item key="orders" icon={<ShoppingCartOutlined />}>Đơn hàng</Menu.Item>
                     <Menu.Item key="vaccine-schedule" icon={<CalendarOutlined />}>Lịch tiêm chủng</Menu.Item>
                     <Menu.Item key="customers" icon={<UserOutlined />}>Khách hàng</Menu.Item>

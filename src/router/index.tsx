@@ -6,8 +6,8 @@ import commonRoutes from "./commonRoutes";
 const router = createBrowserRouter([
   {
     path: "/",
-    //element: <ClientLayout />,
-    //children: [...clientRoutes],
+    // element: <ClientLayout />,
+    // children: [...clientRoutes],
     errorElement: <NotFound />,
   },
   {

@@ -4,6 +4,7 @@ import Login from "./Login";
 import Register from "./Register";
 import Home from "../clientRoutes/Home";
 import AdminDashboard from "../adminRoutes/Dashboard";
+import StaffManagement from "../adminRoutes/StaffManagement";
 //import ForgotPassword from "./ForgotPassword";
 
 const publicRoutes: RouteObject[] = [
@@ -22,6 +23,10 @@ const publicRoutes: RouteObject[] = [
     {
         path: RouteNames.DASHBOARD,
         element: <AdminDashboard />,
+    },
+    {
+        path: RouteNames.STAFF_MANAGEMENT,
+        element: <StaffManagement />,
     },
     //   {
     //     path: RouteNames.FORGOT_PASSWORD,

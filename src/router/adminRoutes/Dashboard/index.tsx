@@ -19,10 +19,13 @@ import {
     UserOutlined,
     ShoppingCartOutlined,
     CalendarOutlined,
+    TeamOutlined,
+    FileTextOutlined,
+    BarChartOutlined,
 } from "@ant-design/icons";
 import logo from "../../../assets/logo.png";
 import { CardContent } from "../../../components/ui/card";
-import { FaUserTie, FaSyringe, FaUserFriends, FaBaby, FaComments } from "react-icons/fa";
+import { FaUserTie, FaSyringe, FaUserFriends, FaBaby, FaComments, FaClipboardList } from "react-icons/fa";
 
 
 const { Header, Content, Sider } = Layout;
@@ -120,6 +123,9 @@ export default function AdminDashboard() {
                     <Menu.Item key="orders" icon={<ShoppingCartOutlined />}>Đơn hàng</Menu.Item>
                     <Menu.Item key="vaccine-schedule" icon={<CalendarOutlined />}>Lịch tiêm chủng</Menu.Item>
                     <Menu.Item key="customers" icon={<UserOutlined />}>Khách hàng</Menu.Item>
+                    <Menu.Item key="staff" icon={<TeamOutlined />}>Nhân viên</Menu.Item>
+                    <Menu.Item key="reports" icon={<FileTextOutlined />}>Báo cáo</Menu.Item>
+                    <Menu.Item key="analytics" icon={<BarChartOutlined />}>Thống kê</Menu.Item>
                 </Menu>
             </Sider>
 
@@ -170,12 +176,13 @@ export default function AdminDashboard() {
                             <Statistic title="Tổng Feedback" value={totalFeedbacks} />
                         </div>
                     </Card>
+
+                    <Card>
+                        <Statistic title="Tổng Báo Cáo" value={52} prefix={<FaClipboardList />} />
+                    </Card>
                 </div>
 
                 <Content style={{ padding: "24px" }}>
-
-
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <Card title="Thống kê doanh thu" style={{ textAlign: "center" }}>
                             <LineChart width={400} height={300} data={revenueData}>

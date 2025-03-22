@@ -21,18 +21,6 @@ const publicRoutes: RouteObject[] = [
         path: RouteNames.REGISTER,
         element: <Register />,
     },
-    {
-        path: RouteNames.ADMIN_DASHBOARD,
-        element: <AdminDashboard />,
-    },
-    {
-        path: RouteNames.STAFF_MANAGEMENT,
-        element: <StaffManagement />,
-    },
-    {
-        path: RouteNames.STAFF_DASHBOARD,
-        element: <StaffDashboard />,
-    }
     //   {
     //     path: RouteNames.FORGOT_PASSWORD,
     //     element: <ForgotPassword />,

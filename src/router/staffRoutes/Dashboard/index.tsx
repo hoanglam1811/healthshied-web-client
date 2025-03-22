@@ -1,11 +1,5 @@
 import { useState } from "react";
-import { Layout, Menu, Typography, Card, Table, Button, Badge, Calendar, Modal, Form, Input, Select, Tag, Checkbox } from "antd";
-import {
-    DashboardOutlined,
-    CalendarOutlined,
-    SolutionOutlined,
-} from "@ant-design/icons";
-import logo from "../../../assets/logo.png";
+import { Layout, Menu, Typography, Card, Table, Button, Badge, Calendar, Modal, Form, Input, Select, Tag, Checkbox, Row, Col } from "antd";
 import dayjs from "dayjs";
 
 const { Header, Content, Sider } = Layout;
@@ -76,121 +70,134 @@ export default function StaffDashboard() {
     };
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} theme="dark">
-                <div style={{ textAlign: "center", padding: collapsed ? "10px" : "20px" }}>
-                    <img
-                        src={logo}
-                        alt="Logo"
-                        style={{ width: collapsed ? "50px" : "80%", transition: "0.3s" }}
-                    />
-                </div>
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={["dashboard"]}>
-                    <Menu.Item key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
-                    <Menu.Item key="schedule" icon={<CalendarOutlined />}>Lịch làm việc</Menu.Item>
-                    <Menu.Item key="tasks" icon={<SolutionOutlined />}>Nhiệm vụ</Menu.Item>
-                </Menu>
-            </Sider>
-            <Layout>
-                <Header style={{ background: "#001529", padding: "0 16px", display: "flex", alignItems: "center" }}>
-                    <Title level={3} style={{ color: "white", margin: 0 }}>Dashboard Nhân viên</Title>
-                </Header>
-                <Content style={{ padding: "24px" }}>
-                    <Card title="Lịch làm việc" style={{ marginBottom: 16, backgroundColor: "#001F3F", borderRadius: 8 }} headStyle={{ color: "white" }}>
-                        <Calendar
-                            value={selectedDate}
-                            onSelect={(date) => {
-                                setSelectedDate(date);
-                                setPatients(appointmentsByDate[date.format("MM-DD-YYYY")] || []);
-                            }}
-                            dateCellRender={dateCellRender}
-                        />
-                    </Card>
 
-                    <Card
-                        title={`Danh sách bệnh nhân (${selectedDate.format("MM-DD-YYYY")})`}
-                        style={{ marginTop: 24, backgroundColor: "#001F3F", color: "white", borderRadius: 8 }}
-                        headStyle={{ color: "white" }}
+        <Layout>
+            <Header style={{ background: "#001529", padding: "0 16px", display: "flex", alignItems: "center" }}>
+                <Title level={3} style={{ color: "white", margin: 0 }}>Dashboard Nhân viên</Title>
+            </Header>
+            <Content style={{ padding: "24px" }}>
+                <Card title="Lịch làm việc" style={{ marginBottom: 16, backgroundColor: "#001F3F", borderRadius: 8 }} headStyle={{ color: "white" }}>
+                    <Calendar
+                        value={selectedDate}
+                        onSelect={(date) => {
+                            setSelectedDate(date);
+                            setPatients(appointmentsByDate[date.format("MM-DD-YYYY")] || []);
+                        }}
+                        dateCellRender={dateCellRender}
+                    />
+                </Card>
+
+                <Card
+                    title={`Danh sách bệnh nhân (${selectedDate.format("MM-DD-YYYY")})`}
+                    style={{ marginTop: 24, backgroundColor: "#001F3F", color: "white", borderRadius: 8 }}
+                    headStyle={{ color: "white" }}
+                >
+                    <Table
+                        dataSource={patients}
+                        pagination={{ pageSize: 5 }}
+                        rowKey="id"
+                        columns={[
+                            { title: "#", dataIndex: "id", key: "id" },
+                            { title: "Tên", dataIndex: "name", key: "name" },
+                            { title: "Vaccine", dataIndex: "vaccine", key: "vaccine" },
+                            { title: "Gói", dataIndex: "package", key: "package" },
+                            {
+                                title: "Trạng thái",
+                                dataIndex: "status",
+                                key: "status",
+                                render: (status: string) => (
+                                    <Tag color={status === "Đã tiêm" ? "green" : status === "Đã hủy" ? "red" : "orange"}>{status}</Tag>
+                                )
+                            },
+                            {
+                                title: "Xác nhận",
+                                key: "confirm",
+                                render: (_: any, record: Appointment) => (
+                                    <>
+                                        <Checkbox
+                                            checked={record.status === "Đã tiêm"}
+                                            onChange={(e) => handleStatusChange(record.id, e.target.checked, "approved")}
+                                        >
+                                            Đồng ý tiêm
+                                        </Checkbox>
+                                        <Checkbox
+                                            checked={record.status === "Đã hủy"}
+                                            onChange={(e) => handleStatusChange(record.id, e.target.checked, "canceled")}
+                                        >
+                                            Đã hủy
+                                        </Checkbox>
+                                    </>
+                                )
+                            },
+                            {
+                                title: "Thao tác",
+                                key: "action",
+                                render: (_: any, record: Appointment) => (
+                                    <Button onClick={() => openModal(record)} disabled={record.status !== "Đã tiêm"}>
+                                        Ghi nhận
+                                    </Button>
+                                )
+                            }
+                        ]}
+                    />
+                    <Modal
+                        title="Ghi nhận kết quả tiêm chủng"
+                        open={modalVisible}
+                        onOk={() => setModalVisible(false)}
+                        onCancel={() => setModalVisible(false)}
+                        width={700}
+                        centered
                     >
-                        <Table
-                            dataSource={patients}
-                            pagination={{ pageSize: 5 }}
-                            rowKey="id"
-                            columns={[
-                                { title: "#", dataIndex: "id", key: "id" },
-                                { title: "Tên", dataIndex: "name", key: "name" },
-                                { title: "Vaccine", dataIndex: "vaccine", key: "vaccine" },
-                                { title: "Gói", dataIndex: "package", key: "package" },
-                                {
-                                    title: "Trạng thái",
-                                    dataIndex: "status",
-                                    key: "status",
-                                    render: (status: string) => (
-                                        <Tag color={status === "Đã tiêm" ? "green" : status === "Đã hủy" ? "red" : "orange"}>{status}</Tag>
-                                    )
-                                },
-                                {
-                                    title: "Xác nhận",
-                                    key: "confirm",
-                                    render: (_: any, record: Appointment) => (
-                                        <>
-                                            <Checkbox
-                                                checked={record.status === "Đã tiêm"}
-                                                onChange={(e) => handleStatusChange(record.id, e.target.checked, "approved")}
-                                            >
-                                                Đồng ý tiêm
-                                            </Checkbox>
-                                            <Checkbox
-                                                checked={record.status === "Đã hủy"}
-                                                onChange={(e) => handleStatusChange(record.id, e.target.checked, "canceled")}
-                                            >
-                                                Đã hủy
-                                            </Checkbox>
-                                        </>
-                                    )
-                                },
-                                {
-                                    title: "Thao tác",
-                                    key: "action",
-                                    render: (_: any, record: Appointment) => (
-                                        <Button onClick={() => openModal(record)} disabled={record.status !== "Đã tiêm"}>
-                                            Ghi nhận
-                                        </Button>
-                                    )
-                                }
-                            ]}
-                        />
-                        <Modal
-                            title="Ghi nhận kết quả tiêm chủng"
-                            open={modalVisible}
-                            onOk={() => setModalVisible(false)}
-                            onCancel={() => setModalVisible(false)}
-                        >
-                            <Form layout="horizontal">
-                                <Form.Item label="Mã bệnh nhân">
-                                    <Input value={selectedPatient?.id} disabled />
-                                </Form.Item>
-                                <Form.Item label="Tên bệnh nhân">
-                                    <Input value={selectedPatient?.name} disabled />
-                                </Form.Item>
-                                <Form.Item label="Vaccine">
-                                    <Input value={selectedPatient?.vaccine} disabled />
-                                </Form.Item>
-                                <Form.Item label="Gói tiêm">
-                                    <Input value={selectedPatient?.package} disabled />
-                                </Form.Item>
-                                <Form.Item label="Người ghi nhận">
-                                    <Input value="Bác sĩ A" disabled />
-                                </Form.Item>
+                        <Card style={{ background: "#f9f9f9", borderRadius: 8, padding: "16px" }}>
+                            <Form layout="vertical">
+                                <Row gutter={[16, 16]}>
+                                    <Col span={12}>
+                                        <Form.Item label="Mã bệnh nhân">
+                                            <Input value={selectedPatient?.id} disabled style={{ color: "#000" }} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item label="Tên bệnh nhân">
+                                            <Input value={selectedPatient?.name} disabled style={{ color: "#000" }} />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
+                                <Row gutter={[16, 16]}>
+                                    <Col span={12}>
+                                        <Form.Item label="Vaccine">
+                                            <Input value={selectedPatient?.vaccine} disabled style={{ color: "#000" }} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item label="Gói tiêm">
+                                            <Input value={selectedPatient?.package} disabled style={{ color: "#000" }} />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
+                                <Row gutter={[16, 16]}>
+                                    <Col span={12}>
+                                        <Form.Item label="Người ghi nhận">
+                                            <Input value="Bác sĩ A" disabled style={{ color: "#000" }} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item label="Ngày tiêm">
+                                            <Input value={selectedPatient?.vaccinationDate} disabled style={{ color: "#000" }} />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
                                 <Form.Item label="Phản ứng sau tiêm">
                                     <Input.TextArea rows={4} placeholder="Nhập ghi chú về phản ứng sau tiêm..." />
                                 </Form.Item>
                             </Form>
-                        </Modal>
-                    </Card>
+                        </Card>
+                    </Modal>
+                </Card>
 
-                </Content>
-            </Layout>
+            </Content>
         </Layout>
     );
 }

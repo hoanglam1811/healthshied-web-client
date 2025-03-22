@@ -141,83 +141,60 @@ export default function VaccineManagement() {
     }, []);
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} theme="dark">
-                <div style={{ textAlign: "center", padding: collapsed ? "10px" : "20px" }}>
-                    <img
-                        src={logo}
-                        alt="Logo"
-                        style={{ width: collapsed ? "50px" : "80%", transition: "0.3s" }}
-                    />
-                    <Title level={4} style={{ color: "white", fontWeight: "bold", marginTop: 10 }}>Health Shield</Title>
-                </div>
+    <Layout>
+      <Header style={{ background: "#001529", padding: "0 16px", display: "flex", alignItems: "center" }}>
+        <Title level={3} style={{ color: "white", margin: 0 }}>Quản lý vaccine</Title>
+      </Header>
 
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={["vaccine-management"]}>
-                    <Menu.Item onClick={() => navigate(RouteNames.ADMIN_DASHBOARD)} key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
-                    <Menu.Item onClick={() => navigate(RouteNames.STAFF_MANAGEMENT)} key="staff-management" icon={<DashboardOutlined />}>Quản lý nhân viên</Menu.Item>
-                    <Menu.Item onClick={() => navigate(RouteNames.VACCINE_MANAGEMENT)} key="vaccine-management" icon={<DashboardOutlined />}>Quản lý vaccine</Menu.Item>
-                    <Menu.Item onClick={() => navigate(RouteNames.PACKAGE_MANAGEMENT)} key="package-management" icon={<DashboardOutlined />}>Quản lý gói</Menu.Item>
-                    <Menu.Item key="orders" icon={<ShoppingCartOutlined />}>Đơn hàng</Menu.Item>
-                    <Menu.Item key="vaccine-schedule" icon={<CalendarOutlined />}>Lịch tiêm chủng</Menu.Item>
-                    <Menu.Item key="customers" icon={<UserOutlined />}>Khách hàng</Menu.Item>
-                </Menu>
-            </Sider>
+      <CreateVaccineDialog
+        isModalOpen={isCreateModalOpen}
+        setIsModalOpen={setIsCreateModalOpen}
+        fetchVaccines={fetchVaccines}
+      />
 
-            <Layout>
-                <Header style={{ background: "#001529", padding: "0 16px", display: "flex", alignItems: "center" }}>
-                    <Title level={3} style={{ color: "white", margin: 0 }}>Quản lý vaccine</Title>
-                </Header>
+      <ConfirmDeleteVaccineModal
+        isModalOpen={isDeleteModalOpen}
+        setIsModalOpen={setIsDeleteModalOpen}
+        onConfirm={deleteVaccine}
+        deletingVaccineId={deletingVaccineId}
+        fetchVaccines={fetchVaccines}
+      />
 
-                <CreateVaccineDialog
-                  isModalOpen={isCreateModalOpen}
-                  setIsModalOpen={setIsCreateModalOpen}
-                  fetchVaccines={fetchVaccines}
-                />
+      <Content style={{ padding: "24px" }}>
+        <Card title="Danh sách vaccine"
+          extra={<Button type="primary" onClick={showModal}>
+            <FaPlus />
+            <span>Thêm vaccine</span>
+          </Button>}
+          style={{ marginTop: 24 }}>
+          <Table
+            dataSource={vaccines?.map((order:any) => ({ 
+              ...order,
+              price: order.price.toLocaleString("en-US", { style: "currency", currency: "USD" }),
+              action: (<>
+                <Link to={`${RouteNames.VACCINE_DETAIL.slice(0, RouteNames.VACCINE_DETAIL.lastIndexOf('/'))}/${order.id}`}>
+                  <Button type="primary">Xem</Button> 
+                </Link>
+                <Button onClick={() => {
+                  setDeletingVaccineId(order.id)
+                  setIsDeleteModalOpen(true)
+                }} style={{ background: "red", color: "white", marginLeft: "5px" }}>Xóa</Button> 
+              </>)
+            }))}
+            columns={[
+              { title: "Id", dataIndex: "id", key: "id" },
+              { title: "Tên", dataIndex: "name", key: "name" },
+              { title: "Mô tả", dataIndex: "description", key: "description" },
+              { title: "Độ tuổi khuyến nghị", dataIndex: "recommendedAgeRange", key: "recommendedAgeRange" },
+              { title: "Chống chỉ định", dataIndex: "contraindications", key: "contraindications" },
+              { title: "Giá tiền", dataIndex: "price", key: "price" },
+              { title: "Thao tác", dataIndex: "action", key: "action" },
+            ]}
+            pagination={{ pageSize: 5 }}
+          />
+        </Card>
 
-                <ConfirmDeleteVaccineModal
-                  isModalOpen={isDeleteModalOpen}
-                  setIsModalOpen={setIsDeleteModalOpen}
-                  onConfirm={deleteVaccine}
-                  deletingVaccineId={deletingVaccineId}
-                  fetchVaccines={fetchVaccines}
-                />
-
-                <Content style={{ padding: "24px" }}>
-                    <Card title="Danh sách vaccine"
-                      extra={<Button type="primary" onClick={showModal}>
-                        <FaPlus />
-                        <span>Thêm vaccine</span>
-                      </Button>}
-                      style={{ marginTop: 24 }}>
-                        <Table
-                            dataSource={vaccines?.map((order:any) => ({ 
-                              ...order,
-                              price: order.price.toLocaleString("en-US", { style: "currency", currency: "USD" }),
-                              action: (<>
-                                <Link to={`${RouteNames.VACCINE_DETAIL.slice(0, RouteNames.VACCINE_DETAIL.lastIndexOf('/'))}/${order.id}`}>
-                                  <Button type="primary">Xem</Button> 
-                                </Link>
-                                <Button onClick={() => {
-                                  setDeletingVaccineId(order.id)
-                                  setIsDeleteModalOpen(true)
-                                }} style={{ background: "red", color: "white", marginLeft: "5px" }}>Xóa</Button> 
-                              </>)
-                            }))}
-                            columns={[
-                                { title: "Id", dataIndex: "id", key: "id" },
-                                { title: "Tên", dataIndex: "name", key: "name" },
-                                { title: "Mô tả", dataIndex: "description", key: "description" },
-                                { title: "Độ tuổi khuyến nghị", dataIndex: "recommendedAgeRange", key: "recommendedAgeRange" },
-                                { title: "Chống chỉ định", dataIndex: "contraindications", key: "contraindications" },
-                                { title: "Giá tiền", dataIndex: "price", key: "price" },
-                                { title: "Thao tác", dataIndex: "action", key: "action" },
-                            ]}
-                            pagination={{ pageSize: 5 }}
-                        />
-                    </Card>
-
-                </Content>
-            </Layout>
-        </Layout>
+      </Content>
+    </Layout>
     );
 }

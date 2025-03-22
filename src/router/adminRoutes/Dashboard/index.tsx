@@ -110,30 +110,7 @@ export default function AdminDashboard() {
     const navigate = useNavigate();
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} theme="dark">
-                <div style={{ textAlign: "center", padding: collapsed ? "10px" : "20px" }}>
-                    <img
-                        src={logo}
-                        alt="Logo"
-                        style={{ width: collapsed ? "50px" : "80%", transition: "0.3s" }}
-                    />
-                    <Title level={4} style={{ color: "white", fontWeight: "bold", marginTop: 10 }}>Health Shield</Title>
-                </div>
-
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={["dashboard"]}>
-                    <Menu.Item onClick={() => navigate(RouteNames.ADMIN_DASHBOARD)} key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
-                    <Menu.Item onClick={() => navigate(RouteNames.STAFF_MANAGEMENT)} key="staff-management" icon={<DashboardOutlined />}>Quản lý nhân viên</Menu.Item>
-                    <Menu.Item onClick={() => navigate(RouteNames.VACCINE_MANAGEMENT)} key="vaccine-management" icon={<DashboardOutlined />}>Quản lý vaccine</Menu.Item>
-                    <Menu.Item onClick={() => navigate(RouteNames.PACKAGE_MANAGEMENT)} key="package-management" icon={<DashboardOutlined />}>Quản lý gói</Menu.Item>
-                    <Menu.Item key="orders" icon={<ShoppingCartOutlined />}>Đơn hàng</Menu.Item>
-                    <Menu.Item key="vaccine-schedule" icon={<CalendarOutlined />}>Lịch tiêm chủng</Menu.Item>
-                    <Menu.Item key="customers" icon={<UserOutlined />}>Khách hàng</Menu.Item>
-                    <Menu.Item key="staff" icon={<TeamOutlined />}>Nhân viên</Menu.Item>
-                    <Menu.Item key="reports" icon={<FileTextOutlined />}>Báo cáo</Menu.Item>
-                    <Menu.Item key="analytics" icon={<BarChartOutlined />}>Thống kê</Menu.Item>
-                </Menu>
-            </Sider>
+        
 
             <Layout>
                 <Header style={{ background: "#001529", padding: "0 16px", display: "flex", alignItems: "center" }}>
@@ -181,10 +158,6 @@ export default function AdminDashboard() {
                             <FaComments className="text-gray-500 text-3xl" />
                             <Statistic title="Tổng Feedback" value={totalFeedbacks} />
                         </div>
-                    </Card>
-
-                    <Card>
-                        <Statistic title="Tổng Báo Cáo" value={52} prefix={<FaClipboardList />} />
                     </Card>
                 </div>
 
@@ -266,10 +239,7 @@ export default function AdminDashboard() {
                             pagination={{ pageSize: 5 }}
                         />
                     </Card>
-
-
                 </Content>
             </Layout>
-        </Layout>
     );
 }

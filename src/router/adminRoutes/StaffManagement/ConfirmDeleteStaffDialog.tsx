@@ -1,16 +1,16 @@
-import { Modal } from "antd";
+import { Modal, notification } from "antd";
 import { useState } from "react";
 
-const ConfirmDeleteStaffModal = ({ 
-  isModalOpen, 
-  setIsModalOpen, 
+const ConfirmDeleteStaffModal = ({
+  isModalOpen,
+  setIsModalOpen,
   deletingStaffId,
   onConfirm,
   fetchStaffs
-}: { 
-  isModalOpen: boolean; 
-  setIsModalOpen: (open: boolean) => void; 
-  onConfirm: (id: number) => Promise<void>; 
+}: {
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  onConfirm: (id: number) => Promise<void>;
   deletingStaffId: any;
   fetchStaffs: any;
 }) => {
@@ -18,21 +18,29 @@ const ConfirmDeleteStaffModal = ({
 
   const handleDelete = async () => {
     setLoading(true);
-    await onConfirm(deletingStaffId); // Gọi hàm xóa
-    setLoading(false);
-    setIsModalOpen(false);
-    await fetchStaffs();
+    try {
+      await onConfirm(deletingStaffId);
+      notification.success({ message: "Delete successfully!" });
+      setIsModalOpen(false);
+      await fetchStaffs();
+    } catch (error) {
+      notification.error({
+        message: "Delete failed!",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Modal
       title="Xác nhận xóa"
       open={isModalOpen}
-      onOk={handleDelete} // Xử lý xóa với loading
+      onOk={handleDelete}
       onCancel={() => setIsModalOpen(false)}
       okText="Xóa"
       cancelText="Hủy"
-      okButtonProps={{ danger: true, loading }} // Nút "Xóa" có loading
+      okButtonProps={{ danger: true, loading }}
     >
       <p>Bạn có chắc muốn xóa nhân viên này không?</p>
     </Modal>

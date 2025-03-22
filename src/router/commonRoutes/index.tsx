@@ -6,6 +6,8 @@ import Home from "../clientRoutes/Home";
 import AdminDashboard from "../adminRoutes/Dashboard";
 import StaffManagement from "../adminRoutes/StaffManagement";
 import StaffDashboard from "../staffRoutes/Dashboard";
+import VaccineManagement from "../adminRoutes/VaccineManagement";
+import VaccineDetailView from "../adminRoutes/VaccineManagement/VaccineDetail";
 //import ForgotPassword from "./ForgotPassword";
 
 const publicRoutes: RouteObject[] = [
@@ -28,6 +30,14 @@ const publicRoutes: RouteObject[] = [
     {
         path: RouteNames.STAFF_MANAGEMENT,
         element: <StaffManagement />,
+    },
+    {
+        path: RouteNames.VACCINE_MANAGEMENT,
+        element: <VaccineManagement />,
+    },
+    {
+        path: RouteNames.VACCINE_DETAIL,
+        element: <VaccineDetailView />,
     },
     {
         path: RouteNames.STAFF_DASHBOARD,

@@ -23,6 +23,7 @@ const RouteNames = {
   ADMIN_CUSTOMER_MANAGEMENT: "/admin/customer-management",
   SKINCARE_QUIZ_MANAGEMENT: "/admin/skincare-quiz-management",
   STAFF_MANAGEMENT: "/admin/staff-management",
+  STAFF_DETAIL: "/admin/staff-management/:id",
   VACCINE_MANAGEMENT: "/admin/vaccine-management",
   VACCINE_DETAIL: "/admin/vaccine-management/:id",
   PACKAGE_MANAGEMENT: "/admin/package-management",

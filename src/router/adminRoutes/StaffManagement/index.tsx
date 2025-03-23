@@ -24,7 +24,7 @@ import logo from "../../../assets/logo.png";
 import { CardContent } from "../../../components/ui/card";
 import { FaUserTie, FaSyringe, FaUserFriends, FaBaby, FaComments, FaPlus } from "react-icons/fa";
 import RouteNames from "../../../constants/routeNames";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { deleteUser, getAllUsers } from "@/services/ApiServices/userService";
 import CreateStaffDialog from "./CreateStaffDialog";
 import ConfirmDeleteStaffModal from "./ConfirmDeleteStaffDialog";
@@ -168,7 +168,9 @@ export default function StaffManagement() {
             dataSource={staffs?.map((order: any) => ({
               ...order,
               action: (<>
-                <Button type="primary">Xem</Button>
+                <Link to={`${RouteNames.STAFF_DETAIL.slice(0, RouteNames.STAFF_DETAIL.lastIndexOf('/'))}/${order.id}`}>
+                  <Button type="primary">Xem</Button> 
+                </Link>
                 <Button onClick={() => {
                   setDeletingStaffId(order.id)
                   setIsDeleteModalOpen(true)

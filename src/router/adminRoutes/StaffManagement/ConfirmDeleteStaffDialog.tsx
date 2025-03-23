@@ -34,15 +34,15 @@ const ConfirmDeleteStaffModal = ({
 
   return (
     <Modal
-      title="Xác nhận xóa"
+      title="Delete confirmation"
       open={isModalOpen}
       onOk={handleDelete}
       onCancel={() => setIsModalOpen(false)}
-      okText="Xóa"
-      cancelText="Hủy"
+      okText="Delete"
+      cancelText="Cancel"
       okButtonProps={{ danger: true, loading }}
     >
-      <p>Bạn có chắc muốn xóa nhân viên này không?</p>
+      <p>Are you sure delete this staff?</p>
     </Modal>
   );
 };

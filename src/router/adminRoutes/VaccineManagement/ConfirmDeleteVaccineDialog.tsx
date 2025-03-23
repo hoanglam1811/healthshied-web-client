@@ -1,16 +1,16 @@
-import { Modal } from "antd";
+import { Modal, notification } from "antd";
 import { useState } from "react";
 
-const ConfirmDeleteVaccineModal = ({ 
-  isModalOpen, 
-  setIsModalOpen, 
+const ConfirmDeleteVaccineModal = ({
+  isModalOpen,
+  setIsModalOpen,
   deletingVaccineId,
   onConfirm,
   fetchVaccines
-}: { 
-  isModalOpen: boolean; 
-  setIsModalOpen: (open: boolean) => void; 
-  onConfirm: (id: number) => Promise<void>; 
+}: {
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  onConfirm: (id: number) => Promise<void>;
   deletingVaccineId: any;
   fetchVaccines: any;
 }) => {
@@ -18,7 +18,18 @@ const ConfirmDeleteVaccineModal = ({
 
   const handleDelete = async () => {
     setLoading(true);
-    await onConfirm(deletingVaccineId); // Gọi hàm xóa
+    try {
+      await onConfirm(deletingVaccineId);
+      notification.success({
+        message: "Delete Successful",
+        description: "The vaccine has been successfully deleted.",
+      });
+    } catch (error) {
+      notification.error({
+        message: "Delete Failed",
+        description: "An error occurred while deleting the vaccine.",
+      });
+    }
     setLoading(false);
     setIsModalOpen(false);
     await fetchVaccines();
@@ -26,15 +37,15 @@ const ConfirmDeleteVaccineModal = ({
 
   return (
     <Modal
-      title="Xác nhận xóa"
+      title="Delete Confirmation"
       open={isModalOpen}
-      onOk={handleDelete} // Xử lý xóa với loading
+      onOk={handleDelete}
       onCancel={() => setIsModalOpen(false)}
-      okText="Xóa"
-      cancelText="Hủy"
-      okButtonProps={{ danger: true, loading }} // Nút "Xóa" có loading
+      okText="Delete"
+      cancelText="Cancel"
+      okButtonProps={{ danger: true, loading }}
     >
-      <p>Bạn có chắc muốn xóa vaccine này không?</p>
+      <p>Are you sure you want to delete this vaccine?</p>
     </Modal>
   );
 };

@@ -8,7 +8,7 @@ const RouteNames = {
   NOT_FOUND: "/not-found",
   ADMIN_DASHBOARD: "/admin/dashboard",
   STAFF_DASHBOARD: "/staff/dashboard",
-  BEAUTY_BLOG: "/beauty-blog",
+  BLOG: "/blog",
   CART: "/cart",
   ACCOUNT: "/account",
   ACCOUNT_ORDERS: "/account/orders",
@@ -35,6 +35,7 @@ const RouteNames = {
   PAYMENT_NOT_FOUND: "/payment-not-found",
   ORDERS: "/admin/orders",
   VACCINE_SCHEDULE: "/admin/vaccine-schedule",
+  VACCINE_PACKAGE: "/admin/vaccine-package",
   CUSTOMERS: "/admin/customers",
 };
 

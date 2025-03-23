@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Modal, Button, Form, Input, InputNumber, notification } from "antd";
+import { Modal, Button, Form, Input, InputNumber, notification, Select } from "antd";
 import { createVaccine } from "@/services/ApiServices/vaccineService";
+
+const { Option } = Select;
 
 const CreateVaccineDialog = ({
   isModalOpen,
@@ -13,86 +15,151 @@ const CreateVaccineDialog = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [minAge, setMinAge] = useState<any | null>(null);
+  const [maxAge, setMaxAge] = useState<any | null>(null);
 
-  // Đóng Modal
   const handleCancel = () => {
     setIsModalOpen(false);
     form.resetFields();
   };
 
-  // Xử lý khi nhấn "Tạo vaccine"
   const handleCreate = async () => {
     form
       .validateFields()
       .then(async (values) => {
         setLoading(true);
-        console.log("Dữ liệu vaccine:", values);
-        await createVaccine(values);
-        setIsModalOpen(false);
-        form.resetFields();
+        console.log("Vaccine Data:", values);
+
+        const { minAge, maxAge } = values;
+        const recommendedAgeRange = `${minAge}-${maxAge}`;
+
+        try {
+          await createVaccine({ ...values, recommendedAgeRange });
+          notification.success({
+            message: "Vaccine Created Successfully",
+            description: `The vaccine "${values.name}" has been added.`,
+          });
+          setIsModalOpen(false);
+          form.resetFields();
+          await fetchVaccines();
+        } catch (error) {
+          notification.error({
+            message: "Failed to Create Vaccine",
+            description: "An error occurred while adding the vaccine. Please try again.",
+          });
+        }
+
         setLoading(false);
-        await fetchVaccines();
       })
       .catch((info) => {
-        console.log("Lỗi khi nhập dữ liệu:", info);
-        notification.error({ message: "Vui lòng kiểm tra lại thông tin!" });
+        console.log("Validation Error:", info);
+        notification.warning({ message: "Please check your input and try again!" });
       });
+  };
+
+
+  const handleMinAgeChange = (value: any) => {
+    setMinAge(value);
+    if (maxAge !== null && value >= maxAge) {
+      setMaxAge(null);
+      form.setFieldsValue({ maxAge: undefined });
+    }
+  };
+
+  const handleMaxAgeChange = (value: any) => {
+    setMaxAge(value);
+  };
+
+  const generateAgeOptions = () => {
+    return Array.from({ length: 101 }, (_, i) => (
+      <Option key={i} value={i}>
+        {i} years
+      </Option>
+    ));
   };
 
   return (
     <Modal
-      title="Thêm Vaccine Mới"
+      title="Add New Vaccine"
       open={isModalOpen}
       onCancel={handleCancel}
       onOk={handleCreate}
-      okText="Tạo Vaccine"
-      cancelText="Hủy"
+      okText="Create Vaccine"
+      cancelText="Cancel"
       confirmLoading={loading}
     >
       <Form form={form} layout="vertical">
         <Form.Item
-          label="Tên Vaccine"
+          label="Vaccine Name"
           name="name"
-          rules={[{ required: true, message: "Vui lòng nhập tên vaccine!" }]}
+          rules={[{ required: true, message: "Please enter the vaccine name!" }]}
         >
-          <Input placeholder="Nhập tên vaccine" />
+          <Input placeholder="Enter vaccine name" />
         </Form.Item>
 
         <Form.Item
-          label="Mô tả"
+          label="Description"
           name="description"
-          rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
+          rules={[{ required: true, message: "Please enter the description!" }]}
         >
-          <Input placeholder="Nhập mô tả" />
+          <Input.TextArea rows={4} placeholder="Enter detailed description" />
+        </Form.Item>
+
+        <Form.Item label="Recommended Age Range" required>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Form.Item
+              name="minAge"
+              rules={[{ required: true, message: "Select min age" }]}
+              style={{ flex: 1, marginBottom: 0 }}
+            >
+              <Select placeholder="Min Age" onChange={handleMinAgeChange}>
+                {generateAgeOptions()}
+              </Select>
+            </Form.Item>
+
+            <span>-</span>
+
+            <Form.Item
+              name="maxAge"
+              rules={[
+                { required: true, message: "Select max age" },
+                () => ({
+                  validator(_, value) {
+                    if (!value || minAge === null || value > minAge) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Max age must be greater than min age!"));
+                  },
+                }),
+              ]}
+              style={{ flex: 1, marginBottom: 0 }}
+            >
+              <Select placeholder="Max Age" onChange={handleMaxAgeChange} disabled={minAge === null}>
+                {generateAgeOptions().filter((option: any) => option.key > minAge)}
+              </Select>
+            </Form.Item>
+          </div>
         </Form.Item>
 
         <Form.Item
-          label="Độ tuổi khuyến nghị"
-          name="recommendedAgeRange"
-          rules={[{ required: true, message: "Vui lòng nhập độ tuổi khuyến nghị!" }]}
-        >
-          <Input placeholder="Nhập độ tuổi khuyến nghị" />
-        </Form.Item>
-
-        <Form.Item
-          label="Chống chỉ định"
+          label="Contraindications"
           name="contraindications"
-          rules={[{ required: true, message: "Vui lòng nhập chống chỉ định!" }]}
+          rules={[{ required: true, message: "Please enter contraindications!" }]}
         >
-          <Input placeholder="Nhập chống chỉ định" />
+          <Input placeholder="Enter contraindications" />
         </Form.Item>
 
         <Form.Item
-          label="Giá"
+          label="Price"
           name="price"
-          rules={[{ required: true, message: "Vui lòng nhập giá vaccine!" }]}
+          rules={[{ required: true, message: "Please enter the vaccine price!" }]}
         >
-          <InputNumber style={{ width: "100%" }} placeholder="Nhập giá vaccine" min={0} />
+          <InputNumber style={{ width: "100%" }} placeholder="Enter vaccine price" min={0} />
         </Form.Item>
       </Form>
     </Modal>
+
   );
 };
 
 export default CreateVaccineDialog;
-

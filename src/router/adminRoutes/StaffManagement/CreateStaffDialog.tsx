@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Modal, Button, Form, Input, Select, notification } from "antd";
 import { createUser } from "@/services/ApiServices/userService";
+import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -15,13 +16,13 @@ const CreateStaffDialog = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  // Đóng Modal
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleCancel = () => {
     setIsModalOpen(false);
-    form.resetFields(); // Reset form sau khi đóng
+    form.resetFields();
   };
 
-  // Xử lý khi nhấn "Tạo nhân viên"
   const handleCreate = async () => {
     form
       .validateFields()
@@ -37,6 +38,7 @@ const CreateStaffDialog = ({
         })
         setIsModalOpen(false);
         form.resetFields();
+        notification.error({ message: "Add staff successfully!" })
         setLoading(false);
         await fetchStaffs();
       })
@@ -49,70 +51,69 @@ const CreateStaffDialog = ({
   return (
     <>
       <Modal
-        title="Tạo nhân viên mới"
+        title="Add new Staff"
         open={isModalOpen}
         onCancel={handleCancel}
         onOk={handleCreate}
-        okText="Tạo nhân viên"
-        cancelText="Hủy"
+        okText="Add"
+        cancelText="Cancel"
         confirmLoading={loading}
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            label="Tên nhân viên"
+            label="Staff name"
             name="fullName"
-            rules={[{ required: true, message: "Vui lòng nhập tên nhân viên!" }]}
+            rules={[{ required: true, message: "Please enter name!" }]}
           >
-            <Input placeholder="Nhập tên nhân viên" />
+            <Input placeholder="Enter staff name" />
           </Form.Item>
 
           <Form.Item
             label="Email"
             name="email"
             rules={[
-              { required: true, message: "Vui lòng nhập email!" },
-              { type: "email", message: "Email không hợp lệ!" },
+              { required: true, message: "Please enter email!" },
+              { type: "email", message: "Email is not valid!" },
             ]}
           >
-            <Input placeholder="Nhập email" />
+            <Input placeholder="Enter staff email" />
           </Form.Item>
 
           <Form.Item
-            label="Số điện thoại"
+            label="Phone number"
             name="phone"
             rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
+              { required: true, message: "Please enter phone number!" },
               {
                 pattern: /^[0-9]{10,11}$/,
-                message: "Số điện thoại phải có 10-11 chữ số!",
+                message: "Phone number must be 10 numbers!",
               },
             ]}
           >
-            <Input placeholder="Nhập số điện thoại" />
+            <Input placeholder="Enter staff phone number" />
           </Form.Item>
 
           <Form.Item
-            label="Mật khẩu"
+            label="Password"
             name="password"
             rules={[
-              { required: true, message: "Vui lòng nhập mật khẩu!" },
-              { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+              { required: true, message: "Please enter password!" },
+              { min: 6, message: "Password must be at least 6 characters" },
             ]}
           >
-            <Input placeholder="Nhập mật khẩu" />
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter password"
+                style={{ flex: 1 }}
+              />
+              <Button
+                type="link"
+                onClick={() => setShowPassword(!showPassword)}
+                icon={showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+              />
+            </div>
           </Form.Item>
-
-          {/*<Form.Item
-            label="Chức vụ"
-            name="role"
-            rules={[{ required: true, message: "Vui lòng chọn chức vụ!" }]}
-          >
-            <Select placeholder="Chọn chức vụ">
-              <Option value="developer">Lập trình viên</Option>
-              <Option value="designer">Thiết kế</Option>
-              <Option value="manager">Quản lý</Option>
-            </Select>
-          </Form.Item>*/}
         </Form>
       </Modal>
     </>

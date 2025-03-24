@@ -4,7 +4,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import logo from "@/assets/logo.png";
 import RouteNames from '@/constants/routeNames';
 import { CalendarOutlined, DashboardOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
-import { FaBlog, FaBlogger, FaFileImage } from 'react-icons/fa';
+import { FaBlog, FaBlogger, FaComment, FaFileImage } from 'react-icons/fa';
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -35,6 +35,7 @@ const AdminLayout = () => {
                     <Menu.Item onClick={() => navigate(RouteNames.VACCINE_SCHEDULE)} key="vaccine-schedule" icon={<CalendarOutlined />}>Vaccine Schedule</Menu.Item>
                     <Menu.Item onClick={() => navigate(RouteNames.ORDERS)} key="orders" icon={<ShoppingCartOutlined />}>Orders</Menu.Item>
                     <Menu.Item onClick={() => navigate(RouteNames.BLOG_MANAGEMENT)} key="blog" icon={<FaFileImage />}>Blog</Menu.Item>
+                    <Menu.Item onClick={() => navigate(RouteNames.FEEDBACK_MANAGEMENT)} key="feedback" icon={<FaComment />}>Feedback</Menu.Item>
                 </Menu>
             </Sider>
             <Outlet />

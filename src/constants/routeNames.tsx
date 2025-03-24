@@ -37,6 +37,8 @@ const RouteNames = {
   VACCINE_SCHEDULE: "/admin/vaccine-schedule",
   VACCINE_PACKAGE: "/admin/vaccine-package",
   CUSTOMERS: "/admin/customers",
+  FEEDBACK_MANAGEMENT: "/admin/feedback-management",
+  VACCINE_PACKAGE_DETAIL: "/admin/vaccine-package-management:/id"
 };
 
 export default RouteNames;

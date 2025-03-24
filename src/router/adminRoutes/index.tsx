@@ -7,6 +7,7 @@ import VaccineManagement from "./VaccineManagement";
 import VaccineDetailView from "./VaccineManagement/VaccineDetail";
 import BlogManagement from "./BlogManagement";
 import AdminOrderManagement from "./OrderManagement";
+import FeedbackManagement from "./FeedbackManagement";
 
 const publicRoutes: RouteObject[] = [
     {
@@ -40,6 +41,10 @@ const publicRoutes: RouteObject[] = [
     {
         path: RouteNames.VACCINE_PACKAGE,
         element: <AdminOrderManagement />,
+    },
+    {
+        path: RouteNames.FEEDBACK_MANAGEMENT,
+        element: <FeedbackManagement />,
     }
     //   {
     //     path: RouteNames.FORGOT_PASSWORD,

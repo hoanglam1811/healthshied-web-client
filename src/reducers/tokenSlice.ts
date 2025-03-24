@@ -3,7 +3,7 @@ import parseJwt from '../services/parseJwt';
 
 type User = {
     aud: string,
-    username: string,
+    fullName: string,
     email: string,
     exp: number,
     iat: number,
@@ -32,7 +32,10 @@ const tokenSlice = createSlice({
     },
     removeToken(state) {
       localStorage.removeItem('token');
+      localStorage.removeItem('avatar');
       state.token = null;
+      state.user = null;
+      state.avatar = null;
     },
     setUser(state, action) {
       state.user = action.payload;
@@ -42,7 +45,9 @@ const tokenSlice = createSlice({
     removeUser(state) {
       state.user = null;
       localStorage.removeItem('token');
+      localStorage.removeItem('avatar');
       state.avatar = null;
+      state.token = null;
     },
     setAvatar(state, action) {
       localStorage.setItem('avatar', action.payload);

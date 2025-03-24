@@ -1,10 +1,11 @@
-import { RouteObject } from "react-router-dom";
+import { Navigate, RouteObject } from "react-router-dom";
 import RouteNames from "../../constants/routeNames";
 import AdminDashboard from "../adminRoutes/Dashboard";
 import StaffManagement from "../adminRoutes/StaffManagement";
 import CustomerManagement from "./CustomerManagement";
 import VaccineManagement from "./VaccineManagement";
 import VaccineDetailView from "./VaccineManagement/VaccineDetail";
+import StaffDetailView from "./StaffManagement/StaffDetail";
 import BlogManagement from "./BlogManagement";
 import AdminOrderManagement from "./OrderManagement";
 import FeedbackManagement from "./FeedbackManagement";
@@ -17,6 +18,10 @@ const publicRoutes: RouteObject[] = [
     {
         path: RouteNames.STAFF_MANAGEMENT,
         element: <StaffManagement />,
+    },
+    {
+        path: RouteNames.STAFF_DETAIL,
+        element: <StaffDetailView />,
     },
     {
         path: RouteNames.VACCINE_MANAGEMENT,
@@ -61,8 +66,8 @@ const privateRoutes: RouteObject[] = [
 
 const adminRoutes: RouteObject[] = [
     {
-        // path: "/",
-        // element: <Navigate to={RouteNames.HOME} replace />,
+        path: "/admin",
+        element: <Navigate to={RouteNames.ADMIN_DASHBOARD} replace />,
     },
     ...publicRoutes,
 ];

@@ -6,12 +6,14 @@ import AdminLayout from "@/layout/AdminLayout";
 import adminRoutes from "./adminRoutes";
 import StaffLayout from "@/layout/StaffLayout";
 import staffRoutes from "./staffRoutes";
+import CustomerLayout from "@/layout/CustomerLayout";
+import clientRoutes from "./clientRoutes";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    // element: <ClientLayout />,
-    // children: [...clientRoutes],
+    element: <CustomerLayout />,
+    children: [...clientRoutes],
     errorElement: <NotFound />,
   },
   {
@@ -20,11 +22,13 @@ const router = createBrowserRouter([
     errorElement: <NotFound />,
   },
   {
+    path: "/admin",
     element: <AdminLayout />,
     children: [...adminRoutes],
     errorElement: <NotFound />,
   },
   {
+    path: "/staff",
     element: <StaffLayout />,
     children: [...staffRoutes],
     errorElement: <NotFound />,

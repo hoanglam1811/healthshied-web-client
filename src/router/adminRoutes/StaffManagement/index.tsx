@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Layout, Menu, Table, Button, Tag, Card, Typography } from "antd";
 import { FaPlus } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { deleteUser, getAllUsers } from "@/services/ApiServices/userService";
 import CreateStaffDialog from "./CreateStaffDialog";
 import ConfirmDeleteStaffModal from "./ConfirmDeleteStaffDialog";
+import RouteNames from "@/constants/routeNames";
 
 
 const { Header, Content, Sider } = Layout;
@@ -78,7 +79,9 @@ export default function StaffManagement() {
             dataSource={staffs?.map((order: any) => ({
               ...order,
               action: (<>
-                <Button type="primary">Details</Button>
+                <Link to={`${RouteNames.STAFF_DETAIL.slice(0, RouteNames.STAFF_DETAIL.lastIndexOf('/'))}/${order.id}`}>
+                  <Button type="primary">Details</Button> 
+                </Link>
                 <Button onClick={() => {
                   setDeletingStaffId(order.id)
                   setIsDeleteModalOpen(true)

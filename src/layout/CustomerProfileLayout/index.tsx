@@ -7,7 +7,7 @@ import RouteNames from '@/constants/routeNames';
 
 const { Sider, Content, Header } = Layout;
 
-const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
+const ProfileLayout = ({ children }: { children?: React.ReactNode }) => {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
 

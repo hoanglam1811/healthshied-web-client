@@ -99,7 +99,7 @@ const AccountAppointments = () => {
     ];
 
     return (
-        <ProfileLayout>
+        <>
             <Card title={<Title level={3}><CalendarOutlined /> My Appointments</Title>} className="max-w-5xl mx-auto mt-8 shadow-lg">
                 <Input
                     prefix={<SearchOutlined />}
@@ -132,7 +132,7 @@ const AccountAppointments = () => {
                     </>
                 )}
             </Modal>
-        </ProfileLayout>
+        </>
     );
 };
 

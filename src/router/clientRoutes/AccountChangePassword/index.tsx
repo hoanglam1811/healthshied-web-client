@@ -34,7 +34,7 @@ const ChangePassword = () => {
     };
 
     return (
-        <ProfileLayout>
+        <>
             <div className="grid grid-cols-3">
                 <div></div>
 
@@ -84,7 +84,7 @@ const ChangePassword = () => {
                 <div></div>
             </div>
 
-        </ProfileLayout>
+        </>
     );
 };
 

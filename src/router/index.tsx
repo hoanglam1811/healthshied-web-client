@@ -12,7 +12,6 @@ import clientRoutes from "./clientRoutes";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <CustomerLayout />,
     children: [...clientRoutes],
     errorElement: <NotFound />,
   },

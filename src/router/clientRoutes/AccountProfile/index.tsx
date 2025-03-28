@@ -59,7 +59,7 @@ const CustomerProfile = () => {
     }, [userToken]);
 
     return (
-        <ProfileLayout>
+        <>
             <div className="w-full flex justify-center">
                 <div className="w-4xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
                     <Card className="w-full shadow-lg rounded-lg p-6 bg-white">
@@ -151,7 +151,7 @@ const CustomerProfile = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-        </ProfileLayout>
+        </>
     );
 };
 

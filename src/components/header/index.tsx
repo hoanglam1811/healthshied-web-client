@@ -234,7 +234,7 @@ const Header = () => {
                             && (
                                 <>
 
-                                    <li
+                                    {/* <li
                                         className="mr-5"
                                         style={{ position: "relative", cursor: "pointer" }}
                                         onMouseEnter={handleMouseEnter}
@@ -257,16 +257,16 @@ const Header = () => {
                                                 </span>
                                             )}
                                         </Link>
-                                    </li>
+                                    </li> */}
                                 </>
                             )}
                         {user?.role === RoleNames.STAFF && (
                             <>
-                                <li><Link to={RouteNames.PRODUCTS_MANAGEMENT}>{navigation.PRODUCTS_MANAGEMENT}</Link></li>
+                                {/* <li><Link to={RouteNames.PRODUCTS_MANAGEMENT}>{navigation.PRODUCTS_MANAGEMENT}</Link></li>
                                 <li><Link to={RouteNames.TAGS_MANAGEMENT}>{navigation.TAGS_MANAGEMENT}</Link></li>
                                 <li><Link to={RouteNames.CATEGORIES_MANAGEMENT}>{navigation.CATEGORIES_MANAGEMENT}</Link></li>
                                 <li><Link to={RouteNames.BRANDS_MANAGEMENT}>{navigation.BRANDS_MANAGEMENT}</Link></li>
-                                <li><Link to={RouteNames.SKIN_TYPES_MANAGEMENT}>{navigation.SKIN_TYPES_MANAGEMENT}</Link></li>
+                                <li><Link to={RouteNames.SKIN_TYPES_MANAGEMENT}>{navigation.SKIN_TYPES_MANAGEMENT}</Link></li> */}
                             </>
                         )}
                         {user && <li className="mr-5">
@@ -302,7 +302,7 @@ const Header = () => {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </li>}
-                        
+
                         {!user && <li className="mr-5 flex gap-3">
                             <Link to={RouteNames.LOGIN} className="flex items-center text-gray-700 hover:text-blue-600 transition">
                                 <span className="text-gray-700">Login</span>

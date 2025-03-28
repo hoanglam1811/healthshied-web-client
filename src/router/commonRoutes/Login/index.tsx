@@ -2,16 +2,11 @@ import React, { useState, useEffect } from 'react';
 import LoginImage from "../../../assets/Login.png";
 import LoginnImage from "../../../assets/Loginn.png";
 import { Link, useNavigate } from 'react-router-dom';
-import { Input, notification } from 'antd';
+import { notification } from 'antd';
 import { useDispatch } from 'react-redux';
 import { setToken, setUser } from '../../../reducers/tokenSlice';
 import parseJwt from '../../../services/parseJwt';
-import RouteNames from '../../../constants/routeNames';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import { Box, Button, Flex, IconButton, Image, InputGroup, Text, VStack } from '@chakra-ui/react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Eye, EyeOff } from 'lucide-react';
 import { login } from '../../../services/ApiServices/authenticationService';
 
 const Login = () => {
@@ -22,11 +17,9 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const dispatch = useDispatch();
-    const [securePassword, setSecurePassword] = useState(true);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -36,7 +29,6 @@ const Login = () => {
     }, []);
 
     const handleLoginSubmit = async () => {
-        // Kiểm tra nếu email hoặc password trống
         if (!email.trim()) {
             notification.error({ message: "Email is required!" });
             return;

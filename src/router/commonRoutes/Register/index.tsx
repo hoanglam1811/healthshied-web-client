@@ -117,14 +117,14 @@ const Register = () => {
                         width: "100%",
                         maxWidth: "380px",
                         borderRadius: "12px",
-                        padding: "40px",
+                        padding: "10px",
                         textAlign: "center",
                         position: "relative",
                         animation: "fadeIn 1s ease-in-out",
                     }}
                 >
-                    <h1 className='font-bold' style={{ color: "#578a3f", marginBottom: "50px" }}>
-                        Register to Health Shield
+                    <h1 className='font-bold' style={{ color: "#578a3f", marginBottom: "40px" }}>
+                        Health Shield Register
                     </h1>
 
                     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>

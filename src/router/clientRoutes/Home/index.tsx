@@ -12,7 +12,7 @@ const CustomArrow = ({ className, style, onClick, direction }: any) => {
         ...style,
         fontSize: "24px",
         color: "black",
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
         borderRadius: "50%",
         width: "40px",
         height: "40px",
@@ -90,20 +90,20 @@ const Home = () => {
                 <Carousel style={{ height: "100%" }} arrows
                   prevArrow={<CustomArrow direction="left" />}
                   nextArrow={<CustomArrow direction="right" />}
-                  autoplay={{dotDuration: true}}
-                  dots={{className: "custom-dots"}}
+                  autoplay={{ dotDuration: true }}
+                  dots={{ className: "custom-dots" }}
                 >
                   <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo" className="max-h-[300px]"/>
+                    <img src={logo} alt="Logo" className="max-h-[300px]" />
                   </div>
                   <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo"  className="max-h-[300px]"/>
+                    <img src={logo} alt="Logo" className="max-h-[300px]" />
                   </div>
                   <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo"  className="max-h-[300px]"/>
+                    <img src={logo} alt="Logo" className="max-h-[300px]" />
                   </div>
                   <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo"  className="max-h-[300px]"/>
+                    <img src={logo} alt="Logo" className="max-h-[300px]" />
                   </div>
                 </Carousel>
               </div>
@@ -113,34 +113,14 @@ const Home = () => {
               </Card>
             </div>
 
-            <div className="grid grid-cols-4 gap-4 items-center !px-[50px] !mt-3">
-              <div className="flex gap-3 !border-r !border-black !border-dashed text-left">
-                <img src={logo} alt="Logo" className="w-3" />
-                <div>
-                  <div className="!font-bold !text-md">Always safe GSP</div>
-                  <div className="!text-sm">Vaccine always safe with quality...</div>
-                </div>
-              </div>
-              <div className="flex gap-3 !border-r !border-black !border-dashed text-left">
-                <img src={logo} alt="Logo" className="w-3" />
-                <div>
-                  <div className="!font-bold !text-md">Always safe GSP</div>
-                  <div className="!text-sm">Vaccine always safe with quality...</div>
-                </div>
-              </div>
-              <div className="flex gap-3 !border-r !border-black !border-dashed text-left">
-                <img src={logo} alt="Logo" className="w-3" />
-                <div>
-                  <div className="!font-bold !text-md">Always safe GSP</div>
-                  <div className="!text-sm">Vaccine always safe with quality...</div>
-                </div>
-              </div>   
-              <div className="flex gap-3 text-left">
-                <img src={logo} alt="Logo" className="w-3" />
-                <div>
-                  <div className="!font-bold !border-black !text-md">Always safe GSP</div>
-                  <div className="!text-sm">Vaccine always safe with quality...</div>
-                </div>
+            <div className="container mx-auto py-8">
+              <div className="grid grid-cols-4 gap-6 text-center">
+                {["An toàn GSP", "Đội ngũ chuyên gia", "Nguồn gốc rõ ràng", "Dịch vụ tận tâm"].map((title, index) => (
+                  <div key={index} className="border-r last:border-r-0 pr-4">
+                    <img src={logo} alt="Icon" className="mx-auto w-12 mb-2" />
+                    <div className="font-semibold">{title}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -163,7 +143,7 @@ const Home = () => {
         </Card>
       </div>
     </Content>
-    )
+  )
 }
 
 export default Home;

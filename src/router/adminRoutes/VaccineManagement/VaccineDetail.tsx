@@ -56,18 +56,6 @@ const VaccineDetailView = () => {
     }
   };
 
-  const handleMinAgeChange = (value: any) => {
-    setMinAge(value);
-    if (maxAge !== null && value >= maxAge) {
-      setMaxAge(null);
-      form.setFieldsValue({ maxAge: undefined });
-    }
-  };
-
-  const handleMaxAgeChange = (value: any) => {
-    setMaxAge(value);
-  };
-
   const generateAgeOptions = () => {
     return Array.from({ length: 101 }, (_, i) => (
       <Option key={i} value={i}>

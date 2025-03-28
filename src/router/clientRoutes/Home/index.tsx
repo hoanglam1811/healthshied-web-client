@@ -2,6 +2,7 @@ import { AndroidOutlined, LeftCircleOutlined, LeftOutlined, RightCircleOutlined,
 import { Breadcrumb, Card, Carousel, theme } from "antd";
 import { Content } from "antd/es/layout/layout";
 import logo from "@/assets/logo.png";
+import { HeartIcon } from "lucide-react";
 
 const CustomArrow = ({ className, style, onClick, direction }: any) => {
   return (
@@ -32,20 +33,19 @@ const Home = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
     return (
-    <Content>
+    <Content style={{ minHeight: "85vh" }}>
       <div style={{ background: "url('https://cdn.tiemchunglongchau.com.vn/unsafe/1920x0/filters:quality(90):format(webp)/HEADER_BANNER_f8b8df36f0.png')",
         padding: '0 48px',
-        minHeight: "30vh",
+        minHeight: "85vh",
         backgroundSize: "100% 100%", /* Stretches the background to fully cover the element */
         backgroundRepeat: "no-repeat",
         backgroundPosition: "0% 0%"
       }}>
-        <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-        </Breadcrumb>
+        {/* <Breadcrumb style={{ margin: '16px 0' }}> */}
+        {/*   <Breadcrumb.Item>Home</Breadcrumb.Item> */}
+        {/* </Breadcrumb> */}
         <div
           style={{
-
             minHeight: 280,
             padding: 24,
             borderRadius: borderRadiusLG,
@@ -147,8 +147,20 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div>
 
+      <div>
+        <h3 className="!text-3xl !font-bold !text-black !mb-3">
+          What vaccine should I get
+          <span className="!text-3xl !font-bold !text-orange-500 underline !ml-2">this season
+          </span>
+          <HeartIcon className="!text-3xl !inline-block !text-orange-500 !ml-2" />
+        </h3>
+
+        <Card className="!px-[10%]">
+          Bảo vệ bản thân khỏi sốt xuất huyết Dengue thế nào?
+          Bảo vệ bản thân khỏi sốt xuất huyết Dengue thế nào?
+          Sốt xuất huyết Dengue là bệnh truyền nhiễm cấp tính do virus Dengue gây ra, lây truyền qua vết đốt của muỗi vằn Aedes. Bệnh có thể gây sốt cao, đau đầu, đau cơ, buồn nôn, nôn, phát ban và có thể dẫn đến các biến chứng nguy hiểm như xuất huyết, sốc, suy tạng, thậm chí tử vong. Hiện nay, vắc xin Qdenga là loại vắc xin sống, giảm độc lực được sử dụng để phòng ngừa bệnh sốt xuất huyết, dành cho trẻ từ 4 tuổi và người lớn. Tiêm phòng vắc xin là biện pháp hiệu quả giúp bảo vệ sức khỏe cho bạn và cộng đồng.
+        </Card>
       </div>
     </Content>
     )

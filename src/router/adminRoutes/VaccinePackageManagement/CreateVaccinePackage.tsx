@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Input, InputNumber, notification, Select } from "antd";
+import { createVaccinePackage, getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
+import { getAllVaccines } from "@/services/ApiServices/vaccineService";
 
 const { Option } = Select;
 
@@ -19,8 +21,8 @@ const CreateVaccinePackageDialog = ({
     useEffect(() => {
         const fetchVaccines = async () => {
             try {
-                //const response = await getAllVaccines();
-                //setVaccines(response.vaccines);
+                const response = await getAllVaccines();
+                setVaccines(response.vaccines);
             } catch (error) {
                 console.error("Failed to fetch vaccines:", error);
             }
@@ -39,11 +41,22 @@ const CreateVaccinePackageDialog = ({
             .then(async (values) => {
                 setLoading(true);
                 try {
-                    //await createVaccinePackage(values);
+                    const payload = {
+                        request: {
+                            name: values.name,
+                            description: values.description,
+                            price: values.price,
+                        },
+                        vaccineIds: values.vaccineIds,
+                    };
+    
+                    await createVaccinePackage(payload);
+                    
                     notification.success({
                         message: "Vaccine Package Created Successfully",
                         description: `The package "${values.name}" has been added.`,
                     });
+    
                     setIsModalOpen(false);
                     form.resetFields();
                     await fetchVaccinePackages();
@@ -58,7 +71,7 @@ const CreateVaccinePackageDialog = ({
             .catch(() => {
                 notification.warning({ message: "Please check your input and try again!" });
             });
-    };
+    };    
 
     return (
         <Modal

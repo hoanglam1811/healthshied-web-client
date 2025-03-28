@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import RouteNames from '@/constants/routeNames';
 import { removeToken } from '@/reducers/tokenSlice';
+import { useState } from 'react';
 
 const CustomerLayout = () => {
   const token = useSelector((state: RootState) => state.token.token);
@@ -21,9 +22,13 @@ const CustomerLayout = () => {
 
   const userDropdown = [
     {
-      key: '1',
-      label: 'Profile',
-      icon: <UserOutlined />
+      key: "1",
+      label: (
+        <Link to={RouteNames.ACCOUNT}>
+          Profile
+        </Link>
+      ),
+      icon: <UserOutlined />,
     },
     {
       key: '2',
@@ -33,6 +38,8 @@ const CustomerLayout = () => {
       icon: <LogoutOutlined />
     },
   ]
+
+  const [hovered, setHovered] = useState<"login" | "register" | null>(null);
 
   return (
     <div>
@@ -65,25 +72,53 @@ const CustomerLayout = () => {
               <span className="">Call Hotline: +84 999 999 999</span>
             </Button>
           </div>
+
           <div>
-            {!token && <Link to={RouteNames.LOGIN}>
-              <Button className="!rounded-[35px] !h-[40px]"
-                style={{ background: "rgb(255,49,49)" }}
-                type="primary"
-                icon={<UserOutlined />}>
-                Login / Register
-              </Button>
-            </Link>}
-            {token &&
-              <Dropdown menu={{ items: userDropdown }}>
-                <Button className="!rounded-[35px] !h-[40px]"
+            {!token ? (
+              <Link to={hovered === "register" ? RouteNames.REGISTER : RouteNames.LOGIN}>
+                <Button
+                  className="!rounded-[35px] !h-[40px]"
                   style={{ background: "rgb(255,49,49)" }}
                   type="primary"
-                  icon={<UserOutlined />}>
+                  icon={<UserOutlined />}
+                >
+                  <span
+                    onMouseEnter={() => setHovered("login")}
+                    onMouseLeave={() => setHovered(null)}
+                    style={{
+                      textDecoration: hovered === "login" ? "underline" : "none",
+                      cursor: "pointer",
+                      marginRight: 4,
+                    }}
+                  >
+                    Login
+                  </span>
+                  /
+                  <span
+                    onMouseEnter={() => setHovered("register")}
+                    onMouseLeave={() => setHovered(null)}
+                    style={{
+                      textDecoration: hovered === "register" ? "underline" : "none",
+                      cursor: "pointer",
+                      marginLeft: 4,
+                    }}
+                  >
+                    Register
+                  </span>
+                </Button>
+              </Link>
+            ) : (
+              <Dropdown menu={{ items: userDropdown }}>
+                <Button
+                  className="!rounded-[35px] !h-[40px]"
+                  style={{ background: "rgb(255,49,49)" }}
+                  type="primary"
+                  icon={<UserOutlined />}
+                >
                   {user?.fullName}
                 </Button>
               </Dropdown>
-            }
+            )}
           </div>
         </div>
       </Header>

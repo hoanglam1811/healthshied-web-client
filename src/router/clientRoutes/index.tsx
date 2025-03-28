@@ -2,6 +2,8 @@ import { Navigate, RouteObject } from "react-router-dom";
 import RouteNames from "../../constants/routeNames";
 import Home from "./Home";
 import AccountProfile from "./AccountProfile";
+import ChangePassword from "./AccountChangePassword";
+import AccountAppointments from "./AccountAppointments";
 
 const publicRoutes: RouteObject[] = [
   {
@@ -10,7 +12,15 @@ const publicRoutes: RouteObject[] = [
   },
   {
     path: RouteNames.ACCOUNT,
-    element: <AccountProfile/>,
+    element: <AccountProfile />,
+  },
+  {
+    path: RouteNames.ACCOUNT_CHANGE_PASSWORD,
+    element: <ChangePassword />,
+  },
+  {
+    path: RouteNames.ACCOUNT_APPOINTMENTS,
+    element: <AccountAppointments />,
   }
 ];
 

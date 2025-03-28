@@ -1,39 +1,37 @@
 import { useEffect, useState } from "react";
-import { Card, Avatar, Typography, Button, List, Modal, Form, Input, Select, Divider, notification } from "antd";
+import { Card, Avatar, Typography, Button, List, Modal, Form, Input, Select, Divider, notification, Tabs } from "antd";
 import { UserOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import axios from "axios";
 import { createChild, deleteChild, getChildrenByCustomerId } from "@/services/ApiServices/childService";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import ProfileLayout from "@/layout/CustomerProfileLayout";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const ParentChildProfile = () => {
+const CustomerProfile = () => {
     const userToken = useSelector((state: RootState) => state.token.user);
     const [user, setUser] = useState<any>(null);
     const [children, setChildren] = useState<any>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form] = Form.useForm();
+    const [activeTab, setActiveTab] = useState<string>("0");
 
     console.log(userToken)
 
-    // useEffect(() => {
-    //     fetchChildren(user.id);
-    // }, [user.id]);
-
-    // const fetchChildren = async (userId: any) => {
-    //     try {
-    //         const response = await getChildrenByCustomerId(userId);
-    //         setChildren(response.children);
-    //     } catch (error) {
-    //         notification.error({ message: "Error", description: "Failed to fetch child information." });
-    //     }
-    // };
+    const fetchChildren = async (userId: any) => {
+        try {
+            const response = await getChildrenByCustomerId(userId);
+            setChildren(response.children);
+        } catch (error) {
+            notification.error({ message: "Error", description: "Failed to fetch child information." });
+        }
+    };
 
     const handleAddChild = async (values: any) => {
         try {
-            const response = await createChild({ ...values, customerId: user.id });
+            const response = await createChild({ ...values, userId: user.id });
             setChildren([...children, response]);
             notification.success({ message: "Success", description: "Child added successfully!" });
             setIsModalOpen(false);
@@ -53,58 +51,70 @@ const ParentChildProfile = () => {
         }
     };
 
+    useEffect(() => {
+        if (userToken) {
+            setUser(userToken);
+            fetchChildren(userToken.id);
+        }
+    }, [userToken]);
+
     return (
-        <div className="p-8 max-w-8xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
-            {/* Parent Info */}
-            <Card className="w-1/2 shadow-lg rounded-lg p-6 bg-white">
-                <div className="flex items-center gap-4">
-                    <Avatar size={80} icon={<UserOutlined />} className="bg-blue-500" />
-                    <div>
-                        <Title level={3} className="text-gray-700">John Doe</Title>
-                        <Text>Email: john.doe@example.com</Text><br />
-                        <Text>Phone: 123-456-7890</Text>
-                    </div>
-                </div>
-            </Card>
-
-            {/* Children Info */}
-            <Card className="w-1/2 shadow-lg rounded-lg p-6 bg-white">
-                <div className="flex justify-between items-center mb-4">
-                    <Title level={3} className="text-gray-800">Children</Title>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>Add Child</Button>
-                </div>
-                <List
-                    dataSource={children}
-                    renderItem={(child: any) => (
-                        <Card className="mb-4 shadow-md rounded-lg p-4 bg-gray-50">
-                            <Title level={4}>{child.fullName}</Title>
-                            <Text>Birthday: {child.birthday}</Text><br />
-                            <Text>Gender: {child.gender}</Text>
-                            <Divider />
-                            <Title level={5}>Allergies</Title>
-                            {child.allergies.length > 0 ? (
-                                <List
-                                    size="small"
-                                    dataSource={child.allergies}
-                                    renderItem={(allergy: any) => (
-                                        <List.Item>
-                                            <Text strong>{allergy.name}</Text>: {allergy.description || "No details"}
-                                        </List.Item>
-                                    )}
-                                />
-                            ) : (
-                                <Text>No known allergies</Text>
-                            )}
-                            <div className="flex gap-2 mt-2">
-                                <Button icon={<EditOutlined />} onClick={() => { }}>Edit</Button>
-                                <Button danger icon={<DeleteOutlined />} onClick={() => handleDeleteChild(child.id)}>Delete</Button>
+        <ProfileLayout>
+            <div className="w-full flex justify-center">
+                <div className="w-4xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
+                    <Card className="w-full shadow-lg rounded-lg p-6 bg-white">
+                        <div className="flex items-center gap-4 text-left">
+                            <Avatar size={80} icon={<UserOutlined />} className="bg-blue-500" />
+                            <div>
+                                <Title level={3} className="text-gray-700">{user?.fullName}</Title>
+                                <Text>Email: {user?.email}</Text><br />
+                                <Text>Status: {user?.status}</Text>
                             </div>
-                        </Card>
-                    )}
-                />
-            </Card>
+                        </div>
 
-            {/* Add/Edit Child Modal */}
+                        <div className="flex justify-between items-center !mt-10 mb-4">
+                            <Title level={3} className="text-gray-800">Children</Title>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>Add Child</Button>
+                        </div>
+
+                        {children.length > 0 ? (
+                            <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
+                                {children.map((child: any, index: any) => (
+                                    <Tabs.TabPane tab={<b>{child.fullName}</b>} key={String(index)}>
+                                        <Card className="shadow-md rounded-lg p-4 bg-gray-50">
+                                            <Title level={4}>{child.fullName}</Title>
+                                            <Text>Birthday: {dayjs(child.birthday).format("MM/DD/YYYY")}</Text>
+                                            <br />
+                                            <Text>Gender: {child.gender}</Text>
+                                            <Divider />
+                                            <Title level={5}>Allergies</Title>
+                                            {child?.allergies?.length > 0 ? (
+                                                <List
+                                                    size="small"
+                                                    dataSource={child.allergies}
+                                                    renderItem={(allergy: any) => (
+                                                        <List.Item>
+                                                            <Text strong>{allergy.name}</Text>: {allergy.description || "No details"}
+                                                        </List.Item>
+                                                    )}
+                                                />
+                                            ) : (
+                                                <Text>No known allergies</Text>
+                                            )}
+                                            <div className="flex justify-end gap-2 mt-4">
+                                                <Button icon={<EditOutlined />} onClick={() => { }}>Edit</Button>
+                                                <Button danger icon={<DeleteOutlined />} onClick={() => handleDeleteChild(child.id)}>Delete</Button>
+                                            </div>
+                                        </Card>
+                                    </Tabs.TabPane>
+                                ))}
+                            </Tabs>
+                        ) : (
+                            <Text>No children found</Text>
+                        )}
+                    </Card>
+                </div>
+            </div>
             <Modal title="Add New Child" open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => form.submit()}>
                 <Form form={form} layout="vertical" onFinish={handleAddChild}>
                     <Form.Item name="fullName" label="Full Name" rules={[{ required: true, message: "Please enter the child's name" }]}>
@@ -141,8 +151,8 @@ const ParentChildProfile = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-        </div>
+        </ProfileLayout>
     );
 };
 
-export default ParentChildProfile;
+export default CustomerProfile;

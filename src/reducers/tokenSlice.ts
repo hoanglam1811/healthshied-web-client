@@ -7,7 +7,7 @@ type User = {
     email: string,
     exp: number,
     iat: number,
-    userId: string,
+    id: string,
     iss: string,
     jti: string,
     nbf: number,

@@ -1,3 +1,4 @@
+import { deleteVaccinePackage } from "@/services/ApiServices/vaccinePackageService";
 import { Modal, notification } from "antd";
 import { useState } from "react";
 
@@ -17,22 +18,24 @@ const ConfirmDeleteVaccinePackageModal = ({
     const [loading, setLoading] = useState(false);
 
     const handleDelete = async () => {
+        if (!deletingPackageId) return;
         setLoading(true);
         try {
-            //await onConfirm(deletingVaccineId);
+            await deleteVaccinePackage(deletingPackageId);
             notification.success({
                 message: "Delete Successful",
-                description: "The vaccine has been successfully deleted.",
+                description: "The vaccine package has been successfully deleted.",
             });
+            await fetchVaccinePackages();
         } catch (error) {
             notification.error({
                 message: "Delete Failed",
-                description: "An error occurred while deleting the vaccine.",
+                description: "An error occurred while deleting the vaccine package.",
             });
+        } finally {
+            setLoading(false);
+            setIsModalOpen(false);
         }
-        setLoading(false);
-        setIsModalOpen(false);
-        await fetchVaccinePackages();
     };
 
     return (

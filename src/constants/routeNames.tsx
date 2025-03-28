@@ -11,6 +11,7 @@ const RouteNames = {
   BLOG: "/blog",
   CART: "/cart",
   ACCOUNT: "/account",
+  ACCOUNT_APPOINTMENTS: "/account/appointments",
   ACCOUNT_ORDERS: "/account/orders",
   ACCOUNT_CHANGE_PASSWORD: "/account/change-password",
   PAYMENT: "/cart/payment",
@@ -24,9 +25,6 @@ const RouteNames = {
   SKINCARE_QUIZ_MANAGEMENT: "/admin/skincare-quiz-management",
   STAFF_MANAGEMENT: "/admin/staff-management",
   STAFF_DETAIL: "/admin/staff-management/:id",
-  VACCINE_MANAGEMENT: "/admin/vaccine-management",
-  VACCINE_DETAIL: "/admin/vaccine-management/:id",
-  PACKAGE_MANAGEMENT: "/admin/package-management",
   BLOG_MANAGEMENT: "/admin/blog-management",
   BLOG_DETAILS: "blog-details/:id",
   PAYMENT_SUCCESS: "/payment-success",
@@ -35,11 +33,14 @@ const RouteNames = {
   PAYMENT_RETURN: "/vnpay-return",
   PAYMENT_NOT_FOUND: "/payment-not-found",
   ORDERS: "/admin/orders",
-  VACCINE_SCHEDULE: "/admin/vaccine-schedule",
-  VACCINE_PACKAGE: "/admin/vaccine-package",
   CUSTOMERS: "/admin/customers",
   FEEDBACK_MANAGEMENT: "/admin/feedback-management",
-  VACCINE_PACKAGE_DETAIL: "/admin/vaccine-package-management:/id"
+  VACCINE_PACKAGE: "/vaccine-package",
+  VACCINE_MANAGEMENT: "/admin/vaccine-management",
+  VACCINE_DETAIL_MANAGEMENT: "/admin/vaccine-management/:id",
+  VACCINE_PACKAGE_MANAGEMENT: "/admin/vaccine-package-management",
+  VACCINE_PACKAGE_DETAIL_MANAGEMENT: "/admin/vaccine-package-management/:id",
+  VACCINE_SCHEDULE: "/admin/vaccine-schedule",
 };
 
 export default RouteNames;

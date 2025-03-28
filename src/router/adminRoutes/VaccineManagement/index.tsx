@@ -107,7 +107,7 @@ export default function VaccineManagement() {
                 render: (_: any, order: any) => (
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     <Link
-                      to={`${RouteNames.VACCINE_DETAIL.slice(0, RouteNames.VACCINE_DETAIL.lastIndexOf('/'))}/${order.id}`}
+                      to={`${RouteNames.VACCINE_DETAIL_MANAGEMENT.slice(0, RouteNames.VACCINE_DETAIL_MANAGEMENT.lastIndexOf('/'))}/${order.id}`}
                     >
                       <Button type="primary" block>Details</Button>
                     </Link>

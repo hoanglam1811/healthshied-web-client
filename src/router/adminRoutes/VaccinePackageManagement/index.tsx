@@ -5,6 +5,7 @@ import RouteNames from "../../../constants/routeNames";
 import { Link } from "react-router-dom";
 import CreateVaccinePackageDialog from "./CreateVaccinePackage";
 import ConfirmDeleteVaccinePackageModal from "./ConfirmDeleteVaccinePackageDialog";
+import { deleteVaccinePackage, getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -14,32 +15,35 @@ export default function VaccinePackageManagement() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deletingPackageId, setDeletingPackageId] = useState<any>(null);
     const [vaccinePackages, setVaccinePackages] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
 
     const fetchVaccinePackages = async () => {
+        setLoading(true);
         try {
-            //const response = await getAllVaccinePackages();
-            //setVaccinePackages(response.packages);
+            const response = await getAllVaccinePackages();
+            setVaccinePackages(response.packages);
         } catch (error) {
             console.error("Fetching vaccine packages failed:", error);
         }
+        setLoading(false);
     };
 
-    const vaccinePackageDelete = async (id: number) => {
+    const handleDeleteVaccinePackage = async (id: number) => {
         try {
-            //await deleteVaccinePackage(id);
+            await deleteVaccinePackage(id);
             fetchVaccinePackages();
         } catch (error) {
             console.error("Delete failed:", error);
         }
     };
 
-    const showModal = () => {
-        setIsCreateModalOpen(true);
-    };
-
     useEffect(() => {
         fetchVaccinePackages();
     }, []);
+
+    const showModal = () => {
+        setIsCreateModalOpen(true);
+    };
 
     return (
         <Layout>
@@ -56,7 +60,7 @@ export default function VaccinePackageManagement() {
             <ConfirmDeleteVaccinePackageModal
                 isModalOpen={isDeleteModalOpen}
                 setIsModalOpen={setIsDeleteModalOpen}
-                onConfirm={vaccinePackageDelete}
+                onConfirm={handleDeleteVaccinePackage}
                 deletingPackageId={deletingPackageId}
                 fetchVaccinePackages={fetchVaccinePackages}
             />
@@ -104,7 +108,7 @@ export default function VaccinePackageManagement() {
                                 render: (_: any, pkg: any) => (
                                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                         <Link
-                                            to={`${RouteNames.VACCINE_PACKAGE_DETAIL}/${pkg.id}`}
+                                            to={`${RouteNames.VACCINE_PACKAGE_DETAIL_MANAGEMENT.slice(0, RouteNames.VACCINE_PACKAGE_DETAIL_MANAGEMENT.lastIndexOf('/'))}/${pkg.id}`}
                                         >
                                             <Button type="primary" block>Details</Button>
                                         </Link>

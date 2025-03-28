@@ -9,6 +9,8 @@ import StaffDetailView from "./StaffManagement/StaffDetail";
 import BlogManagement from "./BlogManagement";
 import AdminOrderManagement from "./OrderManagement";
 import FeedbackManagement from "./FeedbackManagement";
+import VaccinePackageManagement from "./VaccinePackageManagement";
+import VaccinePackageDetailView from "./VaccinePackageManagement/VaccinePackageDetail";
 
 const publicRoutes: RouteObject[] = [
     {
@@ -28,7 +30,7 @@ const publicRoutes: RouteObject[] = [
         element: <VaccineManagement />,
     },
     {
-        path: RouteNames.VACCINE_DETAIL,
+        path: RouteNames.VACCINE_DETAIL_MANAGEMENT,
         element: <VaccineDetailView />,
     },
     {
@@ -44,8 +46,12 @@ const publicRoutes: RouteObject[] = [
         element: <AdminOrderManagement />,
     },
     {
-        path: RouteNames.VACCINE_PACKAGE,
-        element: <AdminOrderManagement />,
+        path: RouteNames.VACCINE_PACKAGE_MANAGEMENT,
+        element: <VaccinePackageManagement />,
+    },
+    {
+        path: RouteNames.VACCINE_PACKAGE_DETAIL_MANAGEMENT,
+        element: <VaccinePackageDetailView />,
     },
     {
         path: RouteNames.FEEDBACK_MANAGEMENT,

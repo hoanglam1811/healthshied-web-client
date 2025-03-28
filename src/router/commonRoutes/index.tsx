@@ -8,6 +8,7 @@ import StaffManagement from "../adminRoutes/StaffManagement";
 import StaffDashboard from "../staffRoutes/Dashboard";
 import VaccineManagement from "../adminRoutes/VaccineManagement";
 import VaccineDetailView from "../adminRoutes/VaccineManagement/VaccineDetail";
+import CustomerProfile from "../clientRoutes/AccountProfile";
 //import ForgotPassword from "./ForgotPassword";
 
 const publicRoutes: RouteObject[] = [
@@ -22,6 +23,10 @@ const publicRoutes: RouteObject[] = [
     {
         path: RouteNames.REGISTER,
         element: <Register />,
+    },
+    {
+        path: RouteNames.ACCOUNT,
+        element: <CustomerProfile />,
     },
     //   {
     //     path: RouteNames.FORGOT_PASSWORD,

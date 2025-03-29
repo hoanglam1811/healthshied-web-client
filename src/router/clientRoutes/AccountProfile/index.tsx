@@ -61,7 +61,7 @@ const CustomerProfile = () => {
     return (
         <>
             <div className="w-full flex justify-center">
-                <div className="w-4xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
+                <div className="w-5xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
                     <Card className="w-full shadow-lg rounded-lg p-6 bg-white">
                         <div className="flex items-center gap-4 text-left">
                             <Avatar size={80} icon={<UserOutlined />} className="bg-blue-500" />

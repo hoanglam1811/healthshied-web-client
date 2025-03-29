@@ -1,7 +1,7 @@
-import { Layout, Menu } from 'antd';
+import { Button, Layout, Menu } from 'antd';
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { UserOutlined, LockOutlined, CalendarOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, CalendarOutlined, HomeOutlined } from '@ant-design/icons';
 import logo from '@/assets/logo.png';
 import RouteNames from '@/constants/routeNames';
 
@@ -62,7 +62,36 @@ const ProfileLayout = ({ children }: { children?: React.ReactNode }) => {
             </Sider>
 
             <Layout>
-                <Header style={{ background: "#fff", padding: 0 }}>User Profile</Header>
+                <Header
+                    style={{
+                        background: "#fff",
+                        padding: "0 16px",
+                        display: "flex",
+                        alignItems: "center",
+                        position: "relative"
+                    }}
+                >
+                    <Button
+                        type="primary"
+                        icon={<HomeOutlined />}
+                        onClick={() => navigate("/")}
+                        style={{ position: "absolute", left: 16, zIndex: 999 }}
+                    >
+                        Back to Home
+                    </Button>
+                    <div style={{
+                        width: "100%",
+                        textAlign: "center",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        position: "absolute",
+                        left: "50%",
+                        transform: "translateX(-50%)"
+                    }}>
+                        User Profile
+                    </div>
+
+                </Header>
                 <Content style={{ margin: "16px" }}>
                     {children || <Outlet />}
                 </Content>

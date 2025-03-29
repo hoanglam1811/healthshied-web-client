@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, Table, Tag, Button, Modal, Typography, Input, Space } from "antd";
+import { Card, Table, Tag, Button, Modal, Typography, Input, Space, List } from "antd";
 import { SearchOutlined, CalendarOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons";
 import ProfileLayout from "@/layout/CustomerProfileLayout";
 
@@ -13,6 +13,9 @@ const data = [
         doctor: "Dr. John Smith",
         status: "Confirmed",
         description: "Regular vaccination check-up for your child.",
+        vaccines: ["Hepatitis B", "Influenza"],
+        vaccinePackages: ["Basic Immunization Package"],
+        totalPrice: 120.0,
     },
     {
         id: 2,
@@ -21,6 +24,9 @@ const data = [
         doctor: "Dr. Emily Johnson",
         status: "Pending",
         description: "Follow-up appointment for allergy testing.",
+        vaccines: ["Measles", "Polio"],
+        vaccinePackages: ["Child Safety Package"],
+        totalPrice: 150.0,
     },
     {
         id: 3,
@@ -29,6 +35,9 @@ const data = [
         doctor: "Dr. Michael Lee",
         status: "Cancelled",
         description: "Vaccination booster shot appointment.",
+        vaccines: [],
+        vaccinePackages: [],
+        totalPrice: 0,
     },
     {
         id: 4,
@@ -37,6 +46,9 @@ const data = [
         doctor: "Dr. Sarah Wilson",
         status: "Confirmed",
         description: "Routine health check-up for your child.",
+        vaccines: ["Tetanus", "Diphtheria"],
+        vaccinePackages: ["Full Protection Package"],
+        totalPrice: 180.0,
     },
 ];
 
@@ -86,6 +98,11 @@ const AccountAppointments = () => {
             },
         },
         {
+            title: "Total Price",
+            dataIndex: "totalPrice",
+            render: (price: number) => <Text strong>${price.toFixed(2)}</Text>,
+        },
+        {
             title: "Actions",
             render: (record: any) => (
                 <Space>
@@ -100,38 +117,66 @@ const AccountAppointments = () => {
 
     return (
         <>
-            <Card title={<Title level={3}><CalendarOutlined /> My Appointments</Title>} className="max-w-5xl mx-auto mt-8 shadow-lg">
-                <Input
-                    prefix={<SearchOutlined />}
-                    placeholder="Search appointments..."
-                    onChange={(e) => setSearchText(e.target.value)}
-                    style={{ marginBottom: 16 }}
-                />
-                <Table
-                    columns={columns}
-                    dataSource={appointments?.filter((a) => a.doctor.toLowerCase().includes(searchText.toLowerCase()))}
-                    rowKey="id"
-                    loading={loading}
-                />
-            </Card>
-            <Modal
-                title="Appointment Details"
-                open={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
-                footer={null}
-            >
-                {selectedAppointment && (
-                    <>
-                        <Text strong>Date & Time:</Text> <Text>{`${selectedAppointment.date} ${selectedAppointment.time}`}</Text>
-                        <br />
-                        <Text strong>Doctor:</Text> <Text>{selectedAppointment.doctor}</Text>
-                        <br />
-                        <Text strong>Status:</Text> <Tag>{selectedAppointment.status}</Tag>
-                        <br />
-                        <Text strong>Description:</Text> <Text>{selectedAppointment.description}</Text>
-                    </>
-                )}
-            </Modal>
+            <div className="w-full flex justify-center">
+                <div className="w-5xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
+                    <Card title={<Title className="!mt-6 !mb-6" level={3}><CalendarOutlined /> My Appointments</Title>} className="w-full shadow-lg rounded-lg p-6 bg-white">
+                        <Input
+                            prefix={<SearchOutlined />}
+                            placeholder="Search appointments..."
+                            onChange={(e) => setSearchText(e.target.value)}
+                            style={{ marginBottom: 16 }}
+                        />
+                        <Table
+                            columns={columns}
+                            dataSource={appointments?.filter((a) => a.doctor.toLowerCase().includes(searchText.toLowerCase()))}
+                            rowKey="id"
+                            loading={loading}
+                        />
+                    </Card>
+                    <Modal
+                        title="Appointment Details"
+                        open={isModalVisible}
+                        onCancel={() => setIsModalVisible(false)}
+                        footer={null}
+                    >
+                        {selectedAppointment && (
+                            <>
+                                <Text strong>Date & Time:</Text> <Text>{`${selectedAppointment.date} ${selectedAppointment.time}`}</Text>
+                                <br />
+                                <Text strong>Doctor:</Text> <Text>{selectedAppointment.doctor}</Text>
+                                <br />
+                                <Text strong>Status:</Text> <Tag>{selectedAppointment.status}</Tag>
+                                <br />
+                                <Text strong>Description:</Text> <Text>{selectedAppointment.description}</Text>
+                                <br />
+                                <Text strong>Vaccines:</Text>
+                                {selectedAppointment.vaccines.length > 0 ? (
+                                    <List
+                                        size="small"
+                                        dataSource={selectedAppointment.vaccines}
+                                        renderItem={(vaccine: any) => <List.Item>- {vaccine}</List.Item>}
+                                    />
+                                ) : (
+                                    <Text> None</Text>
+                                )}
+                                <br />
+                                <Text strong>Vaccine Packages:</Text>
+                                {selectedAppointment.vaccinePackages.length > 0 ? (
+                                    <List
+                                        size="small"
+                                        dataSource={selectedAppointment.vaccinePackages}
+                                        renderItem={(pkg: any) => <List.Item>- {pkg}</List.Item>}
+                                    />
+                                ) : (
+                                    <Text> None</Text>
+                                )}
+                                <br />
+                                <Text strong>Total Price:</Text> <Text strong style={{ color: "#1890ff" }}>${selectedAppointment.totalPrice.toFixed(2)}</Text>
+                            </>
+                        )}
+                    </Modal>
+                </div>
+            </div>
         </>
     );
 };

@@ -35,11 +35,9 @@ const ChangePassword = () => {
 
     return (
         <>
-            <div className="grid grid-cols-3">
-                <div></div>
-
-                <div className="flex items-center justify-center">
-                    <Card title="Change Password" className="max-w-2xl mx-auto mt-8 shadow-lg">
+            <div className="w-full flex justify-center">
+                <div className="w-5xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
+                    <Card title="Change Password" className="w-full shadow-lg rounded-lg p-6 bg-white">
                         <Form layout="vertical" onFinish={handleChangePassword}>
                             <Form.Item
                                 label="Old Password"
@@ -81,9 +79,7 @@ const ChangePassword = () => {
                         </Form>
                     </Card>
                 </div>
-                <div></div>
             </div>
-
         </>
     );
 };

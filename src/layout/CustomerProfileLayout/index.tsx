@@ -28,7 +28,7 @@ const ProfileLayout = ({ children }: { children?: React.ReactNode }) => {
                     overflow: 'auto',
                 }}
             >
-                <div style={{ textAlign: 'center', padding: collapsed ? '10px' : '20px' }}>
+                <div onClick={() => navigate(RouteNames.HOME)} style={{ textAlign: 'center', padding: collapsed ? '10px' : '20px' }}>
                     <img
                         src={logo}
                         alt="Logo"

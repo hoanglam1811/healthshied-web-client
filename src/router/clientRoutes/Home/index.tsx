@@ -2,6 +2,11 @@ import { AndroidOutlined, ArrowRightOutlined, EnvironmentOutlined, LeftCircleOut
 import { Breadcrumb, Button, Card, Carousel, DatePicker, Form, Input, notification, Radio, Select, Spin, Table, Tabs, theme, Typography } from "antd";
 import { Content } from "antd/es/layout/layout";
 import logo from "@/assets/logo.png";
+import home1 from "@/assets/home1.png";
+import home2 from "@/assets/home2.png";
+import home3 from "@/assets/home3.png";
+import home4 from "@/assets/home4.png";
+import home5 from "@/assets/home5.png";
 import { HeartIcon, LightbulbIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getChildrenByCustomerId } from "@/services/ApiServices/childService";
@@ -10,6 +15,7 @@ import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import { getUserById } from "@/services/ApiServices/userService";
 import { getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
+import { Link } from "react-router-dom";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -183,31 +189,59 @@ const Home = () => {
             borderRadius: borderRadiusLG,
           }}
         >
-          <div className="grid grid-cols-6 gap-4">
-            <Card>
-              <img src={logo} alt="Logo" />
-              What vaccine should I get
-            </Card>
-            <Card>
-              <img src={logo} alt="Logo" />
-              Vaccine List
-            </Card>
-            <Card>
-              <img src={logo} alt="Logo" />
-              Blogs
-            </Card>
-            <Card>
-              <img src={logo} alt="Logo" />
-              Blogs
-            </Card>
-            <Card>
-              <img src={logo} alt="Logo" />
-              Vaccine List
-            </Card>
-            <Card>
-              <img src={logo} alt="Logo" />
-              Vaccine List
-            </Card>
+          <div className="grid grid-cols-5 gap-4">
+            <Link to="#">
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+                <div>
+                  <div className="!w-full !flex !justify-center">
+                    <img src={home1} alt="Logo" />
+                  </div>
+                  What vaccine should I get
+                </div>
+              </Card>
+            </Link>
+            <Link to="#">
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+                <div>
+                  <div className="!w-full !flex !justify-center">
+                    <img src={home2} alt="Logo" />
+                  </div>
+                  Chat with doctor
+                </div>
+              </Card>
+            </Link>
+            <Link to="#">
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+                <div>
+                  <div className="!w-full !flex !justify-center">
+                    <img src={home3} alt="Logo" />
+                  </div>
+                  Vaccine List
+                </div>
+              </Card>
+            </Link>
+
+            <Link to="#">
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+                <div>
+                  <div className="!w-full !flex !justify-center">
+                    <img src={home4} alt="Logo" />
+                  </div>
+                  Package List
+                </div>
+              </Card>
+            </Link>
+
+            <Link to="#">
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+                <div>
+                  <div className="!w-full !flex !justify-center">
+                    <img src={home5} alt="Logo" />
+                  </div>
+                  Blogs
+                </div>
+              </Card>
+            </Link>
           </div>
           <div style={{
             background: colorBgContainer,

@@ -4,8 +4,9 @@ import { UserOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-d
 import { createChild, deleteChild, getChildrenByCustomerId } from "@/services/ApiServices/childService";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import ProfileLayout from "@/layout/CustomerProfileLayout";
 import dayjs from "dayjs";
+import { createAllergy } from "@/services/ApiServices/allergyService";
+import { createChildAllergy } from "@/services/ApiServices/childAllergyService";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -32,14 +33,33 @@ const CustomerProfile = () => {
     const handleAddChild = async (values: any) => {
         try {
             const response = await createChild({ ...values, userId: user.id });
+            const childId = response.id;
+
+            if (values.allergies && values.allergies.length > 0) {
+                for (const allergy of values.allergies) {
+                    const newAllergy = await createAllergy({
+                        name: allergy.name,
+                        description: allergy.description,
+                    });
+
+                    await createChildAllergy({
+                        childId,
+                        allergyId: newAllergy.id,
+                        status: "Active"
+                    });
+                }
+            }
+
             setChildren([...children, response]);
+
             notification.success({ message: "Success", description: "Child added successfully!" });
             setIsModalOpen(false);
             form.resetFields();
         } catch (error) {
-            notification.error({ message: "Error", description: "Failed to add child." });
+            notification.error({ message: "Error", description: "Failed to add child and allergies." });
         }
     };
+
 
     const handleDeleteChild = async (childId: any) => {
         try {
@@ -144,7 +164,7 @@ const CustomerProfile = () => {
                                             <Button onClick={() => remove(name)} danger>X</Button>
                                         </div>
                                     ))}
-                                    <Button type="dashed" onClick={() => add()} block>Add Allergy</Button>
+                                    <Button onClick={() => add()} block>Add Allergy</Button>
                                 </div>
                             )}
                         </Form.List>

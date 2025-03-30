@@ -1,76 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Button, Form, Input, Upload, notification, Card, Image } from "antd";
 import { PlusOutlined, UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import BlogList from "./BlogList";
-
-const sampleBlogs = [
-    {
-        id: 1,
-        title: "The Importance of Childhood Vaccination",
-        content: [
-            {
-                type: "text",
-                value: "Vaccines are essential in protecting children from life-threatening diseases...",
-                images: ["https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/https://cms-prod.s3-sgn09.fptcloud.com/PAP_02151_e4ca7d1e57.jpg"]
-            }
-        ]
-    },
-    {
-        id: 2,
-        title: "Common Myths About Vaccination – Debunked!",
-        content: [
-            {
-                type: "text",
-                value: "There are many myths about vaccines, such as the claim that they cause autism...",
-                images: ["https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/https://cms-prod.s3-sgn09.fptcloud.com/tiem_cum_va_nao_mo_cau_cung_luc_duoc_khong_quy_trinh_tiem_phong_cum_va_nao_mo_cau_2_9dc1d097de.jpg"]
-            }
-        ]
-    },
-    {
-        id: 3,
-        title: "Recommended Vaccines for Children Under 5",
-        content: [
-            {
-                type: "text",
-                value: "Children under 5 should receive vaccines such as DTaP, MMR, and polio...",
-                images: ["https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/https://cms-prod.s3-sgn09.fptcloud.com/tiem_cum_va_nao_mo_cau_cung_luc_duoc_khong_quy_trinh_tiem_phong_cum_va_nao_mo_cau_3_790243f65b.jpg"]
-            }
-        ]
-    },
-    {
-        id: 4,
-        title: "How to Prepare Your Child for Vaccination",
-        content: [
-            {
-                type: "text",
-                value: "To help your child feel comfortable during vaccination, talk to them about the process...",
-                images: ["https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/https://cms-prod.s3-sgn09.fptcloud.com/tiem_vac_xin_soi_o_dau_tai_huyen_hoc_mon_dia_chi_gia_tiem_phong_nhu_the_nao_3_46f20421d7.jpg"]
-            }
-        ]
-    },
-    {
-        id: 5,
-        title: "What to Do After Your Child Gets Vaccinated?",
-        content: [
-            {
-                type: "text",
-                value: "Mild fever or soreness is normal after vaccination. Ensure your child stays hydrated...",
-                images: ["https://cdn.nhathuoclongchau.com.vn/unsafe/800x0/https://cms-prod.s3-sgn09.fptcloud.com/tiem_vac_xin_soi_o_dau_tai_quan_8_dia_chi_gia_tiem_phong_2_3661376e1a.png"]
-            }
-        ]
-    }
-];
+import { createBlog, deleteBlog, getAllBlogs } from "@/services/ApiServices/blogService";
 
 const BlogManagement = () => {
     const [blogs, setBlogs] = useState<any>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const [form] = Form.useForm();
     const [contentBlocks, setContentBlocks] = useState<any>([]);
 
+    useEffect(() => {
+        fetchBlogs();
+    }, []);
+
+    const fetchBlogs = async () => {
+        try {
+            setLoading(true);
+            const data = await getAllBlogs();
+            setBlogs(data.blogs);
+        } catch (error) {
+            notification.error({ message: "Failed to load blogs." });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const addContentBlock = () => {
         setContentBlocks([...contentBlocks, { type: "text", value: "", images: [] }]);
+    };
+
+    const handleDeleteImage = (blockIndex: number, imageIndex: number) => {
+        const newBlocks = [...contentBlocks];
+        newBlocks[blockIndex].images.splice(imageIndex, 1);
+        setContentBlocks(newBlocks);
     };
 
     const handleContentChange = (index: any, value: any) => {
@@ -86,21 +52,39 @@ const BlogManagement = () => {
         setContentBlocks(newBlocks);
     };
 
-    const handleCreateBlog = () => {
-        form.validateFields().then((values) => {
-            const newBlog = { id: Date.now(), title: values.title, content: contentBlocks };
-            setBlogs([...blogs, newBlog]);
+    const handleCreateBlog = async () => {
+        try {
+            const values = await form.validateFields();
+            const formattedContent = contentBlocks.map((block: any) => block.value).join("\n"); // Chỉ lấy phần text
+
+            const newBlog = {
+                title: values.title,
+                content: formattedContent,
+                category: values.category || "General",
+                tag: values.tag || "Uncategorized",
+                viewCount: 0,
+            };
+
+            await createBlog(newBlog);
             notification.success({ message: "Blog created successfully!" });
             setIsModalOpen(false);
             form.resetFields();
             setContentBlocks([]);
-        });
+            fetchBlogs();
+        } catch (error) {
+            notification.error({ message: "Failed to create blog." });
+        }
     };
 
-    const handleDeleteImage = (blockIndex: number, imageIndex: number) => {
-        const newBlocks = [...contentBlocks];
-        newBlocks[blockIndex].images.splice(imageIndex, 1);
-        setContentBlocks(newBlocks);
+
+    const handleDeleteBlog = async (id: number) => {
+        try {
+            await deleteBlog(id);
+            notification.success({ message: "Blog deleted successfully!" });
+            fetchBlogs();
+        } catch (error) {
+            notification.error({ message: "Failed to delete blog." });
+        }
     };
 
     return (
@@ -111,7 +95,7 @@ const BlogManagement = () => {
                         Create New Blog
                     </Button>
                 </div>
-                <BlogList blogs={sampleBlogs} />
+                <BlogList blogs={blogs} onDelete={handleDeleteBlog} />
             </div>
 
             <Modal
@@ -153,7 +137,6 @@ const BlogManagement = () => {
                                 ))}
                             </div>
 
-
                             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
                                 <Upload
                                     beforeUpload={(file) => {
@@ -180,8 +163,6 @@ const BlogManagement = () => {
                     </Button>
                 </Form>
             </Modal>
-
-
         </div>
     );
 };

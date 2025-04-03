@@ -29,6 +29,19 @@ export async function getAllergyById(id: string) {
     }
 }
 
+export async function getAllergyByChildId(childId: string) {
+    try {
+        const response = await axios.get(
+            `${BASE_URL}/api/allergy/by-child/${childId}`,
+            ngrokSkipWarning
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch allergy with ID ${id}:", error);
+        throw error;
+    }
+}
+
 export async function createAllergy(allergy: any) {
     try {
         const response = await axios.post(

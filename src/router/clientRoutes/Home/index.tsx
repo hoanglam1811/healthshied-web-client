@@ -1,5 +1,5 @@
 import { AndroidOutlined, ArrowRightOutlined, EnvironmentOutlined, LeftCircleOutlined, LeftOutlined, MailOutlined, PhoneOutlined, RightCircleOutlined, RightOutlined, StarOutlined, UserOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, Card, Carousel, DatePicker, Form, Input, notification, Radio, Select, Spin, Table, Tabs, theme, Typography } from "antd";
+import { Breadcrumb, Button, Card, Carousel, Checkbox, DatePicker, Form, Input, Modal, notification, Radio, Select, Spin, Table, Tabs, theme, Typography } from "antd";
 import { Content } from "antd/es/layout/layout";
 import logo from "@/assets/logo.png";
 import home1 from "@/assets/home1.png";
@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import { getUserById } from "@/services/ApiServices/userService";
 import { getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
 import { Link } from "react-router-dom";
+import { IoCloseCircleOutline, IoWarningOutline, IoPersonOutline, IoCalendarOutline, IoDocumentText } from "react-icons/io5";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -61,6 +62,8 @@ const Home = () => {
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChild, setSelectedChild] = useState<any>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
     if (!customerId) return;
@@ -114,6 +117,33 @@ const Home = () => {
     }
   }, [userToken]);
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    if (!isChecked) {
+      notification.error({
+        message: 'Please check again',
+        description: 'You need to agree to the terms and conditions to proceed.',
+      });
+      return;
+    }
+    notification.success({
+      message: 'Registration Successful',
+      description: 'Your vaccination appointment has been successfully registered.',
+    });
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const onChange = (e: any) => {
+    setIsChecked(e.target.checked);
+  };
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -146,32 +176,31 @@ const Home = () => {
       key: "price",
       render: (price: number) => price.toLocaleString("en-US", {
         style: "currency",
-        currency: "USD",        
+        currency: "USD",
       }),
     },
   ];
 
   const fetchPackages = async () => {
-    try{
+    try {
       const response = await getAllVaccinePackages();
       setPackages(response.packages)
     }
-    catch(err){
+    catch (err) {
       console.log(err);
-      notification.error({message: "Something went wrong. Please try again later."})
+      notification.error({ message: "Something went wrong. Please try again later." })
     }
-    finally{
+    finally {
 
     }
   }
-
 
   useEffect(() => {
     fetchPackages()
   }, [])
 
 
-    return (
+  return (
     <Content style={{ minHeight: "85vh" }}>
       <div style={{
         background: "url('https://cdn.tiemchunglongchau.com.vn/unsafe/1920x0/filters:quality(90):format(webp)/HEADER_BANNER_f8b8df36f0.png')",
@@ -191,7 +220,7 @@ const Home = () => {
         >
           <div className="grid grid-cols-5 gap-4">
             <Link to="#">
-              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" } }}>
                 <div>
                   <div className="!w-full !flex !justify-center">
                     <img src={home1} alt="Logo" />
@@ -201,7 +230,7 @@ const Home = () => {
               </Card>
             </Link>
             <Link to="#">
-              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" } }}>
                 <div>
                   <div className="!w-full !flex !justify-center">
                     <img src={home2} alt="Logo" />
@@ -211,7 +240,7 @@ const Home = () => {
               </Card>
             </Link>
             <Link to="#">
-              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" } }}>
                 <div>
                   <div className="!w-full !flex !justify-center">
                     <img src={home3} alt="Logo" />
@@ -222,7 +251,7 @@ const Home = () => {
             </Link>
 
             <Link to="#">
-              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" } }}>
                 <div>
                   <div className="!w-full !flex !justify-center">
                     <img src={home4} alt="Logo" />
@@ -233,7 +262,7 @@ const Home = () => {
             </Link>
 
             <Link to="#">
-              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" } }}>
                 <div>
                   <div className="!w-full !flex !justify-center">
                     <img src={home5} alt="Logo" />
@@ -300,7 +329,7 @@ const Home = () => {
                     <Form layout="vertical">
                       {/* Registration Information */}
                       <div className="bg-white p-6 !mt-6">
-                        <Title className="text-left" level={4}>
+                        <Title className="text-left !mb-6" level={4}>
                           <UserOutlined /> Registration Information
                         </Title>
                         <div className="grid grid-cols-3 gap-4 mt-4">
@@ -405,11 +434,12 @@ const Home = () => {
 
                       {/* Submit Button */}
                       <Form.Item className="text-center mt-4">
-                        <Button type="primary" size="large">Register Now</Button>
+                        <Button type="primary" size="large" onClick={showModal}>Register Now</Button>
                       </Form.Item>
                     </Form>
                   </Card>
 
+                  <VaccinationModal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} handleOk={handleOk} onChange={onChange} isChecked={isChecked} />
                 </div>
               </div>
             </div>
@@ -453,9 +483,11 @@ const Home = () => {
                 </div>,
               },
             ]
-          }  />        
+          } />
         </Card>
+
       </div>
+
 
       <div className="!bg-[#08293E] !py-3 !text-white">
         <h3 className="!mb-3 !flex !items-center !justify-center">
@@ -470,19 +502,19 @@ const Home = () => {
             <Tabs
               defaultActiveKey="1"
               tabPosition={"left"}
-              style={{ height: 500}}
+              style={{ height: 500 }}
               items={packages.length > 0 ? packages.map((pkg: any, i: number) => {
                 const id = String(i);
                 return {
                   label: <div>{`${pkg.name}`}</div>,
                   key: id,
                   disabled: i === 28,
-                  children: 
+                  children:
                     <div className="!h-[500px]">
                       <div className="!text-xl !font-bold">{`${pkg.name}`}</div>
-                      <Table className="!h-[70%] !overflow-y-scroll" dataSource={pkg.vaccines} 
-                        columns={columns} 
-                        pagination={{ pageSize: 5 }}/>
+                      <Table className="!h-[70%] !overflow-y-scroll" dataSource={pkg.vaccines}
+                        columns={columns}
+                        pagination={{ pageSize: 5 }} />
                       <div className="!flex !text-left !mt-5">
                         <div className="!w-[70%]">
                           <Button
@@ -492,20 +524,20 @@ const Home = () => {
                             }>
                             Call advisor now
                           </Button>
-                          <Button 
+                          <Button
                             className="!rounded-[35px] !h-[48px] !text-[#01A9A8] !bg-[#E6F7FA] !mb-3"
                           >
                             See package details
                             <ArrowRightOutlined />
                           </Button>
                           <p className="!text-md !font-thin">
-                            <LightbulbIcon className="!mr-2 !inline"/>{`${pkg.description}`}
+                            <LightbulbIcon className="!mr-2 !inline" />{`${pkg.description}`}
                           </p>
                         </div>
                         <p className="!w-[30%] !flex !items-center !justify-center !text-xl !font-bold">
                           {`${pkg.price.toLocaleString("en-US", {
                             style: "currency",
-                            currency: "USD",        
+                            currency: "USD",
                           })}`}
                         </p>
                       </div>
@@ -520,5 +552,80 @@ const Home = () => {
     </Content>
   )
 }
+
+const VaccinationModal = ({ isOpen, onClose, handleOk, onChange, isChecked }: { isOpen: boolean, onClose: () => void, handleOk: any, onChange: any, isChecked: any }) => {
+
+  return (
+    <div
+      className={`fixed inset-0 backdrop-blur-lg bg-opacity-50 flex items-center justify-center z-50 ${isOpen ? "block" : "hidden"}`}
+    >
+      <div
+        className="bg-white w-[90%] md:w-[60%] rounded-lg shadow-xl !p-6 relative transform transition-all scale-95 hover:scale-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center !mb-6">
+          <h2 className="!text-2xl font-semibold text-blue-600 flex items-center !gap-2">
+            <IoDocumentText className="!text-3xl text-blue-500" />
+            Confirm Vaccine Registration
+          </h2>
+          <IoCloseCircleOutline
+            className="!text-2xl cursor-pointer text-gray-600 hover:text-red-500 transition-all"
+            onClick={onClose}
+          />
+        </div>
+
+        <div className="border-b !pb-4 !mb-4 text-gray-700 leading-relaxed">
+
+          <ul className="list-disc list-inside !mt-3 !space-y-3">
+            <li className="flex items-start !gap-2">
+              <IoWarningOutline className="!text-red-500 !mt-1" />
+              Eat a full meal before the vaccination.
+            </li>
+            <li className="flex items-start !gap-2">
+              <IoWarningOutline className="text-red-500 !mt-1" />
+              Please arrive on time; otherwise, your appointment will be canceled and no refund will be provided.
+            </li>
+            <li className="flex items-start !gap-2">
+              <IoWarningOutline className="!text-red-500 !mt-1" />
+              You must notify us at least 24 hours in advance if you need to reschedule your appointment.
+            </li>
+            <li className="flex items-start !gap-2">
+              <IoCalendarOutline className="!text-purple-500 !mt-1" />
+              The terms may change depending on the circumstances at the vaccination center.
+            </li>
+          </ul>
+        </div>
+
+        <div className="flex justify-between items-center !mt-6">
+          <label className="flex items-center !gap-2 ">
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={isChecked}
+              onChange={onChange}
+            />
+            I agree to the terms and conditions
+          </label>
+
+
+          <div className="flex justify-end !space-x-4">
+            <button
+              onClick={onClose}
+              className="!bg-gray-300 text-gray-800 !px-5 !py-2 rounded-lg hover:bg-gray-400 transition flex items-center !gap-2"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => { handleOk() }}
+              className="!bg-green-500 text-white !px-5 !py-2 rounded-lg hover:bg-green-600 transition flex items-center !gap-2"
+            >
+              Confirm Registration
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Home;

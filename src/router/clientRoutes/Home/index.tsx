@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import { getUserById } from "@/services/ApiServices/userService";
 import { getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
 import { Link } from "react-router-dom";
+import RouteNames from "@/constants/routeNames";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -210,7 +211,7 @@ const Home = () => {
                 </div>
               </Card>
             </Link>
-            <Link to="#">
+            <Link to={RouteNames.VACCINE_LIST}>
               <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
                 <div>
                   <div className="!w-full !flex !justify-center">

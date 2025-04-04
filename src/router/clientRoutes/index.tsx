@@ -6,12 +6,23 @@ import ChangePassword from "./AccountChangePassword";
 import AccountAppointments from "./AccountAppointments";
 import ProfileLayout from "@/layout/CustomerProfileLayout";
 import CustomerLayout from "@/layout/CustomerLayout";
+import VaccineList from "./VaccineList";
+import VaccineDetail from "./VaccineDetail";
 
 const publicRoutes: RouteObject[] = [
   {
     path: RouteNames.HOME,
     element: <Home />,
   },
+  {
+    path: RouteNames.VACCINE_LIST,
+    element: <VaccineList />,
+  },
+  {
+    path: RouteNames.VACCINE_DETAIL,
+    element: <VaccineDetail />,
+  },
+
   
 ];
 

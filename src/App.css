@@ -76,3 +76,8 @@ input:-webkit-autofill:focus {
 [role="region"][aria-label*="Notifications"] ol{
   margin: 0 !important;
 }
+
+.anticon svg{
+  width: 100%;
+  height: 100%;
+}

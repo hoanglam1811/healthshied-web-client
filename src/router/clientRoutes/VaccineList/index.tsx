@@ -1,10 +1,11 @@
 import RouteNames from "@/constants/routeNames";
 import { getAllVaccines } from "@/services/ApiServices/vaccineService";
-import { Breadcrumb, Button, Card, DatePicker, Select } from "antd";
+import { Breadcrumb, Button, Card, DatePicker, Flex, Select, Spin } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import VaccineCard from "./VaccineCard";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -94,12 +95,22 @@ const VaccineList = () => {
           </Button>
         </Card>
         <div className="!w-5/6 !pl-3 !grid !grid-cols-4 !gap-4">
+          {loading && 
+          <Flex className="!col-span-4" align="center" justify="center" style={{ height: "100%", minHeight: "420px", }}>
+            <Spin indicator={<div className="!flex !flex-col !items-center">
+                <LoadingOutlined style={{ fontSize: '48px', display: 'block', width: '48px', height: '48px', marginBottom: "16px" }} spin />
+                <div>Loading...</div>
+              </div>
+            }>
+            </Spin>
+          </Flex>}
           {vaccines?.map((vaccine: any) => (
             <VaccineCard key={vaccine.id} vaccine={vaccine} />
           ))}
         </div>
 
       </div>
+      
 
 
 

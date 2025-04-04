@@ -18,6 +18,7 @@ import { getAllVaccinePackages, getVaccinePackageById } from "@/services/ApiServ
 import { Link } from "react-router-dom";
 import RouteNames from "@/constants/routeNames";
 import { IoCloseCircleOutline, IoWarningOutline, IoPersonOutline, IoCalendarOutline, IoDocumentText } from "react-icons/io5";
+import doctor from "../../../assets/doctor.png";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -371,14 +372,26 @@ const Home = () => {
                 Please register your vaccination information to save time when coming to the center.
               </Text>
 
+              <div className="!flex !justify-center !mb-6">
+                <div
+                  style={{
+                    backgroundImage: `url(${doctor})`,
+                    backgroundSize: 'contain',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    width: '600px',
+                    height: '300px',
+                  }}
+                />
+              </div>
+
               <div className="!mt-10 w-full flex justify-center !mb-10">
-                <div className="w-5xl mx-auto bg-gray-100 rounded-lg shadow-md flex !gap-8">
+                <div className="w-6xl mx-auto bg-gray-100 rounded-lg shadow-md flex !gap-8">
                   <Card className="w-full shadow-lg rounded-lg !p-6 bg-white">
                     <Form layout="vertical">
-                      {/* Registration Information */}
                       <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-2">
                         <Title className="text-left !mb-6" level={4}>
-                          <UserOutlined /> Registration Information
+                          <UserOutlined /> Parent Information
                         </Title>
                         <div className="grid grid-cols-3 gap-4 mt-4">
                           <Form.Item label="Full Name" className="col-span-1">
@@ -471,7 +484,6 @@ const Home = () => {
                         {selectionType === "injection" && (
                           <>
                             <div className="!grid !grid-cols-7 !gap-4 !mb-4">
-                              {/* Selected Vaccines (3 columns) */}
                               <div className="!col-span-3">
                                 <Select
                                   mode="multiple"
@@ -482,7 +494,6 @@ const Home = () => {
                                 />
                               </div>
 
-                              {/* Appointment Date (2 columns) */}
                               <div className="!col-span-2">
                                 <DatePicker
                                   placeholder="Select appointment date"
@@ -492,7 +503,6 @@ const Home = () => {
                                 />
                               </div>
 
-                              {/* Appointment Time (2 columns) */}
                               <div className="!col-span-2">
                                 <TimePicker
                                   placeholder="Select time slot"
@@ -550,6 +560,14 @@ const Home = () => {
                               </div>
 
                               <div className="!flex !gap-3 !mb-4">
+                                <Button
+                                  type={!selectedPackage ? "primary" : "default"}
+                                  onClick={() => setSelectedPackage(null)}
+                                  className="!px-4 !py-2 !rounded-lg"
+                                >
+                                  All
+                                </Button>
+
                                 {packages?.map((pkg: any) => (
                                   <Button
                                     key={pkg.id}
@@ -567,13 +585,29 @@ const Home = () => {
                                   <div className="!flex !justify-center !items-center !h-32">
                                     <Spin />
                                   </div>
-                                ) : selectedPackage ? (
-                                  packages
-                                    .find((pkg: any) => pkg.id === selectedPackage)
-                                    ?.vaccines.filter((vaccine: any) =>
-                                      vaccine.name.toLowerCase().includes(searchText.toLowerCase())
-                                    )
-                                    .map((vaccine: any) => (
+                                ) : (() => {
+                                  // Lấy danh sách vaccine theo package được chọn hoặc tất cả
+                                  const allVaccines = selectedPackage
+                                    ? packages.find((pkg: any) => pkg.id === selectedPackage)?.vaccines || []
+                                    : packages?.flatMap((pkg: any) => pkg.vaccines) || [];
+
+                                  // Lọc trùng tên vaccine
+                                  const uniqueVaccinesMap = new Map();
+                                  allVaccines.forEach((vaccine: any) => {
+                                    const lowerName = vaccine.name.toLowerCase();
+                                    if (!uniqueVaccinesMap.has(lowerName)) {
+                                      uniqueVaccinesMap.set(lowerName, vaccine);
+                                    }
+                                  });
+
+                                  // Lọc theo từ khoá tìm kiếm
+                                  const filteredVaccines = Array.from(uniqueVaccinesMap.values()).filter((vaccine: any) =>
+                                    vaccine.name.toLowerCase().includes(searchText.toLowerCase())
+                                  );
+
+                                  // Hiển thị danh sách
+                                  return filteredVaccines.length > 0 ? (
+                                    filteredVaccines.map((vaccine: any) => (
                                       <div key={vaccine.id} className="!flex !items-center !space-x-2 !mb-2">
                                         <Checkbox
                                           checked={selectedVaccines.includes(vaccine.id)}
@@ -582,11 +616,13 @@ const Home = () => {
                                         <span className="!text-gray-700">{vaccine.name}</span>
                                       </div>
                                     ))
-                                ) : (
-                                  <p className="!text-gray-500">Please select a vaccine package.</p>
-                                )}
+                                  ) : (
+                                    <p className="!text-gray-500">No vaccines found.</p>
+                                  );
+                                })()}
                               </div>
                             </Modal>
+
                           </>
                         )}
 
@@ -644,6 +680,7 @@ const Home = () => {
                   <VaccinationModal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} handleOk={handleOk} onChange={onChange} isChecked={isChecked} />
                 </div>
               </div>
+              
             </div>
 
         </div>
@@ -699,7 +736,7 @@ const Home = () => {
         </h3>
 
         <div className="!flex !items-center !justify-center !text-white">
-          <Card className="!w-[60%]">
+          <Card className="!w-[70%]">
             <Tabs
               defaultActiveKey="1"
               tabPosition={"left"}

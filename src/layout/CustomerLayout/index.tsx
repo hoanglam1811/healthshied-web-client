@@ -132,13 +132,20 @@ const CustomerLayout = () => {
                 <div className="!text-left">
                   <div className="!text-xl !font-bold">Top vaccine list</div>
                   {vaccines?.map((vaccine: any) => (
-                    <Card styles={{ body: { display: "flex" } }} key={vaccine.id}>
+                    <Card  
+                      hoverable
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/vaccine-detail/${vaccine.id}`)
+                        setIsFocused(false);
+                      }}
+                      styles={{ body: { display: "flex" } }} key={vaccine.id}>
                       <div className="!w-[30%]">
                         <img src={vaccineImg} alt="Vaccine" style={{ width: "100px", height: "100px" }} />
                       </div>
                       <div className="!w-[70%]">
                         <div className="!text-gray-500 !text-sm !font-semibold">{vaccine.contraindications}</div>
-                        <div>{vaccine.name}</div>
+                        <div className="hover:!underline">{vaccine.name}</div>
                         <div className="!text-orange-500">{vaccine.price.toLocaleString("en-US", 
                           { style: "currency", currency: "USD" })}</div>
                       </div>

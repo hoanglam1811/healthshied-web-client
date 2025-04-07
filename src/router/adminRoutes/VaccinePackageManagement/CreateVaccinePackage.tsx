@@ -49,14 +49,14 @@ const CreateVaccinePackageDialog = ({
                         },
                         vaccineIds: values.vaccineIds,
                     };
-    
+
                     await createVaccinePackage(payload);
-                    
+
                     notification.success({
                         message: "Vaccine Package Created Successfully",
                         description: `The package "${values.name}" has been added.`,
                     });
-    
+
                     setIsModalOpen(false);
                     form.resetFields();
                     await fetchVaccinePackages();
@@ -71,7 +71,7 @@ const CreateVaccinePackageDialog = ({
             .catch(() => {
                 notification.warning({ message: "Please check your input and try again!" });
             });
-    };    
+    };
 
     return (
         <Modal
@@ -83,7 +83,17 @@ const CreateVaccinePackageDialog = ({
             cancelText="Cancel"
             confirmLoading={loading}
         >
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical"
+                onValuesChange={(changedValues, allValues) => {
+                    if (changedValues.vaccineIds) {
+                        const total = changedValues.vaccineIds.reduce((sum: number, id: number) => {
+                            const vaccine = vaccines.find((v) => v.id === id);
+                            return sum + (vaccine?.price || 0);
+                        }, 0);
+                        form.setFieldsValue({ price: total });
+                    }
+                }}
+            >
                 <Form.Item
                     label="Package Name"
                     name="name"
@@ -101,14 +111,6 @@ const CreateVaccinePackageDialog = ({
                 </Form.Item>
 
                 <Form.Item
-                    label="Price"
-                    name="price"
-                    rules={[{ required: true, message: "Please enter the package price!" }]}
-                >
-                    <InputNumber style={{ width: "100%" }} placeholder="Enter package price" min={0} />
-                </Form.Item>
-
-                <Form.Item
                     label="Select Vaccines"
                     name="vaccineIds"
                     rules={[{ required: true, message: "Please select at least one vaccine!" }]}
@@ -120,6 +122,24 @@ const CreateVaccinePackageDialog = ({
                             </Option>
                         ))}
                     </Select>
+                </Form.Item>
+
+                <Form.Item
+                    label="Price ($)"
+                    name="price"
+                    rules={[{ required: true, message: "Please enter the package price!" }]}
+                >
+                    <InputNumber<number>
+                        style={{ width: "100%" }}
+                        placeholder="Total price"
+                        min={0}
+                        disabled
+                        formatter={(value) =>
+                            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                        parser={(value) => Number(value?.replace(/\$\s?|(,*)/g, "") || 0)}
+                    />
+
                 </Form.Item>
             </Form>
         </Modal>

@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import RouteNames from "@/constants/routeNames";
 import { IoCloseCircleOutline, IoWarningOutline, IoPersonOutline, IoCalendarOutline, IoDocumentText } from "react-icons/io5";
 import doctor from "../../../assets/doctor.png";
+import { createAppointment } from "@/services/ApiServices/appoinmentService";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -75,6 +76,8 @@ const Home = () => {
   const [appointmentDate, setAppointmentDate] = useState<any>(null);
   const [appointmentTime, setAppointmentTime] = useState<any>(null);
   const [isModalSelectVisible, setIsModalSelectVisible] = useState(false);
+  const [note, setNote] = useState("");
+
 
   useEffect(() => {
     async function fetchPackages() {
@@ -170,19 +173,104 @@ const Home = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
+  const handleOk = async () => {
     if (!isChecked) {
       notification.error({
-        message: 'Please check again',
-        description: 'You need to agree to the terms and conditions to proceed.',
+        message: "Please check again",
+        description: "You need to agree to the terms and conditions to proceed.",
       });
       return;
     }
-    notification.success({
-      message: 'Registration Successful',
-      description: 'Your vaccination appointment has been successfully registered.',
-    });
-    setIsModalVisible(false);
+
+    try {
+      if (!selectedChild) {
+        notification.error({
+          message: "Missing Information",
+          description: "Please select a child.",
+        });
+        return;
+      }
+
+      if (!appointmentDate || !appointmentTime) {
+        notification.error({
+          message: "Incomplete Appointment",
+          description: "Please select both date and time.",
+        });
+        return;
+      }
+
+      const combinedDateTime = dayjs(appointmentDate)
+        .hour(dayjs(appointmentTime).hour())
+        .minute(dayjs(appointmentTime).minute())
+        .second(0)
+        .format("YYYY-MM-DD HH:mm:ss");
+
+      let vaccinesToUse: any[] = [];
+      let totalPrice = 0;
+      let vaccineId = 0;
+      let packageId = 0;
+
+      if (selectedPackage) {
+        const foundPackage = packages.find((pkg: any) => pkg.id === selectedPackage);
+        if (!foundPackage || !foundPackage.vaccines || foundPackage.vaccines.length === 0) {
+          notification.error({
+            message: "Missing Package Details",
+            description: "Selected package has no vaccines.",
+          });
+          return;
+        }
+
+        vaccinesToUse = foundPackage.vaccines;
+        packageId = foundPackage.id;
+        vaccineId = foundPackage.vaccines[0]?.id || 0; // lấy vaccine đầu tiên để gửi
+        totalPrice = foundPackage.price; // nếu bạn muốn dùng giá của cả gói
+      } else {
+        if (selectedVaccines.length === 0) {
+          notification.error({
+            message: "Missing Vaccines",
+            description: "Please select at least one vaccine.",
+          });
+          return;
+        }
+
+        vaccinesToUse = selectedVaccines;
+        vaccineId = selectedVaccines[0]?.id || 0;
+
+        // Tính tổng giá từng vaccine (dựa vào doseQuantity nếu có)
+        vaccinesToUse.forEach((v: any) => {
+          const doses = v.doseQuantity || 1;
+          totalPrice += (v.price || 0) * doses;
+        });
+      }
+
+      const payload = {
+        assignedStaffId: null,
+        childId: selectedChild.id,
+        vaccineId,
+        packageId,
+        recordId: 0,
+        price: totalPrice,
+        appointmentDate: combinedDateTime,
+        status: "PENDING",
+        description: note.trim(),
+      };
+
+      console.log("Final Payload", payload);
+      await createAppointment(payload);
+
+      notification.success({
+        message: "Registration Successful",
+        description: "Your vaccination appointment has been successfully registered.",
+      });
+
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error during appointment creation:", error);
+      notification.error({
+        message: "Registration Failed",
+        description: "There was an error while registering the appointment. Please try again.",
+      });
+    }
   };
 
   const onChange = (e: any) => {
@@ -192,7 +280,6 @@ const Home = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
 
   const columns = [
     {
@@ -285,7 +372,7 @@ const Home = () => {
               </Card>
             </Link>
             <Link to={RouteNames.VACCINE_LIST}>
-              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" }}}>
+              <Card className="!h-[fit-content]" styles={{ body: { display: "flex", justifyContent: "center", alignItems: "center" } }}>
                 <div>
                   <div className="!w-full !flex !justify-center">
                     <img src={home3} alt="Logo" />
@@ -367,321 +454,324 @@ const Home = () => {
 
           </div>
           <div style={{ marginTop: "20px", background: colorBgContainer, borderRadius: borderRadiusLG }}>
-              <Title level={2} className="!pt-10 text-center">Register & schedule vaccination</Title>
-              <Text className="block text-center !mb-6 text-gray-600">
-                Please register your vaccination information to save time when coming to the center.
-              </Text>
+            <Title level={2} className="!pt-10 text-center">Register & schedule vaccination</Title>
+            <Text className="block text-center !mb-6 text-gray-600">
+              Please register your vaccination information to save time when coming to the center.
+            </Text>
 
-              <div className="!flex !justify-center !mb-6">
-                <div
-                  style={{
-                    backgroundImage: `url(${doctor})`,
-                    backgroundSize: 'contain',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    width: '600px',
-                    height: '300px',
-                  }}
-                />
-              </div>
+            <div className="!flex !justify-center !mb-6">
+              <div
+                style={{
+                  backgroundImage: `url(${doctor})`,
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  width: '600px',
+                  height: '300px',
+                }}
+              />
+            </div>
 
-              <div className="!mt-10 w-full flex justify-center !mb-10">
-                <div className="w-6xl mx-auto bg-gray-100 rounded-lg shadow-md flex !gap-8">
-                  <Card className="w-full shadow-lg rounded-lg !p-6 bg-white">
-                    <Form layout="vertical">
-                      <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-2">
-                        <Title className="text-left !mb-6" level={4}>
-                          <UserOutlined /> Parent Information
-                        </Title>
-                        <div className="grid grid-cols-3 gap-4 mt-4">
-                          <Form.Item label="Full Name" className="col-span-1">
-                            <Input
-                              value={parentInfo.fullName}
-                              disabled
-                              style={{ fontWeight: "bold" }}
-                              placeholder="Enter full name"
-                            />
-                          </Form.Item>
-                          <Form.Item label="Phone Number" className="col-span-1">
-                            <Input
-                              value={parentInfo.phone}
-                              prefix={<PhoneOutlined />}
-                              disabled
-                              style={{ fontWeight: "bold" }}
-                              placeholder="Enter phone number"
-                            />
-                          </Form.Item>
-                          <Form.Item label="Email" className="col-span-1">
-                            <Input
-                              value={parentInfo.email}
-                              prefix={<MailOutlined />}
-                              disabled
-                              style={{ fontWeight: "bold" }}
-                              placeholder="Enter email"
-                            />
-                          </Form.Item>
-                        </div>
-                        {/* Vaccination for */}
-                        <Form.Item label="Vaccination for:">
-                          {loading ? (
-                            <Spin size="small" />
-                          ) : (
-                            <div className="!mb-2 !mt-4">
-                              <Radio.Group
-                                onChange={(e) => handleChildSelect(e.target.value)}
-                                value={selectedChild?.id}
-                                className="!flex !gap-4"
-                              >
-                                {children?.map((child: any) => (
-                                  <Radio key={child.id} value={child.id}>
-                                    {child.fullName}
-                                  </Radio>
-                                ))}
-                              </Radio.Group>
-                            </div>
-                          )}
+            <div className="!mt-10 w-full flex justify-center !mb-10">
+              <div className="w-6xl mx-auto bg-gray-100 flex !gap-8">
+                <div className="w-full !p-6 bg-white">
+                  <Form layout="vertical">
+                    <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-2">
+                      <Title className="text-left !mb-6" level={4}>
+                        <UserOutlined /> Parent Information
+                      </Title>
+                      <div className="grid grid-cols-3 gap-4 mt-4">
+                        <Form.Item label="Full Name" className="col-span-1">
+                          <Input
+                            value={parentInfo.fullName}
+                            disabled
+                            style={{ fontWeight: "bold" }}
+                            placeholder="Enter full name"
+                          />
                         </Form.Item>
-
-
-                        {/* Recipient Information */}
-                        {selectedChild && (
-                          <>
-                            <Title className="text-left !mt-6 !mb-6" level={4}>
-                              <UserOutlined /> Recipient Information
-                            </Title>
-                            <div className="grid grid-cols-3 gap-4 mt-4">
-                              <Form.Item label="Full Name">
-                                <Input style={{ fontWeight: "bold" }} value={selectedChild.fullName} disabled />
-                              </Form.Item>
-                              <Form.Item label="Date of Birth">
-                                <DatePicker style={{ fontWeight: "bold" }} className="w-full" value={selectedChild.birthday ? dayjs(selectedChild.birthday, "MM/DD/YYYY HH:mm:ss") : null} disabled />
-                              </Form.Item>
-                              <Form.Item label="Gender">
-                                <Input style={{ fontWeight: "bold" }} value={selectedChild.gender} disabled />
-                              </Form.Item>
-                            </div>
-                          </>
+                        <Form.Item label="Phone Number" className="col-span-1">
+                          <Input
+                            value={parentInfo.phone}
+                            prefix={<PhoneOutlined />}
+                            disabled
+                            style={{ fontWeight: "bold" }}
+                            placeholder="Enter phone number"
+                          />
+                        </Form.Item>
+                        <Form.Item label="Email" className="col-span-1">
+                          <Input
+                            value={parentInfo.email}
+                            prefix={<MailOutlined />}
+                            disabled
+                            style={{ fontWeight: "bold" }}
+                            placeholder="Enter email"
+                          />
+                        </Form.Item>
+                      </div>
+                      {/* Vaccination for */}
+                      <Form.Item label="Vaccination for:">
+                        {loading ? (
+                          <Spin size="small" />
+                        ) : (
+                          <div className="!mb-2 !mt-4">
+                            <Radio.Group
+                              onChange={(e) => handleChildSelect(e.target.value)}
+                              value={selectedChild?.id}
+                              className="!flex !gap-4"
+                            >
+                              {children?.map((child: any) => (
+                                <Radio key={child.id} value={child.id}>
+                                  {child.fullName}
+                                </Radio>
+                              ))}
+                            </Radio.Group>
+                          </div>
                         )}
+                      </Form.Item>
+
+
+                      {/* Recipient Information */}
+                      {selectedChild && (
+                        <>
+                          <Title className="text-left !mt-6 !mb-6" level={4}>
+                            <UserOutlined /> Recipient Information
+                          </Title>
+                          <div className="grid grid-cols-3 gap-4 mt-4">
+                            <Form.Item label="Full Name">
+                              <Input style={{ fontWeight: "bold" }} value={selectedChild.fullName} disabled />
+                            </Form.Item>
+                            <Form.Item label="Date of Birth">
+                              <DatePicker style={{ fontWeight: "bold" }} className="w-full" value={selectedChild.birthday ? dayjs(selectedChild.birthday, "MM/DD/YYYY HH:mm:ss") : null} disabled />
+                            </Form.Item>
+                            <Form.Item label="Gender">
+                              <Input style={{ fontWeight: "bold" }} value={selectedChild.gender} disabled />
+                            </Form.Item>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-6">
+                      <Title className="!text-left !mb-6" level={4}>
+                        <UserOutlined /> Select Vaccine Type
+                      </Title>
+
+                      {/* Selection Type */}
+                      <div className="!mb-4">
+                        <Radio.Group
+                          onChange={(e) => setSelectionType(e.target.value)}
+                          value={selectionType}
+                          className="!flex !gap-4"
+                        >
+                          <Radio value="consultation">Vaccines for Consultation</Radio>
+                          <Radio value="injection">Vaccines for Injection</Radio>
+                        </Radio.Group>
                       </div>
 
-                      <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-6">
-                        <Title className="!text-left !mb-6" level={4}>
-                          <UserOutlined /> Select Vaccine Type
-                        </Title>
+                      {selectionType === "injection" && (
+                        <>
+                          <div className="!grid !grid-cols-7 !gap-4 !mb-4">
+                            <div className="!col-span-3">
+                              <Select
+                                mode="multiple"
+                                placeholder="Select vaccines"
+                                onClick={() => setIsModalSelectVisible(true)}
+                                className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                                notFoundContent={""}
+                              />
+                            </div>
 
-                        {/* Selection Type */}
-                        <div className="!mb-4">
-                          <Radio.Group
-                            onChange={(e) => setSelectionType(e.target.value)}
-                            value={selectionType}
-                            className="!flex !gap-4"
+                            <div className="!col-span-2">
+                              <DatePicker
+                                placeholder="Select appointment date"
+                                value={appointmentDate}
+                                onChange={setAppointmentDate}
+                                className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                              />
+                            </div>
+
+                            <div className="!col-span-2">
+                              <TimePicker
+                                placeholder="Select time slot"
+                                value={appointmentTime}
+                                onChange={setAppointmentTime}
+                                className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="!border !p-4 !rounded-lg !bg-gray-50">
+                            {selectedVaccines.length > 0 ? (
+                              <div className="!flex !flex-wrap !gap-2">
+                                {selectedVaccines.map((vaccineId) => {
+                                  const vaccine = packages
+                                    .flatMap((pkg: any) => pkg.vaccines || [])
+                                    .find((v: any) => v.id === vaccineId);
+                                  return vaccine ? (
+                                    <div
+                                      key={vaccine.id}
+                                      className="!bg-gray-200 !px-3 !py-1 !rounded-lg !flex !items-center"
+                                    >
+                                      {vaccine.name}
+                                      <CloseOutlined
+                                        className="!ml-2 !cursor-pointer"
+                                        onClick={() => handleVaccineToggle(vaccine.id)}
+                                      />
+                                    </div>
+                                  ) : null;
+                                })}
+                              </div>
+                            ) : (
+                              <p className="!text-gray-500">No vaccines selected.</p>
+                            )}
+                          </div>
+
+                          <Modal
+                            title="Select Vaccines"
+                            open={isModalSelectVisible}
+                            onCancel={() => setIsModalSelectVisible(false)}
+                            footer={[
+                              <Button key="save" type="primary" onClick={() => setIsModalSelectVisible(false)}>
+                                Save
+                              </Button>,
+                            ]}
                           >
-                            <Radio value="consultation">Vaccines for Consultation</Radio>
-                            <Radio value="injection">Vaccines for Injection</Radio>
-                          </Radio.Group>
-                        </div>
-
-                        {selectionType === "injection" && (
-                          <>
-                            <div className="!grid !grid-cols-7 !gap-4 !mb-4">
-                              <div className="!col-span-3">
-                                <Select
-                                  mode="multiple"
-                                  placeholder="Select vaccines"
-                                  onClick={() => setIsModalSelectVisible(true)}
-                                  className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                  notFoundContent={""}
-                                />
-                              </div>
-
-                              <div className="!col-span-2">
-                                <DatePicker
-                                  placeholder="Select appointment date"
-                                  value={appointmentDate}
-                                  onChange={setAppointmentDate}
-                                  className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                />
-                              </div>
-
-                              <div className="!col-span-2">
-                                <TimePicker
-                                  placeholder="Select time slot"
-                                  value={appointmentTime}
-                                  onChange={setAppointmentTime}
-                                  className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                />
-                              </div>
+                            <div className="!mb-4">
+                              <Input
+                                placeholder="Search by disease or vaccine package"
+                                prefix={<SearchOutlined className="!text-gray-400" />}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                className="!py-2 !px-4 !w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                              />
                             </div>
 
-                            <div className="!border !p-4 !rounded-lg !bg-gray-50">
-                              {selectedVaccines.length > 0 ? (
-                                <div className="!flex !flex-wrap !gap-2">
-                                  {selectedVaccines.map((vaccineId) => {
-                                    const vaccine = packages
-                                      .flatMap((pkg: any) => pkg.vaccines || [])
-                                      .find((v: any) => v.id === vaccineId);
-                                    return vaccine ? (
-                                      <div
-                                        key={vaccine.id}
-                                        className="!bg-gray-200 !px-3 !py-1 !rounded-lg !flex !items-center"
-                                      >
-                                        {vaccine.name}
-                                        <CloseOutlined
-                                          className="!ml-2 !cursor-pointer"
-                                          onClick={() => handleVaccineToggle(vaccine.id)}
-                                        />
-                                      </div>
-                                    ) : null;
-                                  })}
-                                </div>
-                              ) : (
-                                <p className="!text-gray-500">No vaccines selected.</p>
-                              )}
-                            </div>
+                            <div className="!flex !gap-3 !mb-4">
+                              <Button
+                                type={!selectedPackage ? "primary" : "default"}
+                                onClick={() => setSelectedPackage(null)}
+                                className="!px-4 !py-2 !rounded-lg"
+                              >
+                                All
+                              </Button>
 
-                            <Modal
-                              title="Select Vaccines"
-                              open={isModalSelectVisible}
-                              onCancel={() => setIsModalSelectVisible(false)}
-                              footer={[
-                                <Button key="save" type="primary" onClick={() => setIsModalSelectVisible(false)}>
-                                  Save
-                                </Button>,
-                              ]}
-                            >
-                              <div className="!mb-4">
-                                <Input
-                                  placeholder="Search by disease or vaccine package"
-                                  prefix={<SearchOutlined className="!text-gray-400" />}
-                                  value={searchText}
-                                  onChange={(e) => setSearchText(e.target.value)}
-                                  className="!py-2 !px-4 !w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                />
-                              </div>
-
-                              <div className="!flex !gap-3 !mb-4">
+                              {packages?.map((pkg: any) => (
                                 <Button
-                                  type={!selectedPackage ? "primary" : "default"}
-                                  onClick={() => setSelectedPackage(null)}
+                                  key={pkg.id}
+                                  type={selectedPackage === pkg.id ? "primary" : "default"}
+                                  onClick={() => handlePackageSelect(pkg.id)}
                                   className="!px-4 !py-2 !rounded-lg"
                                 >
-                                  All
+                                  {pkg.name}
                                 </Button>
-
-                                {packages?.map((pkg: any) => (
-                                  <Button
-                                    key={pkg.id}
-                                    type={selectedPackage === pkg.id ? "primary" : "default"}
-                                    onClick={() => handlePackageSelect(pkg.id)}
-                                    className="!px-4 !py-2 !rounded-lg"
-                                  >
-                                    {pkg.name}
-                                  </Button>
-                                ))}
-                              </div>
-
-                              <div className="!border !p-4 !rounded-lg !max-h-60 !overflow-y-auto !bg-gray-50">
-                                {loading ? (
-                                  <div className="!flex !justify-center !items-center !h-32">
-                                    <Spin />
-                                  </div>
-                                ) : (() => {
-                                  // Lấy danh sách vaccine theo package được chọn hoặc tất cả
-                                  const allVaccines = selectedPackage
-                                    ? packages.find((pkg: any) => pkg.id === selectedPackage)?.vaccines || []
-                                    : packages?.flatMap((pkg: any) => pkg.vaccines) || [];
-
-                                  // Lọc trùng tên vaccine
-                                  const uniqueVaccinesMap = new Map();
-                                  allVaccines.forEach((vaccine: any) => {
-                                    const lowerName = vaccine.name.toLowerCase();
-                                    if (!uniqueVaccinesMap.has(lowerName)) {
-                                      uniqueVaccinesMap.set(lowerName, vaccine);
-                                    }
-                                  });
-
-                                  // Lọc theo từ khoá tìm kiếm
-                                  const filteredVaccines = Array.from(uniqueVaccinesMap.values()).filter((vaccine: any) =>
-                                    vaccine.name.toLowerCase().includes(searchText.toLowerCase())
-                                  );
-
-                                  // Hiển thị danh sách
-                                  return filteredVaccines.length > 0 ? (
-                                    filteredVaccines.map((vaccine: any) => (
-                                      <div key={vaccine.id} className="!flex !items-center !space-x-2 !mb-2">
-                                        <Checkbox
-                                          checked={selectedVaccines.includes(vaccine.id)}
-                                          onChange={() => handleVaccineToggle(vaccine.id)}
-                                        />
-                                        <span className="!text-gray-700">{vaccine.name}</span>
-                                      </div>
-                                    ))
-                                  ) : (
-                                    <p className="!text-gray-500">No vaccines found.</p>
-                                  );
-                                })()}
-                              </div>
-                            </Modal>
-
-                          </>
-                        )}
-
-                        {/* Notes */}
-                        <div className="!mt-4">
-                          <Input.TextArea
-                            placeholder="Notes (Optional)"
-                            rows={2}
-                            className="!w-full !border-gray-300 !rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Select Vaccination Center */}
-                      <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-6">
-                        <Title className="text-left" level={4}>
-                          <EnvironmentOutlined /> Vaccination Center
-                        </Title>
-                        {vaccinationCenters.map((center) => (
-                          <Card key={center.id} className="!mb-4 text-left border rounded-lg">
-                            <div className="flex items-center justify-between">
-                              {/* Phần thông tin (70%) */}
-                              <div className="flex-[7]">
-                                <Text strong>{center.name}</Text>
-                                <br />
-                                <Text type="secondary">{center.address}</Text>
-                                <br />
-                                <Text type="danger">{center.status}</Text> - Opens at {center.openTime}
-                              </div>
-                              {/* Phần nút View Directions (30%) */}
-                              <div className="flex-[3] text-right">
-                                <Button
-                                  type="primary"
-                                  style={{ backgroundColor: "#4da6ff", borderColor: "#4da6ff", color: "white" }}
-                                  onClick={() => {
-                                    const address = encodeURIComponent("151B Trần Quang Khải, Tân Định, Quận 1, TP. Hồ Chí Minh");
-                                    window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, "_blank");
-                                  }}
-                                >
-                                  View Directions
-                                </Button>
-                              </div>
-
+                              ))}
                             </div>
-                          </Card>
-                        ))}
+
+                            <div className="!border !p-4 !rounded-lg !max-h-60 !overflow-y-auto !bg-gray-50">
+                              {loading ? (
+                                <div className="!flex !justify-center !items-center !h-32">
+                                  <Spin />
+                                </div>
+                              ) : (() => {
+                                // Lấy danh sách vaccine theo package được chọn hoặc tất cả
+                                const allVaccines = selectedPackage
+                                  ? packages.find((pkg: any) => pkg.id === selectedPackage)?.vaccines || []
+                                  : packages?.flatMap((pkg: any) => pkg.vaccines) || [];
+
+                                // Lọc trùng tên vaccine
+                                const uniqueVaccinesMap = new Map();
+                                allVaccines.forEach((vaccine: any) => {
+                                  const lowerName = vaccine.name.toLowerCase();
+                                  if (!uniqueVaccinesMap.has(lowerName)) {
+                                    uniqueVaccinesMap.set(lowerName, vaccine);
+                                  }
+                                });
+
+                                // Lọc theo từ khoá tìm kiếm
+                                const filteredVaccines = Array.from(uniqueVaccinesMap.values()).filter((vaccine: any) =>
+                                  vaccine.name.toLowerCase().includes(searchText.toLowerCase())
+                                );
+
+                                // Hiển thị danh sách
+                                return filteredVaccines.length > 0 ? (
+                                  filteredVaccines.map((vaccine: any) => (
+                                    <div key={vaccine.id} className="!flex !items-center !space-x-2 !mb-2">
+                                      <Checkbox
+                                        checked={selectedVaccines.includes(vaccine.id)}
+                                        onChange={() => handleVaccineToggle(vaccine.id)}
+                                      />
+                                      <span className="!text-gray-700">{vaccine.name}</span>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className="!text-gray-500">No vaccines found.</p>
+                                );
+                              })()}
+                            </div>
+                          </Modal>
+
+                        </>
+                      )}
+
+                      {/* Notes */}
+                      <div className="!mt-4">
+                        <Input.TextArea
+                          placeholder="Notes (Optional)"
+                          rows={2}
+                          className="!w-full !border-gray-300 !rounded-lg"
+                          value={note}
+                          onChange={(e) => setNote(e.target.value)}
+                        />
                       </div>
 
-                      <Form.Item className="text-center mt-4">
-                        <Button type="primary" size="large" onClick={showModal}>Register Now</Button>
-                      </Form.Item>
-                    </Form>
-                  </Card>
+                    </div>
 
-                  <VaccinationModal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} handleOk={handleOk} onChange={onChange} isChecked={isChecked} />
+                    {/* Select Vaccination Center */}
+                    <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-6">
+                      <Title className="text-left" level={4}>
+                        <EnvironmentOutlined /> Vaccination Center
+                      </Title>
+                      {vaccinationCenters.map((center) => (
+                        <Card key={center.id} className="!mb-4 text-left border rounded-lg">
+                          <div className="flex items-center justify-between">
+                            {/* Phần thông tin (70%) */}
+                            <div className="flex-[7]">
+                              <Text strong>{center.name}</Text>
+                              <br />
+                              <Text type="secondary">{center.address}</Text>
+                              <br />
+                              <Text type="danger">{center.status}</Text> - Opens at {center.openTime}
+                            </div>
+                            {/* Phần nút View Directions (30%) */}
+                            <div className="flex-[3] text-right">
+                              <Button
+                                type="primary"
+                                style={{ backgroundColor: "#4da6ff", borderColor: "#4da6ff", color: "white" }}
+                                onClick={() => {
+                                  const address = encodeURIComponent("151B Trần Quang Khải, Tân Định, Quận 1, TP. Hồ Chí Minh");
+                                  window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, "_blank");
+                                }}
+                              >
+                                View Directions
+                              </Button>
+                            </div>
+
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+
+                    <Form.Item className="text-center mt-4">
+                      <Button type="primary" size="large" onClick={showModal}>Register Now</Button>
+                    </Form.Item>
+                  </Form>
                 </div>
+
+                <VaccinationModal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} handleOk={handleOk} onChange={onChange} isChecked={isChecked} />
               </div>
-              
             </div>
+
+          </div>
 
         </div>
       </div>

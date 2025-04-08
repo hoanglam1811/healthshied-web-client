@@ -69,67 +69,99 @@ export default function VaccineManagement() {
       />
 
       <Content style={{ padding: "24px" }}>
-        <Card title="Vaccines List"
-          extra={<Button type="primary" onClick={showModal}>
-            <FaPlus />
-            <span>Add vaccine</span>
-          </Button>}
-          style={{ marginTop: 24 }}>
-          <Table
-            dataSource={vaccines?.map((order: any) => ({
-              ...order,
-              price: order.price.toLocaleString("en-US", { style: "currency", currency: "USD" }),
-            }))}
-            columns={[
-              { title: "ID", dataIndex: "id", key: "id" },
-              { title: "Name", dataIndex: "name", key: "name" },
-              {
-                title: "Description",
-                dataIndex: "description",
-                key: "description",
-                render: (text: string) => (
-                  text.length > 60 ? (
-                    <Tooltip title={text}>
-                      <span>{text.substring(0, 60)}...</span>
-                    </Tooltip>
-                  ) : (
-                    text
-                  )
-                ),
-              },
-              { title: "Age Range", dataIndex: "recommendedAgeRange", key: "recommendedAgeRange" },
-              { title: "Contraindication", dataIndex: "contraindications", key: "contraindications" },
-              { title: "Price", dataIndex: "price", key: "price" },
-              {
-                title: "Action",
-                dataIndex: "action",
-                key: "action",
-                render: (_: any, order: any) => (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <Link
-                      to={`${RouteNames.VACCINE_DETAIL_MANAGEMENT.slice(0, RouteNames.VACCINE_DETAIL_MANAGEMENT.lastIndexOf('/'))}/${order.id}`}
-                    >
-                      <Button type="primary" block>Details</Button>
-                    </Link>
-                    <Button
-                      onClick={() => {
-                        setDeletingVaccineId(order.id);
-                        setIsDeleteModalOpen(true);
-                      }}
-                      style={{ background: "red", color: "white" }}
-                      block
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                ),
-              }
-            ]}
-            pagination={{ pageSize: 5 }}
-          />
-        </Card>
+        <Card
+          title="Vaccines List"
+          extra={
+            <Button type="primary" onClick={showModal}>
+              <FaPlus />
+              <span>Add vaccine</span>
+            </Button>
+          }
+          style={{ marginTop: 24 }}
+        >
+          <div style={{ overflowX: "auto" }}>
+            <Table
+              scroll={{ x: "max-content" }}
+              dataSource={vaccines?.map((order: any) => ({
+                ...order,
+                price: order.price.toLocaleString("en-US", { style: "currency", currency: "USD" }),
+              }))}
+              columns={[
+                { title: "ID", dataIndex: "id", key: "id" },
+                { title: "Name", dataIndex: "name", key: "name" },
+                {
+                  title: "Description",
+                  dataIndex: "description",
+                  key: "description",
+                  render: (text: string) =>
+                    text.length > 60 ? (
+                      <Tooltip title={text}>
+                        <span>{text.substring(0, 60)}...</span>
+                      </Tooltip>
+                    ) : (
+                      text
+                    ),
+                },
+                { title: "Age Range", dataIndex: "recommendedAgeRange", key: "recommendedAgeRange" },
+                { title: "Contraindication", dataIndex: "contraindications", key: "contraindications" },
+                { title: "Usage Instructions", dataIndex: "usageInstructions", key: "usageInstructions" },
+                { title: "Dose", dataIndex: "dose", key: "dose" },
+                { title: "Target Disease", dataIndex: "targetDisease", key: "targetDisease" },
+                { title: "Unit", dataIndex: "unit", key: "unit" },
+                { title: "Country", dataIndex: "country", key: "country" },
+                { title: "Producer", dataIndex: "producer", key: "producer" },
+                { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+                { title: "Price", dataIndex: "price", key: "price" },
+                {
+                  title: "Created At",
+                  dataIndex: "createdAt",
+                  key: "createdAt",
+                  render: (value: string) => value.split(" ")[0],
+                },
+                {
+                  title: "Updated At",
+                  dataIndex: "updatedAt",
+                  key: "updatedAt",
+                  render: (value: string) => value.split(" ")[0],
+                },
 
+                { title: "Status", dataIndex: "status", key: "status" },
+                {
+                  title: "Action",
+                  dataIndex: "action",
+                  key: "action",
+                  render: (_: any, order: any) => (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <Link
+                        to={`${RouteNames.VACCINE_DETAIL_MANAGEMENT.slice(
+                          0,
+                          RouteNames.VACCINE_DETAIL_MANAGEMENT.lastIndexOf("/")
+                        )}/${order.id}`}
+                      >
+                        <Button type="primary" block>
+                          Details
+                        </Button>
+                      </Link>
+                      <Button
+                        onClick={() => {
+                          setDeletingVaccineId(order.id);
+                          setIsDeleteModalOpen(true);
+                        }}
+                        style={{ background: "red", color: "white" }}
+                        block
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  ),
+                },
+              ]}
+              pagination={{ pageSize: 5 }}
+            />
+          </div>
+        </Card>
       </Content>
+
     </Layout>
   );
 }

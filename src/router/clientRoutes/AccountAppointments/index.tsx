@@ -1,68 +1,75 @@
 import { useState, useEffect } from "react";
-import { Card, Table, Tag, Button, Modal, Typography, Input, Space, List } from "antd";
+import { Card, Table, Tag, Button, Modal, Typography, Input, Space, List, DatePicker } from "antd";
 import { SearchOutlined, CalendarOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons";
-import ProfileLayout from "@/layout/CustomerProfileLayout";
+import type { ColumnsType } from "antd/es/table";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { getAppointmentByClientId } from "@/services/ApiServices/appoinmentService";
+type RangeValue = [Dayjs, Dayjs] | null;
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+import { Calendar, Badge } from "antd";
+
 
 const { Title, Text } = Typography;
-
-const data = [
-    {
-        id: 1,
-        date: "2025-04-01",
-        time: "10:00 AM",
-        doctor: "Dr. John Smith",
-        status: "Confirmed",
-        description: "Regular vaccination check-up for your child.",
-        vaccines: ["Hepatitis B", "Influenza"],
-        vaccinePackages: ["Basic Immunization Package"],
-        totalPrice: 120.0,
-    },
-    {
-        id: 2,
-        date: "2025-04-05",
-        time: "02:30 PM",
-        doctor: "Dr. Emily Johnson",
-        status: "Pending",
-        description: "Follow-up appointment for allergy testing.",
-        vaccines: ["Measles", "Polio"],
-        vaccinePackages: ["Child Safety Package"],
-        totalPrice: 150.0,
-    },
-    {
-        id: 3,
-        date: "2025-04-10",
-        time: "09:00 AM",
-        doctor: "Dr. Michael Lee",
-        status: "Cancelled",
-        description: "Vaccination booster shot appointment.",
-        vaccines: [],
-        vaccinePackages: [],
-        totalPrice: 0,
-    },
-    {
-        id: 4,
-        date: "2025-04-15",
-        time: "01:15 PM",
-        doctor: "Dr. Sarah Wilson",
-        status: "Confirmed",
-        description: "Routine health check-up for your child.",
-        vaccines: ["Tetanus", "Diphtheria"],
-        vaccinePackages: ["Full Protection Package"],
-        totalPrice: 180.0,
-    },
-];
+const { RangePicker } = DatePicker;
 
 const AccountAppointments = () => {
-    const [appointments, setAppointments] = useState(data);
+    const [appointments, setAppointments] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
     const [searchText, setSearchText] = useState("");
+    const [filteredDates, setFilteredDates] = useState<RangeValue>(null);
+    const userToken = useSelector((state: RootState) => state.token.user);
+    const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+
 
     const showDetails = (appointment: any) => {
         setSelectedAppointment(appointment);
         setIsModalVisible(true);
     };
+
+    console.log(userToken)
+
+    useEffect(() => {
+        if (!userToken?.id) return;
+
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const res = await getAppointmentByClientId(userToken.id);
+
+                const mapped = (res.appointments || []).map((a: any) => {
+                    const parsedDate = dayjs(a.appointmentDate, "MM/DD/YYYY HH:mm:ss");
+
+                    return {
+                        ...a,
+                        appointmentDateObj: parsedDate,
+                        date: parsedDate.format("YYYY-MM-DD"),
+                        time: parsedDate.format("hh:mm A"),
+                        doctor: a.assignedStaffId ? `Staff #${a.assignedStaffId}` : "Chưa phân công",
+                        vaccines: [],
+                        vaccinePackages: [],
+                        totalPrice: a.price || 0,
+                    };
+                });
+
+                setAppointments(mapped);
+            } catch (error) {
+                console.error("Failed to load appointments", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [userToken]);
+
 
     const handleCancelAppointment = (id: number) => {
         Modal.confirm({
@@ -75,39 +82,75 @@ const AccountAppointments = () => {
             },
         });
     };
+    //     {
+    //         title: "Date & Time",
+    //         dataIndex: "date",
+    //         render: (_: any, record: any) => (
+    //             <Text>{`${record.date} ${record.time}`}</Text>
+    //         ),
+    //     },
+    //     {
+    //         title: "Doctor",
+    //         dataIndex: "doctor",
+    //         render: (text: any) => <Text strong>{text}</Text>,
+    //     },
+    //     {
+    //         title: "Status",
+    //         dataIndex: "status",
+    //         render: (status: any) => {
+    //             const color = status === "Confirmed" ? "green" : status === "Pending" ? "blue" : "red";
+    //             return <Tag color={color}>{status}</Tag>;
+    //         },
+    //     },
+    //     {
+    //         title: "Total Price",
+    //         dataIndex: "totalPrice",
+    //         render: (price: number) => <Text strong>${price.toFixed(2)}</Text>,
+    //     },
+    //     {
+    //         title: "Actions",
+    //         render: (record: any) => (
+    //             <Space>
+    //                 <Button icon={<EyeOutlined />} onClick={() => showDetails(record)}>View</Button>
+    //                 {record.status === "Pending" && (
+    //                     <Button danger icon={<CloseOutlined />} onClick={() => handleCancelAppointment(record.id)}>Cancel</Button>
+    //                 )}
+    //             </Space>
+    //         ),
+    //     },
+    // ];
 
-    const columns = [
+    const columns: ColumnsType<any> = [
         {
             title: "Date & Time",
-            dataIndex: "date",
-            render: (_: any, record: any) => (
-                <Text>{`${record.date} ${record.time}`}</Text>
-            ),
-        },
-        {
-            title: "Doctor",
-            dataIndex: "doctor",
-            render: (text: any) => <Text strong>{text}</Text>,
+            dataIndex: "appointmentDateObj",
+            render: (date: dayjs.Dayjs) => <Text>{date?.format("YYYY-MM-DD HH:mm")}</Text>,
+            sorter: (a, b) => a.appointmentDateObj.unix() - b.appointmentDateObj.unix(),
         },
         {
             title: "Status",
             dataIndex: "status",
-            render: (status: any) => {
-                const color = status === "Confirmed" ? "green" : status === "Pending" ? "blue" : "red";
+            render: (status: string) => {
+                const color = status === "CONFIRMED" ? "green" : status === "PENDING" ? "blue" : "red";
                 return <Tag color={color}>{status}</Tag>;
             },
         },
         {
+            title: "Description",
+            dataIndex: "description",
+        },
+        {
             title: "Total Price",
-            dataIndex: "totalPrice",
-            render: (price: number) => <Text strong>${price.toFixed(2)}</Text>,
+            dataIndex: "price",
+            render: (price: number) => <Text strong>${price?.toFixed(2)}</Text>,
+            sorter: (a, b) => a.price - b.price,
         },
         {
             title: "Actions",
             render: (record: any) => (
                 <Space>
                     <Button icon={<EyeOutlined />} onClick={() => showDetails(record)}>View</Button>
-                    {record.status === "Pending" && (
+                    {record.status === "PENDING" && (
                         <Button danger icon={<CloseOutlined />} onClick={() => handleCancelAppointment(record.id)}>Cancel</Button>
                     )}
                 </Space>
@@ -115,66 +158,111 @@ const AccountAppointments = () => {
         },
     ];
 
+    const filteredData = appointments.filter((a: any) => {
+        const matchesSearch = a.doctor?.toLowerCase().includes(searchText.toLowerCase());
+        const appointmentDate = dayjs(a.appointmentDate);
+
+        const matchesRange = !filteredDates || (
+            appointmentDate.isValid() &&
+            appointmentDate.isSameOrAfter(filteredDates[0], "day") &&
+            appointmentDate.isSameOrBefore(filteredDates[1], "day")
+        );
+
+        const matchesSelected = !selectedDate || appointmentDate.isSame(selectedDate, "day");
+
+        return matchesSearch && matchesRange && matchesSelected;
+    });
+
+    const dateCellRender = (value: Dayjs) => {
+        const hasAppointment = appointments.some(
+            (a) => dayjs(a.appointmentDateObj).isSame(value, "day")
+        );
+
+        return hasAppointment ? (
+            <div
+                className="!w-full !h-full"
+                style={{
+                    backgroundColor: "#bae7ff",
+                    border: "2px solid #1890ff",
+                    borderRadius: "6px",
+                }}
+            />
+        ) : null;
+    };
+
     return (
         <>
-            <div className="w-full flex justify-center">
-                <div className="w-5xl mx-auto bg-gray-100 rounded-lg shadow-md flex gap-8">
-                    <Card title={<Title className="!mt-6 !mb-6" level={3}><CalendarOutlined /> My Appointments</Title>} className="w-full shadow-lg rounded-lg p-6 bg-white">
-                        <Input
-                            prefix={<SearchOutlined />}
-                            placeholder="Search appointments..."
-                            onChange={(e) => setSearchText(e.target.value)}
-                            style={{ marginBottom: 16 }}
+            <div className="!w-full !flex !justify-center">
+                <div className="!w-7xl !mx-auto !bg-gray-100 !rounded-lg !flex !flex-col lg:!flex-row !gap-6">
+                    <div className="lg:!w-1/3 !w-full !bg-white !p-4 !rounded !shadow">
+                        <Calendar
+                            fullscreen={false}
+                            dateCellRender={dateCellRender}
+                            onSelect={(date) => setSelectedDate(date)}
+                            className="!bg-white !rounded-md !shadow"
                         />
-                        <Table
-                            columns={columns}
-                            dataSource={appointments?.filter((a) => a.doctor.toLowerCase().includes(searchText.toLowerCase()))}
-                            rowKey="id"
-                            loading={loading}
-                        />
-                    </Card>
-                    <Modal
-                        title="Appointment Details"
-                        open={isModalVisible}
-                        onCancel={() => setIsModalVisible(false)}
-                        footer={null}
-                    >
-                        {selectedAppointment && (
-                            <>
-                                <Text strong>Date & Time:</Text> <Text>{`${selectedAppointment.date} ${selectedAppointment.time}`}</Text>
-                                <br />
-                                <Text strong>Doctor:</Text> <Text>{selectedAppointment.doctor}</Text>
-                                <br />
-                                <Text strong>Status:</Text> <Tag>{selectedAppointment.status}</Tag>
-                                <br />
-                                <Text strong>Description:</Text> <Text>{selectedAppointment.description}</Text>
-                                <br />
-                                <Text strong>Vaccines:</Text>
-                                {selectedAppointment.vaccines.length > 0 ? (
-                                    <List
-                                        size="small"
-                                        dataSource={selectedAppointment.vaccines}
-                                        renderItem={(vaccine: any) => <List.Item>- {vaccine}</List.Item>}
-                                    />
-                                ) : (
-                                    <Text> None</Text>
-                                )}
-                                <br />
-                                <Text strong>Vaccine Packages:</Text>
-                                {selectedAppointment.vaccinePackages.length > 0 ? (
-                                    <List
-                                        size="small"
-                                        dataSource={selectedAppointment.vaccinePackages}
-                                        renderItem={(pkg: any) => <List.Item>- {pkg}</List.Item>}
-                                    />
-                                ) : (
-                                    <Text> None</Text>
-                                )}
-                                <br />
-                                <Text strong>Total Price:</Text> <Text strong style={{ color: "#1890ff" }}>${selectedAppointment.totalPrice.toFixed(2)}</Text>
-                            </>
-                        )}
-                    </Modal>
+                    </div>
+
+                    <div className="lg:!w-2/3 !w-full">
+                        <Card
+                            title={<Title className="!mt-6 !mb-6" level={3}><CalendarOutlined /> My Appointments</Title>}
+                            className="w-full shadow-lg rounded-lg p-6 bg-white"
+                        >
+                            <Space style={{ marginBottom: 16 }} direction="vertical" className="w-full">
+                                <Input
+                                    prefix={<SearchOutlined />}
+                                    placeholder="Search by description..."
+                                    onChange={(e) => setSearchText(e.target.value)}
+                                    allowClear
+                                />
+                                <RangePicker
+                                    onChange={(range: any) => setFilteredDates(range)}
+                                    className="w-full"
+                                />
+                            </Space>
+
+                            <Table
+                                columns={columns}
+                                dataSource={filteredData}
+                                rowKey="id"
+                                loading={loading}
+                            />
+                        </Card>
+
+                        <Modal
+                            title="Appointment Details"
+                            open={isModalVisible}
+                            onCancel={() => setIsModalVisible(false)}
+                            footer={null}
+                        >
+                            {selectedAppointment && (
+                                <>
+                                    <Text strong>Date & Time:</Text>{" "}
+                                    <Text>{selectedAppointment.appointmentDateObj.format("YYYY-MM-DD HH:mm")}</Text>
+                                    <br />
+                                    <Text strong>Status:</Text>{" "}
+                                    <Tag>{selectedAppointment.status}</Tag>
+                                    <br />
+                                    <Text strong>Description:</Text>{" "}
+                                    <Text>{selectedAppointment.description}</Text>
+                                    <br />
+                                    <Text strong>Vaccine ID:</Text>{" "}
+                                    <Text>{selectedAppointment.vaccineId || "None"}</Text>
+                                    <br />
+                                    <Text strong>Package ID:</Text>{" "}
+                                    <Text>{selectedAppointment.packageId || "None"}</Text>
+                                    <br />
+                                    <Text strong>Child ID:</Text>{" "}
+                                    <Text>{selectedAppointment.childId}</Text>
+                                    <br />
+                                    <Text strong>Total Price:</Text>{" "}
+                                    <Text strong style={{ color: "#1890ff" }}>
+                                        ${selectedAppointment.price.toFixed(2)}
+                                    </Text>
+                                </>
+                            )}
+                        </Modal>
+                    </div>
                 </div>
             </div>
         </>

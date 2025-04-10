@@ -82,25 +82,18 @@ const VaccineDetail = () => {
       />
       <Card styles={{ body: { width: "100%" }}} className="!w-full !rounded-3xl">
         <div className="!grid !grid-cols-8">
-          <div className="!col-span-3">
+          <div className="!col-span-3 !h-[240px]">
             <Carousel style={{ height: "100%" }} arrows
               prevArrow={<CustomArrow direction="left" />}
               nextArrow={<CustomArrow direction="right" />}
               dots={{ className: "custom-dots" }}
               infinite={false}
             >
-              <div className="!flex justify-center w-full">
-                <img src={home1} alt="Logo" className="max-h-[300px]" />
-              </div>
-              <div className="!flex justify-center w-full">
-                <img src={home2} alt="Logo" className="max-h-[300px]" />
-              </div>
-              <div className="!flex justify-center w-full">
-                <img src={home3} alt="Logo" className="max-h-[300px]" />
-              </div>
-              <div className="!flex justify-center w-full">
-                <img src={home4} alt="Logo" className="max-h-[300px]" />
-              </div>
+              {vaccine?.images.map((image: any) => (
+                <div className="!flex justify-center w-full">
+                  <img src={image.imageUrl} alt="Logo" className="max-h-[240px]" />
+                </div>
+              ))}
             </Carousel>
           </div>
           <div className="!col-span-5 !text-left !pl-4">
@@ -108,10 +101,18 @@ const VaccineDetail = () => {
             <h2 className="!mb-3 !text-2xl !font-bold">{vaccine?.name}</h2>
             <div>
               <span className="!text-3xl !font-semibold !text-orange-500">{vaccine?.price.toLocaleString("en-US", { style: "currency", currency: "USD" })}</span> 
-              <span>/ Tube</span>
+              <span>/ {vaccine?.unit}</span>
             </div>
             <Divider style={{ background: "rgba(255, 255, 255, 0.2)" }} />
-            <div>
+            <div className="">
+              <div className="!flex !items-center gap-4">
+                <span className="!font-semibold !text-gray-500">Unit</span> 
+                <span>{vaccine?.unit}</span>
+              </div>
+              <div className="!flex !items-center gap-4">
+                <span className="!font-semibold !text-gray-500">Recommended Age Range</span> 
+                <span>{vaccine?.recommendedAgeRange}</span>
+              </div>
               <p>{vaccine?.description}</p>
             </div>
           </div>

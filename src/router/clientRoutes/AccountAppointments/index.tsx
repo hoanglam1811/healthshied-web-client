@@ -209,12 +209,6 @@ const AccountAppointments = () => {
                             className="w-full shadow-lg rounded-lg p-6 bg-white"
                         >
                             <Space style={{ marginBottom: 16 }} direction="vertical" className="w-full">
-                                <Input
-                                    prefix={<SearchOutlined />}
-                                    placeholder="Search by description..."
-                                    onChange={(e) => setSearchText(e.target.value)}
-                                    allowClear
-                                />
                                 <RangePicker
                                     onChange={(range: any) => setFilteredDates(range)}
                                     className="w-full"

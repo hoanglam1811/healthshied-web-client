@@ -1,5 +1,5 @@
-import { AndroidOutlined, ArrowRightOutlined, CalendarOutlined, ClockCircleOutlined, CloseOutlined, EnvironmentOutlined, LeftCircleOutlined, LeftOutlined, MailOutlined, PhoneOutlined, RightCircleOutlined, RightOutlined, SearchOutlined, StarOutlined, UserOutlined } from "@ant-design/icons";
-import { Breadcrumb, Button, Card, Carousel, Checkbox, DatePicker, Form, Input, Modal, notification, Radio, Select, Spin, Table, Tabs, theme, TimePicker, Typography } from "antd";
+import { AndroidOutlined, ArrowRightOutlined, CalendarOutlined, ClockCircleOutlined, CloseOutlined, EnvironmentOutlined, LeftCircleOutlined, LeftOutlined, MailOutlined, PhoneOutlined, RightCircleOutlined, RightOutlined, SearchOutlined, StarOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Breadcrumb, Button, Card, Carousel, Checkbox, Col, DatePicker, Form, Input, Modal, notification, Radio, Row, Select, Spin, Table, Tabs, Tag, theme, TimePicker, Typography } from "antd";
 import { Content } from "antd/es/layout/layout";
 import logo from "@/assets/logo.png";
 import home1 from "@/assets/home1.png";
@@ -13,9 +13,9 @@ import { getChildrenByCustomerId } from "@/services/ApiServices/childService";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
-import { getUserById } from "@/services/ApiServices/userService";
+import { getAllUsers, getUserById } from "@/services/ApiServices/userService";
 import { getAllVaccinePackages, getVaccinePackageById } from "@/services/ApiServices/vaccinePackageService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import RouteNames from "@/constants/routeNames";
 import { IoCloseCircleOutline, IoWarningOutline, IoPersonOutline, IoCalendarOutline, IoDocumentText } from "react-icons/io5";
 import doctor from "../../../assets/doctor.png";
@@ -77,7 +77,23 @@ const Home = () => {
   const [appointmentTime, setAppointmentTime] = useState<any>(null);
   const [isModalSelectVisible, setIsModalSelectVisible] = useState(false);
   const [note, setNote] = useState("");
+  const [staffList, setStaffList] = useState<any[]>([]);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const res = await getAllUsers();
+        const staffOnly = res.users.filter((u: any) => u.role === "Staff");
+        setStaffList(staffOnly);
+      } catch (error) {
+        console.error("Failed to load staff", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStaff();
+  }, []);
 
   useEffect(() => {
     async function fetchPackages() {
@@ -453,6 +469,61 @@ const Home = () => {
             </div>
 
           </div>
+
+          <div className="!p-[40px_24px] !bg-white !mt-6 !mb-2 !rounded-[12px]">
+            <div className="!flex !justify-between !mb-[24px]">
+              <Title level={4} style={{ margin: 0 }}>
+                <TeamOutlined style={{ color: "#1890ff", marginRight: 8 }} />
+                Professional Team
+              </Title>
+              <Text
+                strong
+                style={{ cursor: "pointer", color: "#1677ff" }}
+                onClick={() => navigate(RouteNames.PROFESSIONAL_TEAM)}
+              >
+                View all &gt;
+              </Text>
+            </div>
+
+            <div className="!grid !grid-cols-1 sm:!grid-cols-2 lg:!grid-cols-4 !gap-6">
+              {(loading ? Array(4).fill(null) : staffList.slice(0, 4)).map((staff, index) => (
+                <div key={index} className="!w-full">
+                  <Card
+                    className="text-left"
+                    loading={loading}
+                    bordered={false}
+                    hoverable
+                    style={{
+                      borderRadius: 12,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <div className="!flex !items-center">
+                      <div className="!flex-[0_0_30%] !text-center">
+                        <Avatar
+                          size={80}
+                          src={`https://github.com/shadcn.png`}
+                          className="!mb-2"
+                        />
+                      </div>
+                      <div className="!flex-1 !pl-4">
+                        <Tag className="!mb-1" color="blue">
+                          Doctor
+                        </Tag>
+                        <Title level={5} style={{ margin: 0 }}>
+                          {staff?.fullName || "Unknown"}
+                        </Title>
+                        <Text type="secondary">General Department</Text>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              ))}
+            </div>
+
+          </div>
+
+
           <div style={{ marginTop: "20px", background: colorBgContainer, borderRadius: borderRadiusLG }}>
             <Title level={2} className="!pt-10 text-center">Register & schedule vaccination</Title>
             <Text className="block text-center !mb-6 text-gray-600">
@@ -472,7 +543,7 @@ const Home = () => {
               />
             </div>
 
-            <div className="!mt-10 w-full flex justify-center !mb-10">
+            <div className="w-full flex justify-center !mb-10">
               <div className="w-6xl mx-auto bg-gray-100 flex !gap-8">
                 <div className="w-full !p-6 bg-white">
                   <Form layout="vertical">
@@ -772,7 +843,6 @@ const Home = () => {
             </div>
 
           </div>
-
         </div>
       </div>
 

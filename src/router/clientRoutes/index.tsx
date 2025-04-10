@@ -8,6 +8,7 @@ import ProfileLayout from "@/layout/CustomerProfileLayout";
 import CustomerLayout from "@/layout/CustomerLayout";
 import VaccineList from "./VaccineList";
 import VaccineDetail from "./VaccineDetail";
+import ProfessionalTeam from "./ProfessionalTeam";
 
 const publicRoutes: RouteObject[] = [
   {
@@ -22,7 +23,10 @@ const publicRoutes: RouteObject[] = [
     path: RouteNames.VACCINE_DETAIL,
     element: <VaccineDetail />,
   },
-
+  {
+    path: RouteNames.PROFESSIONAL_TEAM,
+    element: <ProfessionalTeam />,
+  },
   
 ];
 

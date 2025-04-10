@@ -104,8 +104,8 @@ const CustomerLayout = () => {
     <div onClick={() => setIsFocused(false)}>
       {isFocused && <div className="!absolute !top-0 !left-0 !w-full !h-full !bg-[rgba(0,0,0,0.5)] !z-50">
       </div>}
-      <Header className="!fixed !top-0 !w-full !left-0 flex flex-wrap min-h-[fit-content] justify-between items-center !px-0 xl:!px-[10%] !z-60" style={{ display: 'flex', alignItems: 'center', pointerEvents: "auto" }}>
-        <div className="w-full lg:w-1/2 flex items-center gap-3">
+      <Header className="!fixed !top-0 !w-full !left-0 !flex !flex-wrap !min-h-[fit-content] !justify-between !items-center !px-0 xl:!px-[10%] !z-60" style={{ display: 'flex', alignItems: 'center', pointerEvents: "auto" }}>
+        <div className="!w-full !lg:w-1/2 !flex !items-center !gap-3">
           <img
             src={logo}
             alt="Logo"
@@ -157,7 +157,7 @@ const CustomerLayout = () => {
 
           </Form>
         </div>
-        <div className="w-full lg:w-1/2 min-w-[fit-content] flex items-center lg:justify-end gap-3">
+        <div className="!w-full !lg:w-1/2 !flex !items-center !lg:justify-end !gap-3">
           <div>
             <Button className="!rounded-[35px] !h-[40px] !bg-[rgb(30, 50, 80)]"
               style={{ background: "rgb(50, 80, 120)" }}
@@ -166,7 +166,7 @@ const CustomerLayout = () => {
                 <PhoneOutlined />
               }
             >
-              <span className="">Call Hotline: +84 999 999 999</span>
+              <span className="">Call Hotline: +84 999 999</span>
             </Button>
           </div>
 
@@ -217,6 +217,20 @@ const CustomerLayout = () => {
               </Dropdown>
             )}
           </div>
+
+          <div>
+  <Button
+    className="!rounded-[35px] !h-[40px] !font-semibold !text-white"
+    style={{
+      background: 'linear-gradient(to right, #ff9900, #ff6600)',
+      border: 'none',
+    }}
+    icon={<UserOutlined />}
+    onClick={() => navigate('/register-vaccine')}
+  >
+    Register for Vaccination
+  </Button>
+</div>
         </div>
       </Header>
       <div className="!mt-[64px]">

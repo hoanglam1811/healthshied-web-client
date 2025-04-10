@@ -77,16 +77,16 @@ const ProfessionalTeam = () => {
                         <Breadcrumb className="!mb-2">
                             <Breadcrumb.Item href="/">
                                 <HomeOutlined />
-                                <span>Trang chủ</span>
+                                <span>Home</span>
                             </Breadcrumb.Item>
-                            <Breadcrumb.Item>Đội ngũ chuyên môn</Breadcrumb.Item>
+                            <Breadcrumb.Item>Our Professional Team</Breadcrumb.Item>
                         </Breadcrumb>
 
                         <h1 className="!text-3xl !mt-17 !font-bold !text-black">
-                            Đội ngũ chuyên môn HealthShield
+                            HealthShield Professional Team
                         </h1>
                         <p className="!text-md !text-gray-600 !mt-6">
-                            Đội ngũ bác sĩ, dược sĩ giàu kinh nghiệm có thâm niên trong ngành, được tu nghiệp cả trong và ngoài nước.
+                            Our team of experienced doctors and pharmacists are highly trained both locally and internationally.
                         </p>
                     </div>
                     <div></div>
@@ -94,7 +94,6 @@ const ProfessionalTeam = () => {
                         className="!col-span-1 !bg-cover !bg-center !py-16"
                         style={{ backgroundImage: `url(${home1})`, backgroundSize: '100% 100%' }}
                     >
-
                     </div>
                 </div>
             </div>
@@ -110,8 +109,8 @@ const ProfessionalTeam = () => {
                             alt="icon"
                         />
                         <div>
-                            <h3 className="!text-md !text-black !font-semibold">Đội ngũ bác sĩ giàu kinh nghiệm</h3>
-                            <p className="!text-gray-500 !text-sm">Có thâm niên trong ngành, được tu nghiệp cả trong và ngoài nước.</p>
+                            <h3 className="!text-md !text-black !font-semibold">Experienced Medical Team</h3>
+                            <p className="!text-gray-500 !text-sm">Veterans in the field with training both domestically and abroad.</p>
                         </div>
                     </div>
 
@@ -123,8 +122,8 @@ const ProfessionalTeam = () => {
                             alt="icon"
                         />
                         <div>
-                            <h3 className="!text-md !text-black !font-semibold">Nghiệp vụ chuyên môn cao</h3>
-                            <p className="!text-gray-500 !text-sm">Các bác sĩ hiện đang công tác, giảng dạy tại bệnh viện hàng đầu cả nước.</p>
+                            <h3 className="!text-md !text-black !font-semibold">High Professional Expertise</h3>
+                            <p className="!text-gray-500 !text-sm">Our doctors are currently practicing and teaching at top hospitals in the country.</p>
                         </div>
                     </div>
 
@@ -136,8 +135,8 @@ const ProfessionalTeam = () => {
                             alt="icon"
                         />
                         <div>
-                            <h3 className="!text-md !text-black !font-semibold">Tâm huyết và tận tâm</h3>
-                            <p className="!text-gray-500 !text-sm">Sẵn sàng hỗ trợ chăm sóc sức khỏe bằng sự tận tâm & nhiệt huyết.</p>
+                            <h3 className="!text-md !text-black !font-semibold">Dedicated & Compassionate</h3>
+                            <p className="!text-gray-500 !text-sm">Ready to provide health care with dedication and compassion.</p>
                         </div>
                     </div>
                 </div>
@@ -160,7 +159,6 @@ const ProfessionalTeam = () => {
                     ))}
                 </div>
             </div>
-
         </div>
     );
 };

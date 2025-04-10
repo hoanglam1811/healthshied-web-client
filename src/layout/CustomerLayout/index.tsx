@@ -37,12 +37,12 @@ const CustomerLayout = () => {
   };
 
   const fetchVaccines = async () => {
-    try{
+    try {
       const response = await getAllVaccines();
       setVaccines(response.vaccines);
-    }catch (error) {
+    } catch (error) {
       console.log(error);
-      notification.error({message: "Something went wrong. Please try again later."});
+      notification.error({ message: "Something went wrong. Please try again later." });
     }
   }
 
@@ -116,23 +116,23 @@ const CustomerLayout = () => {
             setIsFocused(true);
           }}>
             <Input
-              placeholder={text} 
+              placeholder={text}
               onChange={(e) => {
                 setSearchText(e.target.value);
               }}
               className="w-full !rounded-[35px] !pr-[2px]" suffix={
-              <Tooltip title="Search">
-                <Button type="primary" shape="circle"
-                  style={{ background: "rgb(50, 80, 120)" }}
-                  icon={<SearchOutlined />} />
-              </Tooltip>
-            } />
-            {isFocused && 
-              <Card className="!absolute !w-full !max-h-[500px] !overflow-y-scroll"> 
+                <Tooltip title="Search">
+                  <Button type="primary" shape="circle"
+                    style={{ background: "rgb(50, 80, 120)" }}
+                    icon={<SearchOutlined />} />
+                </Tooltip>
+              } />
+            {isFocused &&
+              <Card className="!absolute !w-full !max-h-[500px] !overflow-y-scroll">
                 <div className="!text-left">
                   <div className="!text-xl !font-bold">Top vaccine list</div>
                   {vaccines?.map((vaccine: any) => (
-                    <Card  
+                    <Card
                       hoverable
                       onClick={(e) => {
                         e.stopPropagation();
@@ -146,7 +146,7 @@ const CustomerLayout = () => {
                       <div className="!w-[70%]">
                         <div className="!text-gray-500 !text-sm !font-semibold">{vaccine.contraindications}</div>
                         <div className="hover:!underline">{vaccine.name}</div>
-                        <div className="!text-orange-500">{vaccine.price.toLocaleString("en-US", 
+                        <div className="!text-orange-500">{vaccine.price.toLocaleString("en-US",
                           { style: "currency", currency: "USD" })}</div>
                       </div>
                     </Card>
@@ -219,22 +219,24 @@ const CustomerLayout = () => {
           </div>
 
           <div>
-  <Button
-    className="!rounded-[35px] !h-[40px] !font-semibold !text-white"
-    style={{
-      background: 'linear-gradient(to right, #ff9900, #ff6600)',
-      border: 'none',
-    }}
-    icon={<UserOutlined />}
-    onClick={() => navigate('/register-vaccine')}
-  >
-    Register for Vaccination
-  </Button>
-</div>
+            <Button
+              className="!rounded-[35px] !h-[40px] !font-semibold !text-white"
+              style={{
+                background: 'linear-gradient(to right, #ff9900, #ff6600)',
+                border: 'none',
+              }}
+              icon={<UserOutlined />}
+              onClick={() => {
+                navigate('/home', { state: { scrollTo: 'register' } });
+              }}
+            >
+              Register for Vaccination
+            </Button>
+          </div>
         </div>
       </Header>
       <div className="!mt-[64px]">
-      <Outlet />
+        <Outlet />
       </div>
       <Footer style={{ textAlign: 'center' }}>
         Healthshield ©{new Date().getFullYear()} Created by Tri Lam

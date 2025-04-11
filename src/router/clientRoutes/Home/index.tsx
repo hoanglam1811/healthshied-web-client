@@ -82,6 +82,8 @@ const Home = () => {
 
   const location = useLocation();
   const registerFormRef = useRef<HTMLDivElement>(null);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+
 
   useEffect(() => {
     if (location.state?.scrollTo === 'register' && registerFormRef.current) {
@@ -231,53 +233,63 @@ const Home = () => {
         .format("YYYY-MM-DD HH:mm:ss");
 
       let vaccinesToUse: any[] = [];
-      let totalPrice = 0;
-      let vaccineId = 0;
-      let packageId = 0;
+      let tempPrice = 0;
+      let vaccineIds: number[] = [];
+      let packageIds: number[] = [];
 
-      if (selectedPackage) {
-        const foundPackage = packages.find((pkg: any) => pkg.id === selectedPackage);
-        if (!foundPackage || !foundPackage.vaccines || foundPackage.vaccines.length === 0) {
+      const selectedPackageIds = Array.isArray(selectedPackage)
+        ? selectedPackage
+        : selectedPackage
+          ? [selectedPackage]
+          : [];
+
+      for (const pkgId of selectedPackageIds) {
+        const foundPackage = packages.find((pkg: any) => pkg.id === pkgId);
+        if (foundPackage && foundPackage.vaccines && foundPackage.vaccines.length > 0) {
+          vaccinesToUse.push(...foundPackage.vaccines);
+          packageIds.push(foundPackage.id);
+          tempPrice += foundPackage.price || 0;
+        } else {
           notification.error({
             message: "Missing Package Details",
-            description: "Selected package has no vaccines.",
+            description: `Package with ID ${pkgId} has no vaccines.`,
           });
           return;
         }
+      }
 
-        vaccinesToUse = foundPackage.vaccines;
-        packageId = foundPackage.id;
-        vaccineId = foundPackage.vaccines[0]?.id || 0; // lấy vaccine đầu tiên để gửi
-        totalPrice = foundPackage.price; // nếu bạn muốn dùng giá của cả gói
-      } else {
-        if (selectedVaccines.length === 0) {
-          notification.error({
-            message: "Missing Vaccines",
-            description: "Please select at least one vaccine.",
-          });
-          return;
-        }
-
-        vaccinesToUse = selectedVaccines;
-        vaccineId = selectedVaccines[0]?.id || 0;
-
-        // Tính tổng giá từng vaccine (dựa vào doseQuantity nếu có)
-        vaccinesToUse.forEach((v: any) => {
+      if (selectedVaccines.length > 0) {
+        vaccinesToUse.push(...selectedVaccines);
+        selectedVaccines.forEach((v: any) => {
           const doses = v.doseQuantity || 1;
-          totalPrice += (v.price || 0) * doses;
+          tempPrice += (v.price || 0) * doses;
         });
       }
 
+      vaccineIds = [...new Set(vaccinesToUse.map((v) => v.id))];
+
+      setTotalPrice(tempPrice);
+
+      if (vaccineIds.length === 0) {
+        notification.error({
+          message: "Missing Vaccines",
+          description: "Please select at least one vaccine or package.",
+        });
+        return;
+      }
+
       const payload = {
-        assignedStaffId: null,
-        childId: selectedChild.id,
-        vaccineId,
-        packageId,
-        recordId: 0,
-        price: totalPrice,
-        appointmentDate: combinedDateTime,
-        status: "PENDING",
-        description: note.trim(),
+        request: {
+          assignedStaffId: null,
+          childId: selectedChild.id,
+          recordId: 0,
+          price: tempPrice,
+          appointmentDate: combinedDateTime,
+          status: "PENDING",
+          description: note.trim(),
+        },
+        vaccineIds,
+        packageIds,
       };
 
       console.log("Final Payload", payload);
@@ -306,38 +318,6 @@ const Home = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const columns = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-    },
-    {
-      title: "Recommended Age Range",
-      dataIndex: "recommendedAgeRange",
-      key: "recommendedAgeRange",
-    },
-    {
-      title: "Contraindications",
-      dataIndex: "contraindications",
-      key: "contraindications",
-    },
-    {
-      title: "Price ($)",
-      dataIndex: "price",
-      key: "price",
-      render: (price: number) => price.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      }),
-    },
-  ];
-
   const fetchPackages = async () => {
     try {
       const response = await getAllVaccinePackages();
@@ -345,7 +325,6 @@ const Home = () => {
     }
     catch (err) {
       console.log(err);
-      notification.error({ message: "Something went wrong. Please try again later." })
     }
     finally {
 
@@ -529,7 +508,187 @@ const Home = () => {
                 </div>
               ))}
             </div>
+          </div>
 
+          <div>
+            <Card className="!px-[10%] !w-full !flex !justify-center !mt-7">
+              <h3 className="!text-3xl !font-bold !text-black !mb-3">
+                What vaccine should I get
+                <span className="!text-3xl !font-bold !text-orange-500 underline !ml-2">this season
+                </span>
+                <HeartIcon className="!text-3xl !inline-block !text-orange-500 !ml-2" />
+              </h3>
+              <Tabs className="!max-w-[1200px]" defaultActiveKey="1" items={
+                [
+                  {
+                    key: '1',
+                    label: 'Sốt xuất huyết',
+                    children: <div className="!text-left">
+                      <div className="!text-lg !font-bold !mb-3">Bảo vệ bản thân khỏi sốt xuất huyết Dengue thế nào?</div>
+                      <p className="!text-md !font-thin">Sốt xuất huyết Dengue là bệnh truyền nhiễm cấp tính do virus Dengue gây ra, lây truyền qua vết đốt của muỗi vằn Aedes. Bệnh có thể gây sốt cao, đau đầu, đau cơ, buồn nôn, nôn, phát ban và có thể dẫn đến các biến chứng nguy hiểm như xuất huyết, sốc, suy tạng, thậm chí tử vong. Hiện nay, vắc xin Qdenga là loại vắc xin sống, giảm độc lực được sử dụng để phòng ngừa bệnh sốt xuất huyết, dành cho trẻ từ 4 tuổi và người lớn. Tiêm phòng vắc xin là biện pháp hiệu quả giúp bảo vệ sức khỏe cho bạn và cộng đồng.</p>
+                    </div>,
+                  },
+                  {
+                    key: '2',
+                    label: 'Viêm não mô cầu ACYW',
+                    children: <div className="!text-left">
+                      <div className="!text-lg !font-bold !mb-3">Viêm màng não do não mô cầu ACYW nguy hiểm thế nào?</div>
+                      <p className="!text-md !font-thin">Viêm màng não do não mô cầu ACYW là bệnh nhiễm trùng nguy hiểm do vi khuẩn Neisseria meningitidis gây ra, có thể dẫn đến viêm màng não, nhiễm trùng máu, thậm chí tử vong, đặc biệt nguy hiểm ở trẻ nhỏ. Chủ động tiêm vắc xin phòng bệnh là cách để bảo vệ bản thân và gia đình, giúp ngăn ngừa nguy cơ mắc bệnh và biến chứng nghiêm trọng.</p>
+                    </div>,
+                  },
+                  {
+                    key: '3',
+                    label: 'Viêm não mô cầu B',
+                    children: <div className="!text-left">
+                      <div className="!text-lg !font-bold !mb-3">Làm sao để bảo vệ bản thân khỏi viêm màng não do não mô cầu B?</div>
+                      <p className="!text-md !font-thin">Viêm màng não do não mô cầu B là một bệnh nhiễm trùng nguy hiểm do vi khuẩn Neisseria meningitidis nhóm B gây ra. Bệnh có thể gây viêm màng não, nhiễm trùng máu và dẫn đến tử vong, đặc biệt nguy hiểm ở trẻ nhỏ. Để chủ động phòng ngừa bệnh, nên tiêm vắc xin Bexsero, loại vắc xin tái tổ hợp dành cho trẻ từ 2 tháng tuổi đến người lớn tròn 50 tuổi.</p>
+                    </div>,
+                  },
+                ]
+              } />
+            </Card>
+
+          </div>
+
+          <div className="!bg-[#08293E] !py-3 !text-white !mt-8 !rounded-lg">
+            <h3 className="!mb-3 !flex !items-center !justify-center">
+              <StarOutlined className="!text-3xl !inline-block !text-[#2CD1D1] !mr-2" />
+              <span className="underline !mt-4 !text-3xl !font-bold !text-[#2CD1D1]">Vaccination Packages</span>
+              <span className="!text-3xl !mt-4 !font-bold !text-white !ml-2">for overall protection
+              </span>
+            </h3>
+
+            <div className="!py-10 !mt-3 !mb-3">
+              <div className="!max-w-7xl !mx-auto !px-4 !grid md:grid-cols-3 !gap-6 !text-left">
+                {/* Box 1 */}
+                <div className="!flex !items-center !gap-6">
+                  <img
+                    src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_59c5ff874f.png"
+                    className="!w-12 !h-12 !object-contain"
+                    alt="icon"
+                  />
+                  <div>
+                    <h3 className="!text-md !text-white !font-semibold">Free appointment reminders</h3>
+                    <p className="!text-gray-300 !text-sm">Accurate and scientific for the whole family</p>
+                  </div>
+                </div>
+
+                {/* Box 2 */}
+                <div className="!flex !items-start !gap-6">
+                  <img
+                    src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_1_5923799673.png"
+                    className="!w-12 !h-12 !object-contain"
+                    alt="icon"
+                  />
+                  <div>
+                    <h3 className="!text-md !text-white !font-semibold">Commitment to keep vaccine prices</h3>
+                    <p className="!text-gray-300 !text-sm">During the injection period according to the regimen</p>
+                  </div>
+                </div>
+
+                {/* Box 3 */}
+                <div className="!flex !items-start !gap-6">
+                  <img
+                    src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_3_626c50da92.png"
+                    className="!w-12 !h-12 !object-contain"
+                    alt="icon"
+                  />
+                  <div>
+                    <h3 className="!text-md !text-white !font-semibold">Committed always having enough vaccines</h3>
+                    <p className="!text-gray-300 !text-sm">No worries about shortages</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="!flex !items-center !justify-center !text-white">
+              <Card className="!w-[90%]">
+                <Tabs
+                  defaultActiveKey="1"
+                  tabPosition={"left"}
+                  style={{ height: "100%" }}
+                  items={packages.length > 0 ? packages.map((pkg: any, i: number) => {
+                    const id = String(i);
+                    return {
+                      label: <div>{`${pkg.name}`}</div>,
+                      key: id,
+                      disabled: i === 28,
+                      children:
+                        <div className="!h-[500px]">
+                          <div className="!mb-3">
+                            <div className="!text-2xl !font-bold !text-left ">{`${pkg.name}`}</div>
+                          </div>
+                          <div className="overflow-x-auto">
+                            <Table
+                              dataSource={pkg.vaccines}
+                              columns={[
+                                {
+                                  title: "Disease prevention",
+                                  dataIndex: "disease",
+                                  key: "disease",
+                                },
+                                {
+                                  title: "Vaccine name",
+                                  dataIndex: "name",
+                                  key: "name",
+                                },
+                                {
+                                  title: "Country",
+                                  dataIndex: "country",
+                                  key: "country",
+                                },
+                                {
+                                  title: "Dose",
+                                  dataIndex: "dose",
+                                  key: "dose",
+                                },
+                                {
+                                  title: "Price ($)",
+                                  dataIndex: "price",
+                                  key: "price",
+                                  render: (price: number) => price.toLocaleString("en-US", {
+                                    style: "currency",
+                                    currency: "USD",
+                                  }),
+                                },
+                              ]}
+                              pagination={false}
+                              bordered
+                              className="custom-table"
+                            />
+                          </div>
+                          <div className="!flex !text-left !mt-5">
+                            <div className="!w-[70%]">
+                              <Button
+                                className="!rounded-[35px] !h-[48px] !text-white !bg-[#01A9A8] !mr-2"
+                                icon={
+                                  <PhoneOutlined />
+                                }>
+                                Call advisor now
+                              </Button>
+                              <Button
+                                className="!rounded-[35px] !h-[48px] !text-[#01A9A8] !bg-[#E6F7FA] !mb-3"
+                              >
+                                See package details
+                                <ArrowRightOutlined />
+                              </Button>
+                              <p className="!text-md !font-thin">
+                                <LightbulbIcon className="!mr-2 !inline" />{`${pkg.description}`}
+                              </p>
+                            </div>
+                            <p className="!w-[30%] !flex !items-center !justify-center !text-xl !font-bold">
+                              {`${pkg.price.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                              })}`}
+                            </p>
+                          </div>
+                        </div>,
+                    };
+                  }) : []}
+                />
+              </Card>
+            </div>
           </div>
 
           <div ref={registerFormRef}>
@@ -753,12 +912,10 @@ const Home = () => {
                                     <Spin />
                                   </div>
                                 ) : (() => {
-                                  // Lấy danh sách vaccine theo package được chọn hoặc tất cả
                                   const allVaccines = selectedPackage
                                     ? packages.find((pkg: any) => pkg.id === selectedPackage)?.vaccines || []
                                     : packages?.flatMap((pkg: any) => pkg.vaccines) || [];
 
-                                  // Lọc trùng tên vaccine
                                   const uniqueVaccinesMap = new Map();
                                   allVaccines.forEach((vaccine: any) => {
                                     const lowerName = vaccine.name.toLowerCase();
@@ -767,12 +924,10 @@ const Home = () => {
                                     }
                                   });
 
-                                  // Lọc theo từ khoá tìm kiếm
                                   const filteredVaccines = Array.from(uniqueVaccinesMap.values()).filter((vaccine: any) =>
                                     vaccine.name.toLowerCase().includes(searchText.toLowerCase())
                                   );
 
-                                  // Hiển thị danh sách
                                   return filteredVaccines.length > 0 ? (
                                     filteredVaccines.map((vaccine: any) => (
                                       <div key={vaccine.id} className="!flex !items-center !space-x-2 !mb-2">
@@ -802,6 +957,16 @@ const Home = () => {
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                           />
+                        </div>
+
+                        <div className="!mt-4 !text-right">
+                          <Text strong>Total Price: </Text>
+                          <Text type="danger">
+                            {totalPrice.toLocaleString('en-US', {
+                              style: 'currency',
+                              currency: 'USD',
+                            })}
+                          </Text>
                         </div>
 
                       </div>
@@ -835,7 +1000,6 @@ const Home = () => {
                                   View Directions
                                 </Button>
                               </div>
-
                             </div>
                           </Card>
                         ))}
@@ -857,106 +1021,6 @@ const Home = () => {
         </div>
       </div>
 
-      <div>
-        <h3 className="!text-3xl !font-bold !text-black !mb-3">
-          What vaccine should I get
-          <span className="!text-3xl !font-bold !text-orange-500 underline !ml-2">this season
-          </span>
-          <HeartIcon className="!text-3xl !inline-block !text-orange-500 !ml-2" />
-        </h3>
-
-        <Card className="!px-[10%] !w-full !flex !justify-center">
-          <Tabs className="!max-w-[1200px]" defaultActiveKey="1" items={
-            [
-              {
-                key: '1',
-                label: 'Sốt xuất huyết',
-                children: <div className="!text-left">
-                  <div className="!text-lg !font-bold !mb-3">Bảo vệ bản thân khỏi sốt xuất huyết Dengue thế nào?</div>
-                  <p className="!text-md !font-thin">Sốt xuất huyết Dengue là bệnh truyền nhiễm cấp tính do virus Dengue gây ra, lây truyền qua vết đốt của muỗi vằn Aedes. Bệnh có thể gây sốt cao, đau đầu, đau cơ, buồn nôn, nôn, phát ban và có thể dẫn đến các biến chứng nguy hiểm như xuất huyết, sốc, suy tạng, thậm chí tử vong. Hiện nay, vắc xin Qdenga là loại vắc xin sống, giảm độc lực được sử dụng để phòng ngừa bệnh sốt xuất huyết, dành cho trẻ từ 4 tuổi và người lớn. Tiêm phòng vắc xin là biện pháp hiệu quả giúp bảo vệ sức khỏe cho bạn và cộng đồng.</p>
-                </div>,
-              },
-              {
-                key: '2',
-                label: 'Viêm não mô cầu ACYW',
-                children: <div className="!text-left">
-                  <div className="!text-lg !font-bold !mb-3">Viêm màng não do não mô cầu ACYW nguy hiểm thế nào?</div>
-                  <p className="!text-md !font-thin">Viêm màng não do não mô cầu ACYW là bệnh nhiễm trùng nguy hiểm do vi khuẩn Neisseria meningitidis gây ra, có thể dẫn đến viêm màng não, nhiễm trùng máu, thậm chí tử vong, đặc biệt nguy hiểm ở trẻ nhỏ. Chủ động tiêm vắc xin phòng bệnh là cách để bảo vệ bản thân và gia đình, giúp ngăn ngừa nguy cơ mắc bệnh và biến chứng nghiêm trọng.</p>
-                </div>,
-              },
-              {
-                key: '3',
-                label: 'Viêm não mô cầu B',
-                children: <div className="!text-left">
-                  <div className="!text-lg !font-bold !mb-3">Làm sao để bảo vệ bản thân khỏi viêm màng não do não mô cầu B?</div>
-                  <p className="!text-md !font-thin">Viêm màng não do não mô cầu B là một bệnh nhiễm trùng nguy hiểm do vi khuẩn Neisseria meningitidis nhóm B gây ra. Bệnh có thể gây viêm màng não, nhiễm trùng máu và dẫn đến tử vong, đặc biệt nguy hiểm ở trẻ nhỏ. Để chủ động phòng ngừa bệnh, nên tiêm vắc xin Bexsero, loại vắc xin tái tổ hợp dành cho trẻ từ 2 tháng tuổi đến người lớn tròn 50 tuổi.</p>
-                </div>,
-              },
-            ]
-          } />
-        </Card>
-
-      </div>
-
-      <div className="!bg-[#08293E] !py-3 !text-white">
-        <h3 className="!mb-3 !flex !items-center !justify-center">
-          <StarOutlined className="!text-3xl !inline-block !text-[#2CD1D1] !mr-2" />
-          <span className="underline !text-3xl !font-bold !text-[#2CD1D1]">Vaccination Packages</span>
-          <span className="!text-3xl !font-bold !text-white !ml-2">for overall protection
-          </span>
-        </h3>
-
-        <div className="!flex !items-center !justify-center !text-white">
-          <Card className="!w-[70%]">
-            <Tabs
-              defaultActiveKey="1"
-              tabPosition={"left"}
-              style={{ height: 500 }}
-              items={packages.length > 0 ? packages.map((pkg: any, i: number) => {
-                const id = String(i);
-                return {
-                  label: <div>{`${pkg.name}`}</div>,
-                  key: id,
-                  disabled: i === 28,
-                  children:
-                    <div className="!h-[500px]">
-                      <div className="!text-xl !font-bold">{`${pkg.name}`}</div>
-                      <Table className="!h-[70%] !overflow-y-scroll" dataSource={pkg.vaccines}
-                        columns={columns}
-                        pagination={{ pageSize: 5 }} />
-                      <div className="!flex !text-left !mt-5">
-                        <div className="!w-[70%]">
-                          <Button
-                            className="!rounded-[35px] !h-[48px] !text-white !bg-[#01A9A8] !mr-2"
-                            icon={
-                              <PhoneOutlined />
-                            }>
-                            Call advisor now
-                          </Button>
-                          <Button
-                            className="!rounded-[35px] !h-[48px] !text-[#01A9A8] !bg-[#E6F7FA] !mb-3"
-                          >
-                            See package details
-                            <ArrowRightOutlined />
-                          </Button>
-                          <p className="!text-md !font-thin">
-                            <LightbulbIcon className="!mr-2 !inline" />{`${pkg.description}`}
-                          </p>
-                        </div>
-                        <p className="!w-[30%] !flex !items-center !justify-center !text-xl !font-bold">
-                          {`${pkg.price.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          })}`}
-                        </p>
-                      </div>
-                    </div>,
-                };
-              }) : []}
-            />
-          </Card>
-        </div>
-      </div>
     </Content>
   )
 }

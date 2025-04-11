@@ -614,7 +614,7 @@ const Home = () => {
                       key: id,
                       disabled: i === 28,
                       children:
-                        <div className="!h-[500px]">
+                        <div className="!h-[fit-content]">
                           <div className="!mb-3">
                             <div className="!text-2xl !font-bold !text-left ">{`${pkg.name}`}</div>
                           </div>

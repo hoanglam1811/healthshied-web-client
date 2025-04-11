@@ -605,88 +605,112 @@ const Home = () => {
               <Card className="!w-[90%]">
                 <Tabs
                   defaultActiveKey="1"
-                  tabPosition={"left"}
+                  tabPosition="left"
                   style={{ height: "100%" }}
-                  items={packages.length > 0 ? packages.map((pkg: any, i: number) => {
-                    const id = String(i);
-                    return {
-                      label: <div>{`${pkg.name}`}</div>,
-                      key: id,
-                      disabled: i === 28,
-                      children:
-                        <div className="!h-[500px]">
-                          <div className="!mb-3">
-                            <div className="!text-2xl !font-bold !text-left ">{`${pkg.name}`}</div>
+                  items={packages.length > 0
+                    ? packages.map((pkg: any, i: number) => {
+                      const id = String(i);
+                      return {
+                        label: (
+                          <div className="!flex !items-center !justify-between !bg-[#eaf1fb] hover:!bg-[#dce8f5] !rounded-lg !px-3 !py-2">
+                            <div className="!flex !items-center">
+                              <div className="!bg-[#c7d7f0] !px-2 !py-1 !rounded-l-lg !rounded-tr-[40%] !rounded-br-[40%] !mr-3">
+                                <img
+                                  src={pkg.image || "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/smalls/icon_goi_phu_nu_truoc_khi_mang_thai_75358e9a30.png"}
+                                  alt=""
+                                  className="!w-8 !h-8"
+                                />
+                              </div>
+                              <div className="!text-[#0050b3] !font-medium !text-sm !text-left">
+                                {pkg.name}
+                              </div>
+                            </div>
+                            <div className="!w-[24px] !h-[24px] !rounded-full !ml-2 !bg-[#0050b3] !flex !items-center !justify-center !text-white !text-sm">
+                              &gt;
+                            </div>
                           </div>
-                          <div className="overflow-x-auto">
-                            <Table
-                              dataSource={pkg.vaccines}
-                              columns={[
-                                {
-                                  title: "Disease prevention",
-                                  dataIndex: "disease",
-                                  key: "disease",
-                                },
-                                {
-                                  title: "Vaccine name",
-                                  dataIndex: "name",
-                                  key: "name",
-                                },
-                                {
-                                  title: "Country",
-                                  dataIndex: "country",
-                                  key: "country",
-                                },
-                                {
-                                  title: "Dose",
-                                  dataIndex: "dose",
-                                  key: "dose",
-                                },
-                                {
-                                  title: "Price ($)",
-                                  dataIndex: "price",
-                                  key: "price",
-                                  render: (price: number) => price.toLocaleString("en-US", {
-                                    style: "currency",
-                                    currency: "USD",
-                                  }),
-                                },
-                              ]}
-                              pagination={false}
-                              bordered
-                              className="custom-table"
-                            />
-                          </div>
-                          <div className="!flex !text-left !mt-5">
-                            <div className="!w-[70%]">
-                              <Button
-                                className="!rounded-[35px] !h-[48px] !text-white !bg-[#01A9A8] !mr-2"
-                                icon={
-                                  <PhoneOutlined />
-                                }>
-                                Call advisor now
-                              </Button>
-                              <Button
-                                className="!rounded-[35px] !h-[48px] !text-[#01A9A8] !bg-[#E6F7FA] !mb-3"
-                              >
-                                See package details
-                                <ArrowRightOutlined />
-                              </Button>
-                              <p className="!text-md !font-thin">
-                                <LightbulbIcon className="!mr-2 !inline" />{`${pkg.description}`}
+                        ),
+
+                        key: id,
+                        disabled: i === 28,
+
+                        children: (
+                          <div className="!h-[500px]">
+                            <div className="!mb-3">
+                              <div className="!text-2xl !font-bold !text-left">{pkg.name}</div>
+                            </div>
+                            <div className="overflow-x-auto">
+                              <Table
+                                dataSource={pkg.vaccines}
+                                columns={[
+                                  {
+                                    title: "Disease prevention",
+                                    dataIndex: "disease",
+                                    key: "disease",
+                                  },
+                                  {
+                                    title: "Vaccine name",
+                                    dataIndex: "name",
+                                    key: "name",
+                                  },
+                                  {
+                                    title: "Country",
+                                    dataIndex: "country",
+                                    key: "country",
+                                  },
+                                  {
+                                    title: "Dose",
+                                    dataIndex: "dose",
+                                    key: "dose",
+                                  },
+                                  {
+                                    title: "Price ($)",
+                                    dataIndex: "price",
+                                    key: "price",
+                                    render: (price: number) =>
+                                      price.toLocaleString("en-US", {
+                                        style: "currency",
+                                        currency: "USD",
+                                      }),
+                                  },
+                                ]}
+                                pagination={false}
+                                bordered
+                                className="custom-table"
+                              />
+                            </div>
+
+                            <div className="!flex !text-left !mt-5">
+                              <div className="!w-[70%]">
+                                <Button
+                                  className="!rounded-[35px] !h-[48px] !text-white !bg-[#01A9A8] !mr-2"
+                                  icon={<PhoneOutlined />}
+                                >
+                                  Call advisor now
+                                </Button>
+                                <Button className="!rounded-[35px] !h-[48px] !text-[#01A9A8] !bg-[#E6F7FA] !mb-3">
+                                  See package details
+                                  <ArrowRightOutlined />
+                                </Button>
+                                <p className="!text-md !font-thin">
+                                  <LightbulbIcon className="!mr-2 !inline" />
+                                  {pkg.description}
+                                </p>
+                              </div>
+                              <p className="!w-[30%] !flex !items-center !justify-center !text-xl !font-bold">
+                                {pkg.price.toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
                               </p>
                             </div>
-                            <p className="!w-[30%] !flex !items-center !justify-center !text-xl !font-bold">
-                              {`${pkg.price.toLocaleString("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                              })}`}
-                            </p>
                           </div>
-                        </div>,
-                    };
-                  }) : []}
+                        ),
+                      };
+                    })
+                    : []}
                 />
+
               </Card>
             </div>
           </div>

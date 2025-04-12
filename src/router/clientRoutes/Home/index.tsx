@@ -1,5 +1,5 @@
-import { AndroidOutlined, ArrowRightOutlined, CalendarOutlined, ClockCircleOutlined, CloseOutlined, EnvironmentOutlined, LeftCircleOutlined, LeftOutlined, MailOutlined, PhoneOutlined, RightCircleOutlined, RightOutlined, SearchOutlined, StarOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Breadcrumb, Button, Card, Carousel, Checkbox, Col, DatePicker, Form, Input, Modal, notification, Radio, Row, Select, Spin, Table, Tabs, Tag, theme, TimePicker, Typography } from "antd";
+import { ArrowRightOutlined, EnvironmentOutlined, LeftOutlined, MailOutlined, PhoneOutlined, RightOutlined, ScheduleOutlined, StarOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Card, Carousel, DatePicker, Form, Input, Modal, notification, Radio, Select, Spin, Table, Tabs, Tag, theme, TimePicker, Typography } from "antd";
 import { Content } from "antd/es/layout/layout";
 import logo from "@/assets/logo.png";
 import home1 from "@/assets/home1.png";
@@ -7,19 +7,20 @@ import home2 from "@/assets/home2.png";
 import home3 from "@/assets/home3.png";
 import home4 from "@/assets/home4.png";
 import home5 from "@/assets/home5.png";
-import { HeartIcon, LightbulbIcon } from "lucide-react";
+import { HeartIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { getChildrenByCustomerId } from "@/services/ApiServices/childService";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import { getAllUsers, getUserById } from "@/services/ApiServices/userService";
-import { getAllVaccinePackages, getVaccinePackageById } from "@/services/ApiServices/vaccinePackageService";
+import { getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import RouteNames from "@/constants/routeNames";
-import { IoCloseCircleOutline, IoWarningOutline, IoPersonOutline, IoCalendarOutline, IoDocumentText } from "react-icons/io5";
+import { IoWarningOutline, IoCalendarOutline, IoDocumentText } from "react-icons/io5";
 import doctor from "../../../assets/doctor.png";
 import { createAppointment } from "@/services/ApiServices/appoinmentService";
+import TabPane from "antd/es/tabs/TabPane";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -66,13 +67,10 @@ const Home = () => {
   const [selectedChild, setSelectedChild] = useState<any>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const [selectedVaccines, setSelectedVaccines] = useState<any[]>([]);
-  const [searchText, setSearchText] = useState("");
   const [packages, setPackages] = useState<any>([]);
-  const [selectionType, setSelectionType] = useState<"consultation" | "injection">(
-    "consultation"
-  );
+
   const [appointmentDate, setAppointmentDate] = useState<any>(null);
   const [appointmentTime, setAppointmentTime] = useState<any>(null);
   const [isModalSelectVisible, setIsModalSelectVisible] = useState(false);
@@ -83,7 +81,7 @@ const Home = () => {
   const location = useLocation();
   const registerFormRef = useRef<HTMLDivElement>(null);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (location.state?.scrollTo === 'register' && registerFormRef.current) {
@@ -119,30 +117,6 @@ const Home = () => {
     }
     fetchPackages();
   }, []);
-
-  const handlePackageSelect = async (id: any) => {
-    setLoading(true);
-    try {
-      const data = await getVaccinePackageById(id);
-      setPackages((prev: any) =>
-        prev.map((pkg: any) =>
-          pkg.id === id ? { ...pkg, vaccines: data.vaccines } : pkg
-        )
-      );
-      setSelectedPackage(id);
-    } catch (error) {
-      console.error("Failed to fetch vaccine package details:", error);
-    }
-    setLoading(false);
-  };
-
-  const handleVaccineToggle = (vaccineId: any) => {
-    setSelectedVaccines((prev: any) =>
-      prev.includes(vaccineId)
-        ? prev.filter((id: any) => id !== vaccineId)
-        : [...prev, vaccineId]
-    );
-  };
 
   useEffect(() => {
     if (!customerId) return;
@@ -196,7 +170,8 @@ const Home = () => {
     }
   }, [userToken]);
 
-  const showModal = () => {
+  const showModal = (pkg: any) => {
+    setSelectedPackage(pkg);
     setIsModalVisible(true);
   };
 
@@ -550,173 +525,173 @@ const Home = () => {
 
           </div>
 
-          <div className="!bg-[#08293E] !py-3 !text-white !mt-8 !rounded-lg">
-            <h3 className="!mb-3 !flex !items-center !justify-center">
-              <StarOutlined className="!text-3xl !inline-block !text-[#2CD1D1] !mr-2" />
-              <span className="underline !mt-4 !text-3xl !font-bold !text-[#2CD1D1]">Vaccination Packages</span>
-              <span className="!text-3xl !mt-4 !font-bold !text-white !ml-2">for overall protection
-              </span>
-            </h3>
+          <div ref={registerFormRef}>
+            <div className="!bg-[#08293E] !py-3 !text-white !mt-8 !rounded-lg">
+              <h3 className="!mb-3 !flex !items-center !justify-center">
+                <StarOutlined className="!text-3xl !inline-block !text-[#2CD1D1] !mr-2" />
+                <span className="underline !mt-4 !text-3xl !font-bold !text-[#2CD1D1]">Vaccination Packages</span>
+                <span className="!text-3xl !mt-4 !font-bold !text-white !ml-2">for overall protection
+                </span>
+              </h3>
 
-            <div className="!py-10 !mt-3 !mb-3">
-              <div className="!max-w-7xl !mx-auto !px-4 !grid md:grid-cols-3 !gap-6 !text-left">
-                {/* Box 1 */}
-                <div className="!flex !items-center !gap-6">
-                  <img
-                    src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_59c5ff874f.png"
-                    className="!w-12 !h-12 !object-contain"
-                    alt="icon"
-                  />
-                  <div>
-                    <h3 className="!text-md !text-white !font-semibold">Free appointment reminders</h3>
-                    <p className="!text-gray-300 !text-sm">Accurate and scientific for the whole family</p>
+              <div className="!py-10 !mt-3 !mb-3">
+                <div className="!max-w-7xl !mx-auto !px-4 !grid md:grid-cols-3 !gap-6 !text-left">
+                  {/* Box 1 */}
+                  <div className="!flex !items-center !gap-6">
+                    <img
+                      src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_59c5ff874f.png"
+                      className="!w-12 !h-12 !object-contain"
+                      alt="icon"
+                    />
+                    <div>
+                      <h3 className="!text-md !text-white !font-semibold">Free appointment reminders</h3>
+                      <p className="!text-gray-300 !text-sm">Accurate and scientific for the whole family</p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Box 2 */}
-                <div className="!flex !items-start !gap-6">
-                  <img
-                    src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_1_5923799673.png"
-                    className="!w-12 !h-12 !object-contain"
-                    alt="icon"
-                  />
-                  <div>
-                    <h3 className="!text-md !text-white !font-semibold">Commitment to keep vaccine prices</h3>
-                    <p className="!text-gray-300 !text-sm">During the injection period according to the regimen</p>
+                  {/* Box 2 */}
+                  <div className="!flex !items-start !gap-6">
+                    <img
+                      src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_1_5923799673.png"
+                      className="!w-12 !h-12 !object-contain"
+                      alt="icon"
+                    />
+                    <div>
+                      <h3 className="!text-md !text-white !font-semibold">Commitment to keep vaccine prices</h3>
+                      <p className="!text-gray-300 !text-sm">During the injection period according to the regimen</p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Box 3 */}
-                <div className="!flex !items-start !gap-6">
-                  <img
-                    src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_3_626c50da92.png"
-                    className="!w-12 !h-12 !object-contain"
-                    alt="icon"
-                  />
-                  <div>
-                    <h3 className="!text-md !text-white !font-semibold">Committed always having enough vaccines</h3>
-                    <p className="!text-gray-300 !text-sm">No worries about shortages</p>
+                  {/* Box 3 */}
+                  <div className="!flex !items-start !gap-6">
+                    <img
+                      src="https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_3_626c50da92.png"
+                      className="!w-12 !h-12 !object-contain"
+                      alt="icon"
+                    />
+                    <div>
+                      <h3 className="!text-md !text-white !font-semibold">Committed always having enough vaccines</h3>
+                      <p className="!text-gray-300 !text-sm">No worries about shortages</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="!flex !items-center !justify-center !text-white">
-              <Card className="!w-[90%]">
-                <Tabs
-                  defaultActiveKey="1"
-                  tabPosition="left"
-                  style={{ height: "100%" }}
-                  items={packages.length > 0
-                    ? packages.map((pkg: any, i: number) => {
-                      const id = String(i);
-                      return {
-                        label: (
-                          <div className="!flex !items-center !justify-between !bg-[#eaf1fb] hover:!bg-[#dce8f5] !rounded-lg !px-3 !py-2">
-                            <div className="!flex !items-center">
-                              <div className="!bg-[#c7d7f0] !px-2 !py-1 !rounded-l-lg !rounded-tr-[40%] !rounded-br-[40%] !mr-3">
-                                <img
-                                  src={pkg.image || "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/smalls/icon_goi_phu_nu_truoc_khi_mang_thai_75358e9a30.png"}
-                                  alt=""
-                                  className="!w-8 !h-8"
+              <div className="!flex !items-center !justify-center !text-white">
+                <Card className="!w-[95%] !mb-6">
+                  <Tabs defaultActiveKey="1" tabPosition="left" style={{ height: "100%" }}>
+                    {packages?.length > 0 &&
+                      packages.map((pkg: any, i: any) => {
+                        const id = String(i);
+                        return (
+                          <TabPane
+                            tab={
+                              <div
+                                className="!h-[70px] !w-[300px] !flex !items-center !justify-between !bg-[#eaf1fb] hover:!bg-[#dce8f5] !rounded-lg !px-3 !py-2 !mr-4"
+                              >
+                                <div className="!flex !items-center">
+                                  <div className="!bg-[#c7d7f0] !px-2 !py-1 !rounded-l-lg !rounded-tr-[40%] !rounded-br-[40%] !mr-3">
+                                    <img
+                                      src={
+                                        pkg.imageUrl ||
+                                        "https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/smalls/icon_goi_phu_nu_truoc_khi_mang_thai_75358e9a30.png"
+                                      }
+                                      alt=""
+                                      className="!w-8 !h-8"
+                                    />
+                                  </div>
+                                  <div className="!text-[#0050b3] !font-medium !text-md !text-left !break-words !whitespace-normal">
+                                    {pkg.name}
+                                  </div>
+                                </div>
+                                <div className="!w-[24px] !h-[24px] !rounded-full !ml-2 !bg-[#0050b3] !flex !items-center !justify-center !text-white !text-sm">
+                                  &gt;
+                                </div>
+                              </div>
+                            }
+                            key={id}
+                          >
+                            <div className="!h-[fit-content]">
+                              <div className="!flex !justify-between !items-start !mb-3">
+                                <div className="!text-left">
+                                  <div className="!text-2xl !font-bold !text-[#0c1d3c]">{pkg.name}</div>
+                                  <div className="!text-base !text-blue-500 !mt-1">{pkg.description}</div>
+                                </div>
+
+                                <div className="!text-right">
+                                  <p className="!text-2xl !font-extrabold !text-green-600 !bg-green-100 !px-4 !py-1 !rounded-lg !shadow-md">
+                                    {pkg.price.toLocaleString("en-US", {
+                                      style: "currency",
+                                      currency: "USD",
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="overflow-x-auto">
+                                <Table
+                                  dataSource={pkg.vaccines}
+                                  rowKey="id"
+                                  columns={[
+                                    { title: "Disease prevention", dataIndex: "targetDisease", key: "targetDisease" },
+                                    { title: "Vaccine name", dataIndex: "name", key: "name" },
+                                    { title: "Country", dataIndex: "country", key: "country" },
+                                    { title: "Dose", dataIndex: "dose", key: "dose" },
+                                    {
+                                      title: "Price ($)",
+                                      dataIndex: "price",
+                                      key: "price",
+                                      render: (price: number) =>
+                                        price.toLocaleString("en-US", { style: "currency", currency: "USD" }),
+                                    },
+                                  ]}
+                                  pagination={false}
+                                  bordered
+                                  className="custom-table"
                                 />
                               </div>
-                              <div className="!text-[#0050b3] !font-medium !text-sm !text-left">
-                                {pkg.name}
+
+                              <div className="!flex !text-left !mt-9">
+                                <div className="!ml-60">
+                                  <Button
+                                    className="!rounded-[35px] !h-[48px] !text-white !bg-[#01A9A8] !mr-2"
+                                    icon={<PhoneOutlined />}
+                                  >
+                                    Call advisor now
+                                  </Button>
+
+                                  <Button
+                                    className="!rounded-[35px] !h-[48px] !text-[#01A9A8] !bg-[#E6F7FA] !mr-2"
+                                  >
+                                    See package details
+                                    <ArrowRightOutlined />
+                                  </Button>
+
+                                  <Button
+                                    className="!rounded-[35px] !h-[48px] !text-white !bg-[#52C41A]"
+                                    icon={<ScheduleOutlined />}
+                                    onClick={() => showModal(pkg)}
+                                  >
+                                    Book vaccination now
+                                  </Button>
+                                </div>
                               </div>
                             </div>
-                            <div className="!w-[24px] !h-[24px] !rounded-full !ml-2 !bg-[#0050b3] !flex !items-center !justify-center !text-white !text-sm">
-                              &gt;
-                            </div>
-                          </div>
-                        ),
-
-                        key: id,
-                        disabled: i === 28,
-
-                        children: (
-                          <div className="!h-[fit-content]">
-                            <div className="!mb-3">
-                              <div className="!text-2xl !font-bold !text-left">{pkg.name}</div>
-                            </div>
-                            <div className="overflow-x-auto">
-                              <Table
-                                dataSource={pkg.vaccines}
-                                columns={[
-                                  {
-                                    title: "Disease prevention",
-                                    dataIndex: "disease",
-                                    key: "disease",
-                                  },
-                                  {
-                                    title: "Vaccine name",
-                                    dataIndex: "name",
-                                    key: "name",
-                                  },
-                                  {
-                                    title: "Country",
-                                    dataIndex: "country",
-                                    key: "country",
-                                  },
-                                  {
-                                    title: "Dose",
-                                    dataIndex: "dose",
-                                    key: "dose",
-                                  },
-                                  {
-                                    title: "Price ($)",
-                                    dataIndex: "price",
-                                    key: "price",
-                                    render: (price: number) =>
-                                      price.toLocaleString("en-US", {
-                                        style: "currency",
-                                        currency: "USD",
-                                      }),
-                                  },
-                                ]}
-                                pagination={false}
-                                bordered
-                                className="custom-table"
-                              />
-                            </div>
-
-                            <div className="!flex !text-left !mt-5">
-                              <div className="!w-[70%]">
-                                <Button
-                                  className="!rounded-[35px] !h-[48px] !text-white !bg-[#01A9A8] !mr-2"
-                                  icon={<PhoneOutlined />}
-                                >
-                                  Call advisor now
-                                </Button>
-                                <Button className="!rounded-[35px] !h-[48px] !text-[#01A9A8] !bg-[#E6F7FA] !mb-3">
-                                  See package details
-                                  <ArrowRightOutlined />
-                                </Button>
-                                <p className="!text-md !font-thin">
-                                  <LightbulbIcon className="!mr-2 !inline" />
-                                  {pkg.description}
-                                </p>
-                              </div>
-                              <p className="!w-[30%] !flex !items-center !justify-center !text-xl !font-bold">
-                                {pkg.price.toLocaleString("en-US", {
-                                  style: "currency",
-                                  currency: "USD",
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        ),
-                      };
-                    })
-                    : []}
-                />
-
-              </Card>
+                          </TabPane>
+                        );
+                      })}
+                  </Tabs>
+                </Card>
+              </div>
             </div>
           </div>
 
-          <div ref={registerFormRef}>
-            <div style={{ marginTop: "20px", background: colorBgContainer, borderRadius: borderRadiusLG }}>
+          <Modal
+            open={isModalVisible}
+            onCancel={() => setIsModalVisible(false)}
+            onOk={handleOk}
+            width={"1000px"}
+          >
+            <div style={{ background: colorBgContainer, borderRadius: borderRadiusLG }}>
               <Title level={2} className="!pt-10 text-center">Register & schedule vaccination</Title>
               <Text className="block text-center !mb-6 text-gray-600">
                 Please register your vaccination information to save time when coming to the center.
@@ -792,7 +767,6 @@ const Home = () => {
                           )}
                         </Form.Item>
 
-
                         {/* Recipient Information */}
                         {selectedChild && (
                           <>
@@ -819,158 +793,43 @@ const Home = () => {
                           <UserOutlined /> Select Vaccine Type
                         </Title>
 
-                        {/* Selection Type */}
-                        <div className="!mb-4">
-                          <Radio.Group
-                            onChange={(e) => setSelectionType(e.target.value)}
-                            value={selectionType}
-                            className="!flex !gap-4"
-                          >
-                            <Radio value="consultation">Vaccines for Consultation</Radio>
-                            <Radio value="injection">Vaccines for Injection</Radio>
-                          </Radio.Group>
-                        </div>
-
-                        {selectionType === "injection" && (
-                          <>
-                            <div className="!grid !grid-cols-7 !gap-4 !mb-4">
-                              <div className="!col-span-3">
-                                <Select
-                                  mode="multiple"
-                                  placeholder="Select vaccines"
-                                  onClick={() => setIsModalSelectVisible(true)}
-                                  className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                  notFoundContent={""}
-                                />
-                              </div>
-
-                              <div className="!col-span-2">
-                                <DatePicker
-                                  placeholder="Select appointment date"
-                                  value={appointmentDate}
-                                  onChange={setAppointmentDate}
-                                  className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                />
-                              </div>
-
-                              <div className="!col-span-2">
-                                <TimePicker
-                                  placeholder="Select time slot"
-                                  value={appointmentTime}
-                                  onChange={setAppointmentTime}
-                                  className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                />
-                              </div>
-                            </div>
-
-                            <div className="!border !p-4 !rounded-lg !bg-gray-50">
-                              {selectedVaccines.length > 0 ? (
-                                <div className="!flex !flex-wrap !gap-2">
-                                  {selectedVaccines.map((vaccineId) => {
-                                    const vaccine = packages
-                                      .flatMap((pkg: any) => pkg.vaccines || [])
-                                      .find((v: any) => v.id === vaccineId);
-                                    return vaccine ? (
-                                      <div
-                                        key={vaccine.id}
-                                        className="!bg-gray-200 !px-3 !py-1 !rounded-lg !flex !items-center"
-                                      >
-                                        {vaccine.name}
-                                        <CloseOutlined
-                                          className="!ml-2 !cursor-pointer"
-                                          onClick={() => handleVaccineToggle(vaccine.id)}
-                                        />
-                                      </div>
-                                    ) : null;
-                                  })}
-                                </div>
-                              ) : (
-                                <p className="!text-gray-500">No vaccines selected.</p>
-                              )}
-                            </div>
-
-                            <Modal
-                              title="Select Vaccines"
-                              open={isModalSelectVisible}
-                              onCancel={() => setIsModalSelectVisible(false)}
-                              footer={[
-                                <Button key="save" type="primary" onClick={() => setIsModalSelectVisible(false)}>
-                                  Save
-                                </Button>,
-                              ]}
+                        <div className="!grid !grid-cols-7 !gap-4 !mb-4">
+                          <div className="!col-span-3">
+                            <Select
+                              mode="multiple"
+                              placeholder="Select vaccines"
+                              onClick={() => setIsModalSelectVisible(true)}
+                              className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                              notFoundContent={""}
+                              value={selectedPackage ? [selectedPackage.name] : []}
+                              disabled
                             >
-                              <div className="!mb-4">
-                                <Input
-                                  placeholder="Search by disease or vaccine package"
-                                  prefix={<SearchOutlined className="!text-gray-400" />}
-                                  value={searchText}
-                                  onChange={(e) => setSearchText(e.target.value)}
-                                  className="!py-2 !px-4 !w-full !border !border-gray-300 !rounded-lg !shadow-sm"
-                                />
-                              </div>
+                              {selectedPackage ? (
+                                <Select.Option key={selectedPackage.name} value={selectedPackage.name} disabled>
+                                  {selectedPackage.name}
+                                </Select.Option>
+                              ) : null}
+                            </Select>
+                          </div>
 
-                              <div className="!flex !gap-3 !mb-4">
-                                <Button
-                                  type={!selectedPackage ? "primary" : "default"}
-                                  onClick={() => setSelectedPackage(null)}
-                                  className="!px-4 !py-2 !rounded-lg"
-                                >
-                                  All
-                                </Button>
+                          <div className="!col-span-2">
+                            <DatePicker
+                              placeholder="Select appointment date"
+                              value={appointmentDate}
+                              onChange={setAppointmentDate}
+                              className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                            />
+                          </div>
 
-                                {packages?.map((pkg: any) => (
-                                  <Button
-                                    key={pkg.id}
-                                    type={selectedPackage === pkg.id ? "primary" : "default"}
-                                    onClick={() => handlePackageSelect(pkg.id)}
-                                    className="!px-4 !py-2 !rounded-lg"
-                                  >
-                                    {pkg.name}
-                                  </Button>
-                                ))}
-                              </div>
-
-                              <div className="!border !p-4 !rounded-lg !max-h-60 !overflow-y-auto !bg-gray-50">
-                                {loading ? (
-                                  <div className="!flex !justify-center !items-center !h-32">
-                                    <Spin />
-                                  </div>
-                                ) : (() => {
-                                  const allVaccines = selectedPackage
-                                    ? packages.find((pkg: any) => pkg.id === selectedPackage)?.vaccines || []
-                                    : packages?.flatMap((pkg: any) => pkg.vaccines) || [];
-
-                                  const uniqueVaccinesMap = new Map();
-                                  allVaccines.forEach((vaccine: any) => {
-                                    const lowerName = vaccine.name.toLowerCase();
-                                    if (!uniqueVaccinesMap.has(lowerName)) {
-                                      uniqueVaccinesMap.set(lowerName, vaccine);
-                                    }
-                                  });
-
-                                  const filteredVaccines = Array.from(uniqueVaccinesMap.values()).filter((vaccine: any) =>
-                                    vaccine.name.toLowerCase().includes(searchText.toLowerCase())
-                                  );
-
-                                  return filteredVaccines.length > 0 ? (
-                                    filteredVaccines.map((vaccine: any) => (
-                                      <div key={vaccine.id} className="!flex !items-center !space-x-2 !mb-2">
-                                        <Checkbox
-                                          checked={selectedVaccines.includes(vaccine.id)}
-                                          onChange={() => handleVaccineToggle(vaccine.id)}
-                                        />
-                                        <span className="!text-gray-700">{vaccine.name}</span>
-                                      </div>
-                                    ))
-                                  ) : (
-                                    <p className="!text-gray-500">No vaccines found.</p>
-                                  );
-                                })()}
-                              </div>
-                            </Modal>
-
-                          </>
-                        )}
+                          <div className="!col-span-2">
+                            <TimePicker
+                              placeholder="Select time slot"
+                              value={appointmentTime}
+                              onChange={setAppointmentTime}
+                              className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                            />
+                          </div>
+                        </div>
 
                         {/* Notes */}
                         <div className="!mt-4">
@@ -1001,7 +860,7 @@ const Home = () => {
                           <EnvironmentOutlined /> Vaccination Center
                         </Title>
                         {vaccinationCenters.map((center) => (
-                          <Card key={center.id} className="!mb-4 text-left border rounded-lg">
+                          <div key={center.id} className="!mb-4 text-left border rounded-lg">
                             <div className="flex items-center justify-between">
                               {/* Phần thông tin (70%) */}
                               <div className="flex-[7]">
@@ -1025,103 +884,69 @@ const Home = () => {
                                 </Button>
                               </div>
                             </div>
-                          </Card>
+                          </div>
                         ))}
                       </div>
 
-                      <Form.Item className="text-center mt-4">
-                        <Button type="primary" size="large" onClick={showModal}>Register Now</Button>
-                      </Form.Item>
+                      <div className="flex justify-between items-center !mt-6">
+                        <label className="!flex !items-start !gap-3 !rounded-xl !p-4 !w-full !hover:shadow-md !transition-shadow !duration-300">
+                          <input
+                            type="checkbox"
+                            className="accent-blue-600 !w-5 !h-5 !mt-1"
+                            checked={isChecked}
+                            onChange={onChange}
+                          />
+                          <span className="text-gray-800 !text-[16px] !leading-relaxed">
+                            <strong className="text-blue-700">Confirmation:</strong> I have carefully read and fully agree to comply with all the terms and conditions stated below, including any updates that may arise due to the vaccination center’s operational changes.
+                          </span>
+                        </label>
+                      </div>
+
+
+                      {isChecked && (
+                        <div className="!bg-white !p-6 !mt-6 !shadow-md !rounded-lg !mb-6 animate-fade-in">
+                          <Title level={4} className="!flex items-center gap-2 text-blue-600">
+                            <IoDocumentText className="text-2xl text-blue-500" />
+                            Terms & Conditions
+                          </Title>
+
+                          <div className="border-b !pb-4 !mb-4 text-gray-700 leading-relaxed">
+                            <ul className="list-disc list-inside !mt-3 !space-y-3">
+                              <li className="flex items-start !gap-2">
+                                <IoWarningOutline className="!text-red-500 !mt-1" />
+                                For your safety and to ensure the effectiveness of the vaccine, please make sure to have a complete meal before arriving at the vaccination center.
+                              </li>
+                              <li className="flex items-start !gap-2">
+                                <IoWarningOutline className="text-red-500 !mt-1" />
+                                It is crucial that you arrive on time for your scheduled appointment. Failure to do so may result in the automatic cancellation of your booking without any eligibility for a refund.
+                              </li>
+                              <li className="flex items-start !gap-2">
+                                <IoWarningOutline className="!text-red-500 !mt-1" />
+                                If you are unable to attend your appointment, please inform us at least 24 hours in advance to facilitate rescheduling and to avoid any inconvenience.
+                              </li>
+                              <li className="flex items-start !gap-2">
+                                <IoCalendarOutline className="!text-purple-500 !mt-1" />
+                                Please note that the vaccination center reserves the right to modify the terms and conditions at any time, depending on operational or health-related circumstances.
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+
                     </Form>
                   </div>
 
-                  <VaccinationModal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} handleOk={handleOk} onChange={onChange} isChecked={isChecked} />
                 </div>
               </div>
 
             </div>
-          </div>
+          </Modal>
 
         </div>
       </div>
 
     </Content>
   )
-}
-
-const VaccinationModal = ({ isOpen, onClose, handleOk, onChange, isChecked }: { isOpen: boolean, onClose: () => void, handleOk: any, onChange: any, isChecked: any }) => {
-
-  return (
-    <div
-      className={`fixed inset-0 backdrop-blur-lg bg-opacity-50 flex items-center justify-center z-50 ${isOpen ? "block" : "hidden"}`}
-    >
-      <div
-        className="bg-white w-[90%] md:w-[60%] rounded-lg shadow-xl !p-6 relative transform transition-all scale-95 hover:scale-100"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex justify-between items-center !mb-6">
-          <h2 className="!text-2xl font-semibold text-blue-600 flex items-center !gap-2">
-            <IoDocumentText className="!text-3xl text-blue-500" />
-            Confirm Vaccine Registration
-          </h2>
-          <IoCloseCircleOutline
-            className="!text-2xl cursor-pointer text-gray-600 hover:text-red-500 transition-all"
-            onClick={onClose}
-          />
-        </div>
-
-        <div className="border-b !pb-4 !mb-4 text-gray-700 leading-relaxed">
-
-          <ul className="list-disc list-inside !mt-3 !space-y-3">
-            <li className="flex items-start !gap-2">
-              <IoWarningOutline className="!text-red-500 !mt-1" />
-              Eat a full meal before the vaccination.
-            </li>
-            <li className="flex items-start !gap-2">
-              <IoWarningOutline className="text-red-500 !mt-1" />
-              Please arrive on time; otherwise, your appointment will be canceled and no refund will be provided.
-            </li>
-            <li className="flex items-start !gap-2">
-              <IoWarningOutline className="!text-red-500 !mt-1" />
-              You must notify us at least 24 hours in advance if you need to reschedule your appointment.
-            </li>
-            <li className="flex items-start !gap-2">
-              <IoCalendarOutline className="!text-purple-500 !mt-1" />
-              The terms may change depending on the circumstances at the vaccination center.
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex justify-between items-center !mt-6">
-          <label className="flex items-center !gap-2 ">
-            <input
-              type="checkbox"
-              className="checkbox"
-              checked={isChecked}
-              onChange={onChange}
-            />
-            I agree to the terms and conditions
-          </label>
-
-
-          <div className="flex justify-end !space-x-4">
-            <button
-              onClick={onClose}
-              className="!bg-gray-300 text-gray-800 !px-5 !py-2 rounded-lg hover:bg-gray-400 transition flex items-center !gap-2"
-            >
-              Close
-            </button>
-            <button
-              onClick={() => { handleOk() }}
-              className="!bg-green-500 text-white !px-5 !py-2 rounded-lg hover:bg-green-600 transition flex items-center !gap-2"
-            >
-              Confirm Registration
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 export default Home;

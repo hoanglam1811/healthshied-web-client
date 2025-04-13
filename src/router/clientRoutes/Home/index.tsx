@@ -173,6 +173,8 @@ const Home = () => {
   const showModal = (pkg: any) => {
     setSelectedPackage(pkg);
     setIsModalVisible(true);
+    setTotalPrice(pkg.price);
+    console.log(pkg)
   };
 
   const handleOk = async () => {
@@ -207,64 +209,45 @@ const Home = () => {
         .second(0)
         .format("YYYY-MM-DD HH:mm:ss");
 
-      let vaccinesToUse: any[] = [];
-      let tempPrice = 0;
-      let vaccineIds: number[] = [];
-      let packageIds: number[] = [];
+      const selectedPackageId = typeof selectedPackage === "object" ? selectedPackage : null;
 
-      const selectedPackageIds = Array.isArray(selectedPackage)
-        ? selectedPackage
-        : selectedPackage
-          ? [selectedPackage]
-          : [];
+      console.log(selectedPackage)
 
-      for (const pkgId of selectedPackageIds) {
-        const foundPackage = packages.find((pkg: any) => pkg.id === pkgId);
-        if (foundPackage && foundPackage.vaccines && foundPackage.vaccines.length > 0) {
-          vaccinesToUse.push(...foundPackage.vaccines);
-          packageIds.push(foundPackage.id);
-          tempPrice += foundPackage.price || 0;
-        } else {
-          notification.error({
-            message: "Missing Package Details",
-            description: `Package with ID ${pkgId} has no vaccines.`,
-          });
-          return;
-        }
-      }
-
-      if (selectedVaccines.length > 0) {
-        vaccinesToUse.push(...selectedVaccines);
-        selectedVaccines.forEach((v: any) => {
-          const doses = v.doseQuantity || 1;
-          tempPrice += (v.price || 0) * doses;
-        });
-      }
-
-      vaccineIds = [...new Set(vaccinesToUse.map((v) => v.id))];
-
-      setTotalPrice(tempPrice);
-
-      if (vaccineIds.length === 0) {
+      if (!selectedPackageId) {
         notification.error({
-          message: "Missing Vaccines",
-          description: "Please select at least one vaccine or package.",
+          message: "Missing Package",
+          description: "Please select one vaccination package.",
         });
         return;
       }
 
+      const foundPackage = packages.find((pkg: any) => pkg.id === selectedPackageId.id);
+
+      console.log(packages)
+
+      console.log(foundPackage)
+
+      if (!foundPackage) {
+        notification.error({
+          message: "Invalid Package",
+          description: "The selected package could not be found.",
+        });
+        return;
+      }
+
+      const tempPrice = foundPackage.price || 0;
+
+      setTotalPrice(tempPrice);
+
       const payload = {
-        request: {
-          assignedStaffId: null,
-          childId: selectedChild.id,
-          recordId: 0,
-          price: tempPrice,
-          appointmentDate: combinedDateTime,
-          status: "PENDING",
-          description: note.trim(),
-        },
-        vaccineIds,
-        packageIds,
+        assignedStaffId: null,
+        childId: selectedChild.id,
+        packageId: foundPackage.id,
+        recordId: 0,
+        price: tempPrice,
+        appointmentDate: combinedDateTime,
+        status: "PENDING",
+        description: note.trim(),
       };
 
       console.log("Final Payload", payload);
@@ -284,6 +267,7 @@ const Home = () => {
       });
     }
   };
+
 
   const onChange = (e: any) => {
     setIsChecked(e.target.checked);
@@ -528,7 +512,7 @@ const Home = () => {
           <div ref={registerFormRef}>
             <div className="!bg-[#08293E] !py-3 !text-white !mt-8 !rounded-lg">
               <h3 className="!mb-3 !flex !items-center !justify-center">
-                <StarOutlined className="!text-3xl !inline-block !text-[#2CD1D1] !mr-2" />
+                <StarOutlined className="!text-3xl !inline-block !text-[#2CD1D1] !mt-3 !mr-2" />
                 <span className="underline !mt-4 !text-3xl !font-bold !text-[#2CD1D1]">Vaccination Packages</span>
                 <span className="!text-3xl !mt-4 !font-bold !text-white !ml-2">for overall protection
                 </span>
@@ -758,9 +742,14 @@ const Home = () => {
                                 className="!flex !gap-4"
                               >
                                 {children?.map((child: any) => (
-                                  <Radio key={child.id} value={child.id}>
+                                  <Radio
+                                    key={child.id}
+                                    value={child.id}
+                                    className={selectedChild?.id === child.id ? "!border-blue-500  !font-semibold" : ""}
+                                  >
                                     {child.fullName}
                                   </Radio>
+
                                 ))}
                               </Radio.Group>
                             </div>
@@ -796,12 +785,10 @@ const Home = () => {
                         <div className="!grid !grid-cols-7 !gap-4 !mb-4">
                           <div className="!col-span-3">
                             <Select
-                              mode="multiple"
-                              placeholder="Select vaccines"
-                              onClick={() => setIsModalSelectVisible(true)}
+                              placeholder="Select package"
                               className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
                               notFoundContent={""}
-                              value={selectedPackage ? [selectedPackage.name] : []}
+                              value={selectedPackage ? [`${selectedPackage.name} - $${selectedPackage.price}`] : []}
                               disabled
                             >
                               {selectedPackage ? (

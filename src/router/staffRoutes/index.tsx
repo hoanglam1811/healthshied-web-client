@@ -1,4 +1,4 @@
-import { RouteObject } from "react-router-dom";
+import { Navigate, RouteObject } from "react-router-dom";
 import RouteNames from "../../constants/routeNames";
 import StaffDashboard from "../staffRoutes/Dashboard";
 
@@ -26,8 +26,8 @@ const privateRoutes: RouteObject[] = [
 
 const staffRoutes: RouteObject[] = [
     {
-        // path: "/",
-        // element: <Navigate to={RouteNames.HOME} replace />,
+        path: "/staff",
+        element: <Navigate to={RouteNames.STAFF_DASHBOARD} replace />,
     },
     ...publicRoutes,
 ];

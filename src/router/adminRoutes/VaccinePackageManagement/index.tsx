@@ -101,6 +101,7 @@ export default function VaccinePackageManagement() {
                                 render: (vaccines: any[]) => vaccines.map(v => v.name).join(", "),
                             },
                             { title: "Price", dataIndex: "price", key: "price" },
+                            { title: "Age Range", dataIndex: "recommendedAgeRange", key: "recommendedAgeRange" },
                             {
                                 title: "Action",
                                 dataIndex: "action",

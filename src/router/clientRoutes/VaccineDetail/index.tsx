@@ -229,8 +229,8 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
       <Card  styles={{ body: { width: "100%" }}}
         className="!w-full !text-left !rounded-3xl !mt-4"
       >
-        <div ref={contentRef} style={{ overflowY: "auto", width: "100%", display: "flex", height: "200px" }}>
-          <div className="!w-[20%] vaccine-detail-tab !sticky">
+        <div ref={contentRef} style={{ overflowY: "auto", width: "100%", display: "flex" }}>
+          <div className="!w-[20%] vaccine-detail-tab !sticky !top-0 !h-[fit-content]">
             <Tabs tabPosition="left"
               activeKey={activeKey}
               onTabClick={onTabClick}>

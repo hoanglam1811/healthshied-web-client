@@ -58,7 +58,6 @@ const CreateVaccineDialog = ({
       });
   };
 
-
   const handleMinAgeChange = (value: any) => {
     setMinAge(value);
     if (maxAge !== null && value >= maxAge) {

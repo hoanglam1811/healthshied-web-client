@@ -305,7 +305,6 @@ const VaccineDetailView = () => {
 
                 <Descriptions.Item label="Quantity">{vaccine?.quantity}</Descriptions.Item>
 
-
                 <Descriptions.Item label="Images" span={2}>
                   {vaccine?.images?.length > 0 ? (
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

@@ -79,6 +79,18 @@ export default function VaccinePackageManagement() {
                         }))}
                         columns={[
                             { title: "ID", dataIndex: "id", key: "id" },
+                            {
+                                title: "Image",
+                                dataIndex: "imageUrl",
+                                key: "imageUrl",
+                                render: (imageUrl: string) => (
+                                    <img
+                                        src={imageUrl || "https://via.placeholder.com/50?text=No+Image"}
+                                        alt="Package Image"
+                                        style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 8 }}
+                                    />
+                                )
+                            },
                             { title: "Name", dataIndex: "name", key: "name" },
                             {
                                 title: "Description",

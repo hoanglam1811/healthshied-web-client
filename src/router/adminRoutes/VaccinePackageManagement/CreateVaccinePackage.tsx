@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Modal, Button, Form, Input, InputNumber, notification, Select, Upload } from "antd";
+import { Modal, Button, Form, Input, InputNumber, notification, Select, Upload, Image, Checkbox } from "antd";
 import { createVaccinePackage, getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
 import { getAllVaccines } from "@/services/ApiServices/vaccineService";
-import { PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -20,6 +20,7 @@ const CreateVaccinePackageDialog = ({
     const [vaccines, setVaccines] = useState<any[]>([]);
     const [minAge, setMinAge] = useState<any | null>(null);
     const [maxAge, setMaxAge] = useState<any | null>(null);
+    const [noAgeLimit, setNoAgeLimit] = useState(false);
 
     const handleMinAgeChange = (value: any) => {
         setMinAge(value);
@@ -56,6 +57,9 @@ const CreateVaccinePackageDialog = ({
     const handleCancel = () => {
         setIsModalOpen(false);
         form.resetFields();
+        setMinAge(null);
+        setMaxAge(null);
+        setNoAgeLimit(false);
     };
 
     const handleCreate = async () => {
@@ -63,10 +67,10 @@ const CreateVaccinePackageDialog = ({
             .validateFields()
             .then(async (values) => {
                 setLoading(true);
-                console.log("Vaccine Package Data:", values);
 
-                const { minAge, maxAge } = values;
-                const recommendedAgeRange = `${minAge}-${maxAge}`;
+                const recommendedAgeRange = noAgeLimit
+                    ? "No age limit"
+                    : `${values.minAge}-${values.maxAge}`;
 
                 try {
                     const payload = {
@@ -74,7 +78,8 @@ const CreateVaccinePackageDialog = ({
                             name: values.name,
                             description: values.description,
                             price: values.price,
-                            recommendedAgeRange: recommendedAgeRange,
+                            recommendedAgeRange,
+                            imageUrl: values.image,
                         },
                         vaccineIds: values.vaccineIds,
                     };
@@ -88,6 +93,9 @@ const CreateVaccinePackageDialog = ({
 
                     setIsModalOpen(false);
                     form.resetFields();
+                    setMinAge(null);
+                    setMaxAge(null);
+                    setNoAgeLimit(false);
                     await fetchVaccinePackages();
                 } catch (error) {
                     notification.error({
@@ -142,33 +150,60 @@ const CreateVaccinePackageDialog = ({
                     <Input.TextArea rows={4} placeholder="Enter detailed description" />
                 </Form.Item>
 
+                <Form.Item className="!mb-2">
+                    <Checkbox checked={noAgeLimit} onChange={(e) => {
+                        setNoAgeLimit(e.target.checked);
+                        if (e.target.checked) {
+                            setMinAge(null);
+                            setMaxAge(null);
+                            form.setFieldsValue({ minAge: undefined, maxAge: undefined });
+                        }
+                    }}>
+                        No age limitation
+                    </Checkbox>
+                </Form.Item>
+
                 <Form.Item label="Recommended Age Range" required>
                     <div className="flex gap-3">
                         <Form.Item
                             name="minAge"
-                            rules={[{ required: true, message: "Select min age" }]}
+                            rules={noAgeLimit ? [] : [{ required: true, message: "Select min age" }]}
                             className="!mb-0 w-full"
                         >
-                            <Select placeholder="Min Age" onChange={handleMinAgeChange}>
+                            <Select
+                                placeholder="Min Age"
+                                onChange={handleMinAgeChange}
+                                disabled={noAgeLimit}
+                            >
                                 {generateAgeOptions()}
                             </Select>
                         </Form.Item>
                         <Form.Item
                             name="maxAge"
-                            rules={[
-                                { required: true, message: "Select max age" },
-                                () => ({
-                                    validator(_, value) {
-                                        if (!value || minAge === null || value > minAge) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject(new Error("Max age must be greater than min age!"));
-                                    },
-                                }),
-                            ]}
+                            rules={
+                                noAgeLimit
+                                    ? []
+                                    : [
+                                        { required: true, message: "Select max age" },
+                                        () => ({
+                                            validator(_, value) {
+                                                if (!value || minAge === null || value > minAge) {
+                                                    return Promise.resolve();
+                                                }
+                                                return Promise.reject(
+                                                    new Error("Max age must be greater than min age!")
+                                                );
+                                            },
+                                        }),
+                                    ]
+                            }
                             className="!mb-0 w-full"
                         >
-                            <Select placeholder="Max Age" onChange={handleMaxAgeChange} disabled={minAge === null}>
+                            <Select
+                                placeholder="Max Age"
+                                onChange={handleMaxAgeChange}
+                                disabled={noAgeLimit || minAge === null}
+                            >
                                 {generateAgeOptions().filter((option: any) => option.key > minAge)}
                             </Select>
                         </Form.Item>
@@ -207,22 +242,29 @@ const CreateVaccinePackageDialog = ({
                 </Form.Item>
 
                 <Form.Item
-                    label="Upload Images"
-                    name="images"
-                    valuePropName="fileList"
-                    getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+                    label="Image URL"
+                    name="image"
+                    rules={[{ required: true, message: "Please enter the image URL!" }]}
                 >
-                    <Upload
-                        listType="picture-card"
-                        multiple
-                        beforeUpload={() => false}
-                        maxCount={5}
-                    >
-                        <div>
-                            <PlusOutlined />
-                            <div style={{ marginTop: 8 }}>Upload</div>
-                        </div>
-                    </Upload>
+                    <Input placeholder="Enter image URL" />
+                </Form.Item>
+
+                <Form.Item shouldUpdate>
+                    {() => {
+                        const imageUrl = form.getFieldValue("image");
+                        return imageUrl ? (
+                            <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
+                                <Image
+                                    src={imageUrl}
+                                    width={150}
+                                    height={150}
+                                    style={{ objectFit: "cover", borderRadius: 8 }}
+                                    alt="Preview"
+                                    fallback="https://via.placeholder.com/150?text=No+Image"
+                                />
+                            </div>
+                        ) : null;
+                    }}
                 </Form.Item>
             </Form>
         </Modal>

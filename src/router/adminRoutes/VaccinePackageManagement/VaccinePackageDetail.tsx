@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Descriptions, Layout, Button, Form, Input, Spin, notification, Select, Typography, InputNumber, Col, Row, Image, Upload, Tag } from "antd";
+import { Card, Descriptions, Layout, Button, Form, Input, Spin, notification, Select, Typography, InputNumber, Col, Row, Image, Upload, Tag, Checkbox } from "antd";
 import { getVaccinePackageById, updateVaccinePackage } from "@/services/ApiServices/vaccinePackageService";
 import { getAllVaccines } from "@/services/ApiServices/vaccineService";
 import { useNavigate, useParams } from "react-router-dom";
@@ -20,6 +20,7 @@ const VaccinePackageDetailView = () => {
     const [form] = Form.useForm();
     const [minAge, setMinAge] = useState<any>(null);
     const [maxAge, setMaxAge] = useState<any>(null);
+    const [noAgeLimit, setNoAgeLimit] = useState(false);
 
     const fetchVaccinePackage = async () => {
         try {
@@ -37,12 +38,14 @@ const VaccinePackageDetailView = () => {
 
             setMinAge(min);
             setMaxAge(max);
+            setNoAgeLimit(!data.recommendedAgeRange); // Set `noAgeLimit` based on data
 
             form.setFieldsValue({
                 ...data,
+                image: data.imageUrl,
                 vaccineIds: data.vaccines.map((v: any) => v.id),
                 minAge: min,
-                maxAge: max
+                maxAge: max,
             });
 
             setVaccinePackage(data);
@@ -86,7 +89,8 @@ const VaccinePackageDetailView = () => {
                     name: values.name,
                     description: values.description,
                     price: values.price,
-                    recommendedAgeRange: `${minAge}-${maxAge}`
+                    recommendedAgeRange: noAgeLimit ? "No age limit" : `${minAge}-${maxAge}`,
+                    imageUrl: values.image
                 },
                 vaccineIds: values.vaccineIds
             };
@@ -98,7 +102,7 @@ const VaccinePackageDetailView = () => {
             setVaccinePackage({
                 ...vaccinePackage,
                 ...values,
-                recommendedAgeRange: `${minAge}-${maxAge}`,
+                recommendedAgeRange: noAgeLimit ? "No age limit" : `${minAge}-${maxAge}`,
                 vaccines: vaccines.filter(v => values.vaccineIds.includes(v.id))
             });
         } catch (error) {
@@ -195,13 +199,17 @@ const VaccinePackageDetailView = () => {
                                         </Form.Item>
                                     </Col>
 
-                                    <Col span={12}>
-                                        <Form.Item label="Description" name="description">
-                                            <Input.TextArea placeholder="Enter package description" />
+                                    <Col className="text-left" span={12}>
+                                        <Form.Item name="noAgeLimit" valuePropName="checked">
+                                            <Checkbox checked={noAgeLimit} onChange={(e) => {
+                                                setNoAgeLimit(e.target.checked);
+                                                form.setFieldsValue({ minAge: undefined, maxAge: undefined });
+                                                setMinAge(null);
+                                                setMaxAge(null);
+                                            }}>
+                                                No age limitation
+                                            </Checkbox>
                                         </Form.Item>
-                                    </Col>
-
-                                    <Col span={12}>
                                         <Form.Item label="Recommended Age Range" required>
                                             <Input.Group compact>
                                                 <Form.Item
@@ -209,7 +217,7 @@ const VaccinePackageDetailView = () => {
                                                     noStyle
                                                     rules={[{ required: true, message: "Select min age" }]}
                                                 >
-                                                    <Select placeholder="Min Age" style={{ width: "48%" }} onChange={setMinAge}>
+                                                    <Select placeholder="Min Age" style={{ width: "48%" }} onChange={setMinAge} disabled={noAgeLimit}>
                                                         {generateAgeOptions()}
                                                     </Select>
                                                 </Form.Item>
@@ -229,7 +237,7 @@ const VaccinePackageDetailView = () => {
                                                 >
                                                     <Select
                                                         placeholder="Max Age"
-                                                        disabled={minAge === null}
+                                                        disabled={noAgeLimit || minAge === null}
                                                         style={{ width: "48%" }}
                                                         onChange={setMaxAge}
                                                     >
@@ -241,23 +249,36 @@ const VaccinePackageDetailView = () => {
                                     </Col>
 
                                     <Col span={24}>
+                                        <Form.Item label="Description" name="description">
+                                            <Input.TextArea placeholder="Enter package description" />
+                                        </Form.Item>
+                                    </Col>
+
+                                    <Col span={24}>
                                         <Form.Item
-                                            label="Upload Images"
-                                            name="images"
-                                            valuePropName="fileList"
-                                            getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                                            label="Image URL"
+                                            name="image"
+                                            rules={[{ required: true, message: "Please enter the image URL!" }]}
                                         >
-                                            <Upload
-                                                listType="picture-card"
-                                                multiple
-                                                beforeUpload={() => false}
-                                                maxCount={5}
-                                            >
-                                                <div>
-                                                    <PlusOutlined />
-                                                    <div style={{ marginTop: 8 }}>Upload</div>
-                                                </div>
-                                            </Upload>
+                                            <Input placeholder="Enter image URL" />
+                                        </Form.Item>
+
+                                        <Form.Item shouldUpdate>
+                                            {() => {
+                                                const imageUrl = form.getFieldValue("image");
+                                                return imageUrl ? (
+                                                    <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
+                                                        <Image
+                                                            src={imageUrl}
+                                                            width={150}
+                                                            height={150}
+                                                            style={{ objectFit: "cover", borderRadius: 8 }}
+                                                            alt="Preview"
+                                                            fallback="https://via.placeholder.com/150?text=No+Image"
+                                                        />
+                                                    </div>
+                                                ) : null;
+                                            }}
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -280,28 +301,37 @@ const VaccinePackageDetailView = () => {
                                     {vaccinePackage?.vaccines.map((v: any) => v.name).join(", ")}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Price"> {vaccinePackage?.price.toLocaleString("en-US", { style: "currency", currency: "USD" })}</Descriptions.Item>
+                                <Descriptions.Item label="Recommended Age Range">
+                                    {(() => {
+                                        const range = vaccinePackage?.recommendedAgeRange?.split("-");
+                                        const [min, max] = range || [];
+
+                                        if (min === "null" && max === "null") {
+                                            return "No age limitation";
+                                        }
+
+                                        if (min && max && min !== "null" && max !== "null") {
+                                            return `From ${min} to ${max} years old`;
+                                        }
+
+                                        return "N/A";
+                                    })()}
+                                </Descriptions.Item>
+
                                 <Descriptions.Item label="Status">
                                     <Tag color={vaccinePackage?.status === "Active" ? "green" : "red"}>
                                         {vaccinePackage?.status}
                                     </Tag>
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Images" span={2}>
-                                    {vaccinePackage?.imageUrl?.length > 0 ? (
-                                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                            {vaccinePackage.images.map((imgUrl: string, index: number) => (
-                                                <Image
-                                                    key={index}
-                                                    src={imgUrl}
-                                                    width={80}
-                                                    height={80}
-                                                    style={{ objectFit: "cover", borderRadius: 4 }}
-                                                    alt={`vaccine-img-${index}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <span>No images</span>
-                                    )}
+                                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                        <Image
+                                            src={vaccinePackage?.imageUrl}
+                                            width={80}
+                                            height={80}
+                                            style={{ objectFit: "cover", borderRadius: 4 }}
+                                        />
+                                    </div>
                                 </Descriptions.Item>
                             </Descriptions>
                         )}

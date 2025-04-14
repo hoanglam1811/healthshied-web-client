@@ -30,17 +30,17 @@ const CustomArrow = ({ className, style, onClick, direction }: any) => {
       }}
       onClick={onClick}
     >
-      {direction === "left" ? <LeftOutlined  /> : <RightOutlined />}
+      {direction === "left" ? <LeftOutlined /> : <RightOutlined />}
     </div>
   );
 };
 
 const VaccineDetail = () => {
-  const {id} = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  
-  const usageInstruct = 
-`# Introduction
+
+  const usageInstruct =
+    `# Introduction
 
 Vaccines are one of the most significant medical advancements in modern history. They help protect individuals and communities by preparing the immune system to recognize and fight off harmful pathogens before they cause serious illness.
 
@@ -76,12 +76,12 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
 
 
   const fetchVaccine = async () => {
-    try{
-      if(!id) return;
+    try {
+      if (!id) return;
       const response = await getVaccineById(id);
       setVaccine(response);
     }
-    catch(err){
+    catch (err) {
       console.log(err);
     }
   }
@@ -144,10 +144,10 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
     fetchVaccine();
   }, [])
 
-  if(!id) navigate(RouteNames.HOME);
+  if (!id) navigate(RouteNames.HOME);
 
   return (
-    <Content style={{ 
+    <Content style={{
       minHeight: "85vh",
       padding: '0 48px',
       background: "#F3F5F7"
@@ -159,14 +159,14 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
             title: <Link to={RouteNames.HOME}>Home</Link>,
           },
           {
-            title: <Link to={RouteNames.VACCINE_LIST}>Vaccine List</Link>,          
+            title: <Link to={RouteNames.VACCINE_LIST}>Vaccine List</Link>,
           },
           {
             title: "Vaccine Detail",
           },
         ]}
       />
-      <Card styles={{ body: { width: "100%" }}} className="!w-full !rounded-3xl">
+      <Card styles={{ body: { width: "100%" } }} className="!w-full !rounded-3xl">
         <div className="!grid !grid-cols-8">
           <div className="!col-span-3 !h-[240px]">
             <Carousel style={{ height: "100%" }} arrows
@@ -183,31 +183,33 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
             </Carousel>
           </div>
           <div className="!col-span-5 !text-left !pl-4">
-            <h3 className="!mb-2 !text-gray-500 !text-lg !font-semibold">{vaccine?.contraindications}</h3>
-            <h2 className="!mb-3 !text-2xl !font-bold">{vaccine?.name}</h2>
+            <h3 className="!mb-2 !text-gray-500 !text-xl !font-semibold">{vaccine?.contraindications}</h3>
+            <h2 className="!mb-3 !text-3xl !font-bold">{vaccine?.name}</h2>
             <div>
-              <span className="!text-3xl !font-semibold !text-orange-500">{vaccine?.price.toLocaleString("en-US", { style: "currency", currency: "USD" })}</span> 
+              <span className="!text-4xl !font-semibold !text-orange-500">{vaccine?.price.toLocaleString("en-US", { style: "currency", currency: "USD" })}</span>
               <span>/ {vaccine?.unit}</span>
             </div>
+
             <Divider style={{ background: "rgba(255, 255, 255, 0.2)" }} />
+
             <div className="">
               <div className="!flex !gap-4">
-                <span className="!w-[200px] !font-semibold !text-gray-500">Unit</span> 
-                <span>{vaccine?.unit}</span>
+                <span className="!w-[200px] !font-semibold !text-black !mr-5">Unit</span>
+                <span className="!text-gray-500">{vaccine?.unit}</span>
               </div>
               <div className="!flex !gap-4">
-                <span className="!w-[200px] !font-semibold !text-gray-500">Recommended Age Range</span> 
-                <span>{vaccine?.recommendedAgeRange}</span>
+                <span className="!w-[200px] !font-semibold !text-black !mr-5">Recommended Age Range</span>
+                <span className="!text-gray-500">{vaccine?.recommendedAgeRange}</span>
               </div>
               <div className="!flex !gap-4">
-                <span className="!w-[200px] !font-semibold !text-gray-500">Country</span> 
-                <span>{vaccine?.country}</span>
+                <span className="!w-[200px] !font-semibold !text-black !mr-5">Country</span>
+                <span className="!text-gray-500">{vaccine?.country}</span>
               </div>
               <div className="!flex !gap-4">
-                <span className="!w-[200px] !font-semibold !text-gray-500">Producer</span> 
-                <span>{vaccine?.producer}</span>
+                <span className="!w-[200px] !font-semibold !text-black !mr-5">Producer</span>
+                <span className="!text-gray-500">{vaccine?.producer}</span>
               </div>
-              <p className="!mt-3">{vaccine?.description}</p>
+              <p className="!mt-3 !mb-3">{vaccine?.description}</p>
               <div className="!w-full !flex !justify-center !gap-4">
                 <Button
                   className="!rounded-[35px] !w-[50%] !h-[56px] !text-white !bg-[#01A9A8]"
@@ -222,15 +224,15 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
               </div>
             </div>
           </div>
-        
+
         </div>
       </Card>
 
-      <Card  styles={{ body: { width: "100%" }}}
+      <Card styles={{ body: { width: "100%" } }}
         className="!w-full !text-left !rounded-3xl !mt-4"
       >
-        <div ref={contentRef} style={{ overflowY: "auto", width: "100%", display: "flex", height: "200px" }}>
-          <div className="!w-[20%] vaccine-detail-tab !sticky">
+        <div ref={contentRef} style={{ overflowY: "auto", width: "100%", display: "flex", height: "300px" }}>
+          <div className="!w-[25%] vaccine-detail-tab !sticky">
             <Tabs tabPosition="left"
               activeKey={activeKey}
               onTabClick={onTabClick}>

@@ -1,8 +1,8 @@
-import { Breadcrumb, Button, Card, Dropdown, Form, Input, Layout, Menu, Modal, notification, theme, Tooltip } from 'antd';
-import { Content, Footer, Header } from 'antd/es/layout/layout';
+import { Breadcrumb, Button, Card, Col, Divider, Dropdown, Form, Input, Layout, Menu, Modal, notification, Row, Space, theme, Tooltip, Typography } from 'antd';
+import { Content, Header } from 'antd/es/layout/layout';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import logo from "@/assets/logo.png";
-import { LogoutOutlined, PhoneOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
+import { EnvironmentOutlined, FacebookOutlined, InstagramOutlined, LogoutOutlined, MailOutlined, PhoneOutlined, SearchOutlined, TwitterOutlined, UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import RouteNames from '@/constants/routeNames';
@@ -10,6 +10,9 @@ import { removeToken } from '@/reducers/tokenSlice';
 import { useEffect, useRef, useState } from 'react';
 import { getAllVaccines } from '@/services/ApiServices/vaccineService';
 import vaccineImg from '@/assets/vaccine.jpg';
+
+const { Footer } = Layout;
+const { Title, Text } = Typography;
 
 const CustomerLayout = () => {
   const token = useSelector((state: RootState) => state.token.token);
@@ -233,14 +236,66 @@ const CustomerLayout = () => {
             )}
           </div>
 
-          
+
         </div>
       </Header>
       <div className="!mt-[64px]">
         <Outlet />
       </div>
-      <Footer style={{ textAlign: 'center' }}>
-        Healthshield ©{new Date().getFullYear()} Created by Tri Lam
+
+      <Footer style={{ background: "#f0f2f5", padding: "40px 60px", marginTop: 80 }}>
+        <Row gutter={[32, 32]} justify="space-between">
+          <Col xs={24} md={8}>
+            <Title level={4}>About Healthshield</Title>
+            <Text>
+              Healthshield is dedicated to protecting your child’s health through safe and timely vaccinations.
+              We provide professional services, friendly care, and accurate vaccination tracking.
+            </Text>
+          </Col>
+
+          <Col xs={24} md={6}>
+            <Title level={4}>Quick Links</Title>
+            <Space direction="vertical">
+              <Link to="/about">About Us</Link>
+              <Link to="/vaccine-package">Vaccine Packages</Link>
+              <Link to="/appointment">Book Appointment</Link>
+              <Link to="/faq">FAQ</Link>
+              <Link to="/contact">Contact</Link>
+            </Space>
+          </Col>
+
+          <Col xs={24} md={6}>
+            <Title level={4}>Contact Us</Title>
+            <Space direction="vertical">
+              <Text><MailOutlined /> support@healthshield.com</Text>
+              <Text><PhoneOutlined /> +1 (234) 567-890</Text>
+              <Text><EnvironmentOutlined /> 123 Immunity St, Wellness City</Text>
+            </Space>
+          </Col>
+
+          <Col xs={24} md={4}>
+            <Title level={4}>Follow Us</Title>
+            <Space size="large">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                <FacebookOutlined style={{ fontSize: 24 }} />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                <TwitterOutlined style={{ fontSize: 24 }} />
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                <InstagramOutlined style={{ fontSize: 24 }} />
+              </a>
+            </Space>
+          </Col>
+        </Row>
+
+        <Divider style={{ marginTop: 40 }} />
+
+        <Row justify="center">
+          <Text type="secondary">
+            © {new Date().getFullYear()} Healthshield. All rights reserved. Designed with care by Tri Lam.
+          </Text>
+        </Row>
       </Footer>
     </div>);
 };

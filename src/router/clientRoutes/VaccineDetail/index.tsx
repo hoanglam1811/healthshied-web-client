@@ -42,30 +42,47 @@ const VaccineDetail = () => {
   const usageInstruct = 
 `# Introduction
 
-Vaccines are one of the most significant medical advancements in modern history. They help protect individuals and communities by preparing the immune system to recognize and fight off harmful pathogens before they cause serious illness.
+Vaccines are one of the most significant medical advancements in modern history. They have transformed the way humanity deals with infectious diseases, saving millions of lives and preventing countless cases of illness. The concept of vaccination dates back to the late 18th century, with the development of the smallpox vaccine by Edward Jenner. Since then, vaccines have become a cornerstone of public health.
+
+Vaccines work by training the immune system to recognize and neutralize harmful pathogens—such as viruses and bacteria—before they can cause serious illness. Thanks to widespread immunization programs, diseases that once caused devastating epidemics are now rare or even eradicated in many parts of the world. As science continues to evolve, vaccines are being developed more quickly and effectively, offering hope against both existing and emerging threats.
 
 # How Vaccines Work
 
-Vaccines contain weakened or inactive parts of a particular organism (antigen) that triggers an immune response. Once vaccinated, the immune system is trained to respond more efficiently and effectively if it encounters the real pathogen in the future. This process is known as immunological memory.
+The human immune system is designed to detect and eliminate foreign invaders. When the body is exposed to a new pathogen, it mounts an immune response, creating specialized cells and antibodies to fight off the infection. However, this process can take time—sometimes too long to prevent severe illness or death.
+
+Vaccines offer a safer way to develop immunity. They contain weakened, inactivated, or partial forms of a pathogen (known as antigens), which are enough to stimulate the immune system without causing the disease itself. Once the immune system is exposed to these antigens, it "learns" how to respond.
+
+The next time the immune system encounters the real pathogen, it recognizes it and reacts much faster and more effectively. This is due to **immunological memory**, where memory cells remain in the body long-term and can quickly deploy antibodies and defense mechanisms when needed. This principle is what makes vaccination such a powerful preventive tool—it prepares the body in advance.
 
 # Benefits
 
-Vaccination not only helps individuals avoid potentially severe illnesses, but also contributes to herd immunity—protecting those who cannot be vaccinated due to age or medical reasons. Vaccines can reduce hospitalization rates, lower healthcare costs, and even eradicate diseases entirely, as seen with smallpox.
+Vaccination provides a wide range of benefits, both on an individual and societal level. At the personal level, being vaccinated significantly reduces the risk of contracting infectious diseases, and if infection does occur, the symptoms are often milder compared to those in unvaccinated individuals. This is particularly important for diseases like influenza, COVID-19, and hepatitis B, which can have serious complications.
+
+Beyond individual protection, vaccines contribute to **herd immunity**, a phenomenon where enough people in a community are immune to a disease, making its spread unlikely. This helps protect vulnerable populations such as newborns, elderly individuals, and those with compromised immune systems who cannot be vaccinated themselves.
+
+Vaccines also have broad economic benefits. By preventing disease, they reduce healthcare costs associated with treatment, hospitalizations, and long-term care. They also help prevent lost productivity due to illness-related absences from work and school. In some cases, vaccines have even led to the eradication of diseases globally—**smallpox** is a prime example, officially declared eradicated in 1980 following a successful worldwide immunization campaign.
 
 # Common Types
 
-There are several types of vaccines used today:
+There are several types of vaccines in use today, each developed using different scientific techniques to suit the characteristics of specific diseases and populations:
 
-- **mRNA Vaccines**: These instruct cells to produce a protein that triggers an immune response (e.g., Pfizer-BioNTech, Moderna).
-- **Inactivated Vaccines**: Contain killed versions of the germ (e.g., polio vaccine).
-- **Live-Attenuated Vaccines**: Use a weakened form of the virus (e.g., MMR vaccine).
-- **Subunit, Recombinant, and Conjugate Vaccines**: Use specific pieces of the pathogen, such as proteins or sugars.
+- **mRNA Vaccines**: These are a relatively new innovation. mRNA vaccines work by delivering a genetic blueprint (messenger RNA) to the body's cells, instructing them to produce a harmless piece of the virus, typically a surface protein. This triggers the immune response without using the actual virus. Examples include the Pfizer-BioNTech and Moderna COVID-19 vaccines. mRNA technology is also being researched for use against cancers and other diseases.
 
-Each type has its own advantages and is chosen based on the disease and population.
+- **Inactivated Vaccines**: These vaccines use viruses or bacteria that have been killed through chemical or physical processes. Though the pathogen is dead, it still elicits an immune response. Inactivated vaccines usually require multiple doses to maintain immunity. A well-known example is the inactivated polio vaccine (IPV).
+
+- **Live-Attenuated Vaccines**: These use a weakened form of the pathogen that is still able to replicate but does not cause disease in healthy individuals. Because they mimic a natural infection closely, they tend to produce strong, long-lasting immunity with fewer doses. Examples include the MMR (measles, mumps, and rubella) and yellow fever vaccines. However, they may not be suitable for people with weakened immune systems.
+
+- **Subunit, Recombinant, and Conjugate Vaccines**: These vaccines include only specific parts of the pathogen—such as a protein or sugar molecule—that are enough to trigger a strong immune response. They are often very safe and suitable for a broad range of people, including those with compromised immunity. Examples include the hepatitis B vaccine (recombinant) and the HPV vaccine (subunit).
+
+Each vaccine type has unique storage, delivery, and dosage considerations, and scientists choose the most appropriate type based on the disease, target population, and available resources.
 
 # Conclusion
 
-Vaccination is a safe and effective way to prevent the spread of infectious diseases. By staying up to date on vaccines, individuals not only protect themselves but also contribute to the health and safety of the broader community. Continued research and public education remain vital for increasing vaccine acceptance and global health security.
+Vaccination is one of the safest and most effective ways to prevent the spread of infectious diseases. It not only protects individuals but also supports the well-being of entire communities by reducing disease transmission and safeguarding public health.
+
+The ongoing success of vaccines depends on continued research, education, and equitable access across all regions of the world. Misinformation and vaccine hesitancy remain challenges, making public trust and transparent communication essential. 
+
+By keeping up with recommended vaccination schedules, individuals not only protect themselves but also contribute to a healthier, more resilient global society. In an increasingly connected world where diseases can spread rapidly, vaccines remain a key tool in ensuring a safer, healthier future for everyone.
 `;
 
 
@@ -87,6 +104,7 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
   }
 
   const onTabClick = (key: string) => {
+    navigate("#"+key);
     const element = document.getElementById(key);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -99,7 +117,7 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
     h1: ({ children }: any) => {
       const text = children;
       const id = text.toLowerCase().replace(/\s+/g, '-');
-      return <h1 id={id}>{children}</h1>;
+      return <h1 id={id} style={{ scrollMarginTop: "75px" }}>{children}</h1>;
     },
   };
 
@@ -114,31 +132,27 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
     if (result.length > 0) setActiveKey(result[0].id);
   }, [usageInstruct]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!contentRef.current) return;
+ const OFFSET = 75; // adjust if you have sticky header height
 
-      const contentTop = contentRef.current.getBoundingClientRect().top;
+useEffect(() => {
+  const handleScroll = () => {
+    const scrollY = window.scrollY;
 
-      const visibleHeading = headings.findLast(({ id }: any) => {
-        const el = document.getElementById(id);
-        if (!el) return false;
-        const rect = el.getBoundingClientRect();
-        return rect.top - contentTop <= 20; // heading is visible at the top
-      });
+    const visibleHeading = headings.findLast(({ id }:any) => {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      const top = el.offsetTop;
+      return scrollY + OFFSET >= top;
+    });
 
-      if (visibleHeading && visibleHeading.id !== activeKey) {
-        setActiveKey(visibleHeading.id);
-      }
-    };
+    if (visibleHeading && visibleHeading.id !== activeKey) {
+      setActiveKey(visibleHeading.id);
+    }
+  };
 
-    const refEl = contentRef.current;
-    refEl?.addEventListener('scroll', handleScroll);
-
-    return () => {
-      refEl?.removeEventListener('scroll', handleScroll);
-    };
-  }, [headings, activeKey]);
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [headings, activeKey]);
 
   useEffect(() => {
     fetchVaccine();
@@ -229,8 +243,8 @@ Vaccination is a safe and effective way to prevent the spread of infectious dise
       <Card  styles={{ body: { width: "100%" }}}
         className="!w-full !text-left !rounded-3xl !mt-4"
       >
-        <div ref={contentRef} style={{ overflowY: "auto", width: "100%", display: "flex" }}>
-          <div className="!w-[20%] vaccine-detail-tab !sticky !top-0 !h-[fit-content]">
+        <div ref={contentRef} style={{ width: "100%", display: "flex" }}>
+          <div className="!w-[20%] vaccine-detail-tab !sticky !top-[10%] !h-[fit-content]">
             <Tabs tabPosition="left"
               activeKey={activeKey}
               onTabClick={onTabClick}>

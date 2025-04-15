@@ -23,7 +23,6 @@ import { createAppointment } from "@/services/ApiServices/appoinmentService";
 import TabPane from "antd/es/tabs/TabPane";
 
 const { Title, Text } = Typography;
-const { Option } = Select;
 
 const vaccinationCenters = [
   {

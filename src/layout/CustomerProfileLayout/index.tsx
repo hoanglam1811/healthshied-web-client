@@ -45,19 +45,20 @@ const ProfileLayout = ({ children }: { children?: React.ReactNode }) => {
                         Profile
                     </Menu.Item>
                     <Menu.Item
-                        onClick={() => navigate(RouteNames.ACCOUNT_CHANGE_PASSWORD)}
-                        key="change-password"
-                        icon={<LockOutlined />}
-                    >
-                        Change Password
-                    </Menu.Item>
-                    <Menu.Item
                         onClick={() => navigate(RouteNames.ACCOUNT_APPOINTMENTS)}
                         key="appointments"
                         icon={<CalendarOutlined />}
                     >
                         Appointments
                     </Menu.Item>
+                    <Menu.Item
+                        onClick={() => navigate(RouteNames.ACCOUNT_CHANGE_PASSWORD)}
+                        key="change-password"
+                        icon={<LockOutlined />}
+                    >
+                        Change Password
+                    </Menu.Item>
+
                 </Menu>
             </Sider>
 

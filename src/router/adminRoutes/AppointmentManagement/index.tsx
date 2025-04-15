@@ -319,7 +319,7 @@ export default function PendingAppointmentManagement() {
 
                             <div style={{ overflowX: "auto" }}>
                                 <Tabs
-                                    className="!mt-3 !text-center"
+                                    className="!mt-3 !text-center !w-fit"
                                     defaultActiveKey="1"
                                     type="card"
                                     centered

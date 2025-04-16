@@ -35,7 +35,30 @@ const CreateVaccineDialog = ({
         const recommendedAgeRange = `${minAge}-${maxAge}`;
 
         try {
-          await createVaccine({ ...values, recommendedAgeRange });
+          const formData = new FormData();
+
+          // Append text fields
+          formData.append("Name", values.name);
+          formData.append("Description", values.description || "");
+          formData.append("RecommendedAgeRange", recommendedAgeRange);
+          formData.append("Contraindications", values.contraindications);
+          formData.append("UsageInstructions", values.usageInstructions || "");
+          formData.append("Dose", values.dose);
+          formData.append("TargetDisease", values.targetDisease || "");
+          formData.append("Unit", values.unitType);
+          formData.append("Country", values.country || "");
+          formData.append("Producer", values.producer || "");
+          formData.append("Quantity", values.quantity);
+          //formData.append("VaccineCategoryId", 1);
+          formData.append("Price", values.price);
+
+          // Append files
+          (values.images || []).forEach((fileWrapper: any) => {
+            formData.append("files", fileWrapper.originFileObj);
+          });
+
+          await createVaccine(formData);
+
           notification.success({
             message: "Vaccine Created Successfully",
             description: `The vaccine "${values.name}" has been added.`,

@@ -12,6 +12,7 @@ import FeedbackManagement from "./FeedbackManagement";
 import VaccinePackageManagement from "./VaccinePackageManagement";
 import VaccinePackageDetailView from "./VaccinePackageManagement/VaccinePackageDetail";
 import AppointmentManagement from "./AppointmentManagement";
+import VaccineCategoryManagement from "./VaccineCategoryManagement";
 
 const publicRoutes: RouteObject[] = [
     {
@@ -61,6 +62,10 @@ const publicRoutes: RouteObject[] = [
     {
         path: RouteNames.APPOINTMENT_MANAGEMENT,
         element: <AppointmentManagement />,
+    },
+    {
+        path: RouteNames.VACCINE_CATEGORY_MANAGEMENT,
+        element: <VaccineCategoryManagement />,
     }
     //   {
     //     path: RouteNames.FORGOT_PASSWORD,

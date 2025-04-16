@@ -394,7 +394,7 @@ export default function PendingAppointmentManagement() {
                             <p><strong>- Gender:</strong> {childDetails.gender}</p>
                             <p><strong>- Status:</strong> {childDetails.status}</p>
 
-                            <h3 className="!mt-3">- Allergies</h3>
+                            <h3 className="">- Allergies:</h3>
                             <ul>
                                 {allergies.map((allergy: any) => (
                                     <li key={allergy.id}>

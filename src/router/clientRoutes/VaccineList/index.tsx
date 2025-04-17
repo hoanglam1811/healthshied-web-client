@@ -40,7 +40,6 @@ const VaccineList = () => {
 
   const handleApplyFilter = () => {
     console.log("Filters applied:", filters);
-    // onFilter(filters);
   };
 
   useEffect(() => {
@@ -108,12 +107,7 @@ const VaccineList = () => {
             <VaccineCard key={vaccine.id} vaccine={vaccine} />
           ))}
         </div>
-
       </div>
-      
-
-
-
     </Content>
   );
 }

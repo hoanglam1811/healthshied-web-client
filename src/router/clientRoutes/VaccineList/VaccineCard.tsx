@@ -5,16 +5,24 @@ import { useNavigate } from "react-router-dom";
 const VaccineCard = ({ vaccine }: { vaccine: any }) => {
   const navigate = useNavigate();
 
-  return(
+  return (
     <Card
       hoverable
       onClick={() => navigate(`/vaccine-detail/${vaccine.id}`)}
       cover={
-        <img className="!max-w-[149px] !max-h-[149px]" alt={vaccine.name} src={"https://cdn.tiemchunglongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_04646_c19a65fd30.jpg"} />
+        <img
+          className="!max-w-[149px] !max-h-[149px]"
+          alt={vaccine.name}
+          src={
+            vaccine?.images?.length > 0
+              ? vaccine.images[0].imageUrl
+              : "https://cdn.tiemchunglongchau.com.vn/unsafe/256x0/filters:quality(90)/DSC_04646_c19a65fd30.jpg"
+          }
+        />
       }
 
       style={{ width: "100%", textAlign: "left" }}
-      styles={{ cover: { height: "200px", display: "flex", justifyContent: "center", alignItems: "center" }} }
+      styles={{ cover: { height: "200px", display: "flex", justifyContent: "center", alignItems: "center" } }}
     >
       <Title className="hover:!underline" level={4}>{vaccine.name}</Title>
       <span className="!text-gray-500">{vaccine.recommendedAgeRange}</span>

@@ -22,13 +22,14 @@ export default function StaffManagement() {
   const fetchStaffs = async () => {
     try {
       const response = await getAllUsers();
-      setStaffs(response.users.filter((user: any) => user.role.toLowerCase() === "staff"));
+      const staffList = response.users
+        .filter((user: any) => user.role.toLowerCase() === "staff")
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setStaffs(staffList);
+    } catch (error) {
+      console.error("Fetching staffs failed:", error);
     }
-    catch (error) {
-      console.error("Login failed:", error);
-      throw error;
-    }
-  }
+  };
 
   const deleteStaffs = async (id: number) => {
     try {
@@ -80,7 +81,7 @@ export default function StaffManagement() {
               ...order,
               action: (<>
                 <Link to={`${RouteNames.STAFF_DETAIL.slice(0, RouteNames.STAFF_DETAIL.lastIndexOf('/'))}/${order.id}`}>
-                  <Button type="primary">Details</Button> 
+                  <Button type="primary">Details</Button>
                 </Link>
                 <Button onClick={() => {
                   setDeletingStaffId(order.id)

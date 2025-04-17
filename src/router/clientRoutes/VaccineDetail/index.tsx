@@ -8,6 +8,7 @@ import { getVaccineById } from "@/services/ApiServices/vaccineService";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import TabPane from "antd/es/tabs/TabPane";
+import { getCountries } from "@/services/CountriesService";
 
 const CustomArrow = ({ className, style, onClick, direction }: any) => {
   return (
@@ -90,7 +91,12 @@ By keeping up with recommended vaccination schedules, individuals not only prote
   const [headings, setHeadings] = useState<any>([]);
   const [activeKey, setActiveKey] = useState<string>();
   const contentRef = useRef<HTMLDivElement>(null);
+  const [countriesList, setCountriesList] = useState<any[]>([]);
 
+  useEffect(() => {
+    const countries = getCountries();
+    setCountriesList(countries);
+  }, []);
 
   const fetchVaccine = async () => {
     try {
@@ -104,7 +110,7 @@ By keeping up with recommended vaccination schedules, individuals not only prote
   }
 
   const onTabClick = (key: string) => {
-    navigate("#"+key);
+    navigate("#" + key);
     const element = document.getElementById(key);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -132,27 +138,27 @@ By keeping up with recommended vaccination schedules, individuals not only prote
     if (result.length > 0) setActiveKey(result[0].id);
   }, [usageInstruct]);
 
- const OFFSET = 75; // adjust if you have sticky header height
+  const OFFSET = 75;
 
-useEffect(() => {
-  const handleScroll = () => {
-    const scrollY = window.scrollY;
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
 
-    const visibleHeading = headings.findLast(({ id }:any) => {
-      const el = document.getElementById(id);
-      if (!el) return false;
-      const top = el.offsetTop;
-      return scrollY + OFFSET >= top;
-    });
+      const visibleHeading = headings.findLast(({ id }: any) => {
+        const el = document.getElementById(id);
+        if (!el) return false;
+        const top = el.offsetTop;
+        return scrollY + OFFSET >= top;
+      });
 
-    if (visibleHeading && visibleHeading.id !== activeKey) {
-      setActiveKey(visibleHeading.id);
-    }
-  };
+      if (visibleHeading && visibleHeading.id !== activeKey) {
+        setActiveKey(visibleHeading.id);
+      }
+    };
 
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, [headings, activeKey]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [headings, activeKey]);
 
   useEffect(() => {
     fetchVaccine();
@@ -217,8 +223,23 @@ useEffect(() => {
               </div>
               <div className="!flex !gap-4">
                 <span className="!w-[200px] !font-semibold !text-black !mr-5">Country</span>
-                <span className="!text-gray-500">{vaccine?.country}</span>
+                {(() => {
+                  const country = countriesList.find(c => c.name === vaccine?.country);
+                  return country ? (
+                    <div className="!flex !items-center !gap-2">
+                      <img
+                        src={country.flagUrl}
+                        alt={country.name}
+                        className="!w-6 !h-4 !rounded !object-cover"
+                      />
+                      <span className="!text-gray-500">{country.name}</span>
+                    </div>
+                  ) : (
+                    <span className="!text-gray-500">{vaccine?.country || "N/A"}</span>
+                  );
+                })()}
               </div>
+
               <div className="!flex !gap-4">
                 <span className="!w-[200px] !font-semibold !text-black !mr-5">Producer</span>
                 <span className="!text-gray-500">{vaccine?.producer}</span>

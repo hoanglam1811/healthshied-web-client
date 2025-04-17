@@ -5,6 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { EditOutlined, SaveOutlined, CloseOutlined, LeftOutlined, InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
 import RouteNames from "@/constants/routeNames";
+import { getAllVaccineCategories } from "@/services/ApiServices/vaccineCategoryService";
+import { getCountries } from "@/services/CountriesService";
 
 const { Title } = Typography;
 
@@ -19,6 +21,27 @@ const VaccineDetailView = () => {
   const [form] = Form.useForm();
   const [minAge, setMinAge] = useState<any | null>(null);
   const [maxAge, setMaxAge] = useState<any | null>(null);
+  const [vaccineCategories, setVaccineCategories] = useState<any>([]);
+  const [countriesList, setCountriesList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const countries = getCountries();
+    setCountriesList(countries);
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllVaccineCategories();
+        console.log(categories.vaccineCategories)
+        setVaccineCategories(categories.vaccineCategories);
+      } catch (error) {
+        console.error('Failed to fetch vaccine categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const fetchVaccine = async () => {
     try {
@@ -77,7 +100,7 @@ const VaccineDetailView = () => {
         {loading ? (
           <Spin size="large" style={{ display: "block", textAlign: "center", marginTop: 50 }} />
         ) : (
-          <Card title={`Details of ${vaccine?.name}`} extra={!isEditing && (
+          <Card title={`Details of ${(vaccine?.name).toUpperCase()}`} extra={!isEditing && (
             <Button type="primary" icon={<EditOutlined />} onClick={() => setIsEditing(true)}>
               Edit
             </Button>
@@ -219,8 +242,23 @@ const VaccineDetailView = () => {
                   </Col>
 
                   <Col span={12}>
-                    <Form.Item label="Country" name="country">
-                      <Input placeholder="Enter country of origin" />
+                    <Form.Item
+                      label="Country"
+                      name="country"
+                      rules={[{ required: true, message: 'Please select a country!' }]}
+                    >
+                      <Select placeholder="Select a country">
+                        {countriesList.map((country) => (
+                          <Option key={country.name} value={country.name}>
+                            <Row gutter={8}>
+                              <Col>
+                                <img src={country.flagUrl} alt={country.name} style={{ width: 20, marginRight: 10 }} />
+                              </Col>
+                              <Col>{country.name}</Col>
+                            </Row>
+                          </Option>
+                        ))}
+                      </Select>
                     </Form.Item>
                   </Col>
 
@@ -274,7 +312,7 @@ const VaccineDetailView = () => {
                 </div>
               </Form>
             ) : (
-              <Descriptions column={2} bordered>
+              <Descriptions className="text-left" column={2} bordered>
                 <Descriptions.Item label="Name">{vaccine?.name}</Descriptions.Item>
                 <Descriptions.Item label="Producer">{vaccine?.producer}</Descriptions.Item>
 
@@ -301,17 +339,39 @@ const VaccineDetailView = () => {
                 <Descriptions.Item label="Target Disease">{vaccine?.targetDisease}</Descriptions.Item>
 
                 <Descriptions.Item label="Unit Type">{vaccine?.unit}</Descriptions.Item>
-                <Descriptions.Item label="Country">{vaccine?.country}</Descriptions.Item>
+                <Descriptions.Item label="Country">
+                  {(() => {
+                    const country = countriesList.find(c => c.name === vaccine?.country);
+                    return country ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <img
+                          src={country.flagUrl}
+                          alt={country.name}
+                          style={{ width: 24, height: 16, objectFit: "cover", borderRadius: 2 }}
+                        />
+                        <span>{country.name}</span>
+                      </div>
+                    ) : (
+                      vaccine?.country || "N/A"
+                    );
+                  })()}
+                </Descriptions.Item>
+
 
                 <Descriptions.Item label="Quantity">{vaccine?.quantity}</Descriptions.Item>
+                <Descriptions.Item label="Category">
+                  {
+                    vaccineCategories.find((cat: any) => cat.id === vaccine?.vaccineCategoryId)?.name || "N/A"
+                  }
+                </Descriptions.Item>
 
                 <Descriptions.Item label="Images" span={2}>
                   {vaccine?.images?.length > 0 ? (
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      {vaccine.images.map((imgUrl: string, index: number) => (
+                      {vaccine.images.map((img: any, index: number) => (
                         <Image
                           key={index}
-                          src={imgUrl}
+                          src={img.imageUrl}
                           width={80}
                           height={80}
                           style={{ objectFit: "cover", borderRadius: 4 }}
@@ -323,6 +383,7 @@ const VaccineDetailView = () => {
                     <span>No images</span>
                   )}
                 </Descriptions.Item>
+
               </Descriptions>
             )}
           </Card>

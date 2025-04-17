@@ -65,8 +65,7 @@ const CreateVaccineCategoryDialog = ({
       confirmLoading={loading}
     >
       <Form form={form} layout="vertical">
-        <div className="grid grid-cols-2 gap-6">
-          {/* Left Column */}
+        <div className="grid grid-cols gap-6">
           <div className="flex flex-col gap-4">
             <Form.Item
               label="Category Name"

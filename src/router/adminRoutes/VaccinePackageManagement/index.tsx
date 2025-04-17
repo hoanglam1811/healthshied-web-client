@@ -20,13 +20,16 @@ export default function VaccinePackageManagement() {
     const fetchVaccinePackages = async () => {
         setLoading(true);
         try {
-            const response = await getAllVaccinePackages();
-            setVaccinePackages(response.packages);
+          const response = await getAllVaccinePackages();
+          const sortedPackages = response.packages.sort((a: any, b: any) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+          setVaccinePackages(sortedPackages);
         } catch (error) {
-            console.error("Fetching vaccine packages failed:", error);
+          console.error("Fetching vaccine packages failed:", error);
         }
         setLoading(false);
-    };
+      };      
 
     const handleDeleteVaccinePackage = async (id: number) => {
         try {

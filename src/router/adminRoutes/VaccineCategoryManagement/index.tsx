@@ -20,14 +20,16 @@ export default function VaccineCategoryManagement() {
 
     const fetchVaccineCategories = async () => {
         try {
-            const response = await getAllVaccineCategories();
-            setVaccineCategories(response.vaccineCategories);
+          const response = await getAllVaccineCategories();
+          const sortedCategories = response.vaccineCategories.sort((a: any, b: any) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+          setVaccineCategories(sortedCategories);
+        } catch (error) {
+          console.error("Fetching vaccine categories failed:", error);
         }
-        catch (error) {
-            console.error("Login failed:", error);
-            throw error;
-        }
-    }
+      };
+      
 
     const vaccineCategoryDelete = async (id: number) => {
         try {

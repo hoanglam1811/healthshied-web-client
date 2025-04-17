@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { Modal, Button, Form, Input, InputNumber, notification, Select, Upload, Tooltip } from "antd";
+import { useEffect, useState } from "react";
+import { Modal, Form, Input, InputNumber, notification, Select, Upload, Tooltip, Row, Col } from "antd";
 import { createVaccine } from "@/services/ApiServices/vaccineService";
-import { InfoCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { getAllVaccineCategories } from "@/services/ApiServices/vaccineCategoryService";
+import { getCountries } from "@/services/CountriesService";
 
 const { Option } = Select;
 
@@ -18,11 +20,45 @@ const CreateVaccineDialog = ({
   const [loading, setLoading] = useState(false);
   const [minAge, setMinAge] = useState<any | null>(null);
   const [maxAge, setMaxAge] = useState<any | null>(null);
+  const [vaccineCategories, setVaccineCategories] = useState<any>([]);
+  const [fileList, setFileList] = useState<any>([]);
+  const [mainImage, setMainImage] = useState<any>(null);
+  const [countriesList, setCountriesList] = useState<any[]>([]);
 
   const handleCancel = () => {
     setIsModalOpen(false);
     form.resetFields();
   };
+
+  const handleChange = ({ fileList: newFileList }: any) => {
+    setFileList(newFileList);
+    if (!mainImage && newFileList.length > 0) {
+      setMainImage(newFileList[0]);
+    }
+  };
+
+  const handlePreview = (file: any) => {
+    setMainImage(file);
+  };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllVaccineCategories();
+        console.log(categories.vaccineCategories)
+        setVaccineCategories(categories.vaccineCategories);
+      } catch (error) {
+        console.error('Failed to fetch vaccine categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const countries = getCountries();
+    setCountriesList(countries);
+  }, []);
 
   const handleCreate = async () => {
     form
@@ -35,6 +71,11 @@ const CreateVaccineDialog = ({
         const recommendedAgeRange = `${minAge}-${maxAge}`;
 
         try {
+          if (fileList.length === 0) {
+            notification.warning({ message: "Please upload at least one image!" });
+            return;
+          }
+
           const formData = new FormData();
 
           // Append text fields
@@ -49,12 +90,12 @@ const CreateVaccineDialog = ({
           formData.append("Country", values.country || "");
           formData.append("Producer", values.producer || "");
           formData.append("Quantity", values.quantity);
-          //formData.append("VaccineCategoryId", 1);
+          formData.append('VaccineCategoryId', values.vaccineCategoryId);
           formData.append("Price", values.price);
+          formData.append("Status", values.status);
 
-          // Append files
-          (values.images || []).forEach((fileWrapper: any) => {
-            formData.append("files", fileWrapper.originFileObj);
+          fileList.forEach((file: any) => {
+            formData.append('files', file.originFileObj);
           });
 
           await createVaccine(formData);
@@ -113,8 +154,44 @@ const CreateVaccineDialog = ({
       width={800}
     >
       <Form form={form} layout="vertical">
-        <div className="grid grid-cols-2 gap-6">
-          {/* Left Column */}
+        <div className="!grid !grid-cols-2 !gap-6">
+          <div className="!col-span-2">
+            <Form.Item
+              label="Upload Images"
+              name="images"
+              valuePropName="fileList"
+              getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+            >
+              <Upload
+                listType="picture-card"
+                fileList={fileList}
+                onChange={handleChange}
+                onPreview={handlePreview}
+                beforeUpload={() => false}
+                multiple
+              >
+                {fileList.length < 5 && (
+                  <div>
+                    <UploadOutlined />
+                    <div style={{ marginTop: 8 }}>Upload</div>
+                  </div>
+                )}
+              </Upload>
+
+              {mainImage && (
+                <>
+                  <img
+                    src={URL.createObjectURL(mainImage.originFileObj)}
+                    alt="Main"
+                    style={{ width: '100%', maxHeight: 300, objectFit: 'cover' }}
+                  />
+                  <p className="!text-center !text-sm !text-gray-500 !mt-2">Main preview image</p>
+                </>
+              )}
+            </Form.Item>
+
+          </div>
+
           <div className="flex flex-col gap-4">
             <Form.Item
               label="Vaccine Name"
@@ -245,8 +322,20 @@ const CreateVaccineDialog = ({
             <Form.Item
               label="Country"
               name="country"
+              rules={[{ required: true, message: 'Please select a country!' }]}
             >
-              <Input placeholder="Enter country of origin" />
+              <Select placeholder="Select a country">
+                {countriesList.map((country) => (
+                  <Option key={country.name} value={country.name}>
+                    <Row gutter={8}>
+                      <Col>
+                        <img src={country.flagUrl} alt={country.name} style={{ width: 20, marginRight: 10 }} />
+                      </Col>
+                      <Col>{country.name}</Col>
+                    </Row>
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Form.Item
@@ -264,32 +353,23 @@ const CreateVaccineDialog = ({
             >
               <Input.TextArea rows={2} placeholder="Enter description" />
             </Form.Item>
-          </div>
 
-          {/* Upload Image - spans across both columns */}
-          <div className="col-span-2">
             <Form.Item
-              label="Upload Images"
-              name="images"
-              valuePropName="fileList"
-              getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+              label="Vaccine Category"
+              name="vaccineCategoryId"
+              rules={[{ required: true, message: 'Please select a vaccine category!' }]}
             >
-              <Upload
-                listType="picture-card"
-                multiple
-                beforeUpload={() => false}
-                maxCount={5}
-              >
-                <div>
-                  <PlusOutlined />
-                  <div style={{ marginTop: 8 }}>Upload</div>
-                </div>
-              </Upload>
+              <Select placeholder="Select a category">
+                {vaccineCategories?.map((category: any) => (
+                  <Option key={category.id} value={category.id}>
+                    {category.name}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </div>
         </div>
       </Form>
-
     </Modal>
   );
 };

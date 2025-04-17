@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { deleteVaccine, getAllVaccines } from "@/services/ApiServices/vaccineService";
 import CreateVaccineDialog from "./CreateVaccineDialog";
 import ConfirmDeleteVaccineModal from "./ConfirmDeleteVaccineDialog";
+import { getAllVaccineCategories } from "@/services/ApiServices/vaccineCategoryService";
+import { getCountries } from "@/services/CountriesService";
 
 
 const { Header, Content, Sider } = Layout;
@@ -18,17 +20,40 @@ export default function VaccineManagement() {
   const [deletingVaccineId, setDeletingVaccineId] = useState<any>(null);
   const [vaccines, setVaccines] = useState<any>(null);
   const navigate = useNavigate();
+  const [vaccineCategories, setVaccineCategories] = useState<any>([]);
+  const [countriesList, setCountriesList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const countries = getCountries();
+    setCountriesList(countries);
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllVaccineCategories();
+        console.log(categories.vaccineCategories)
+        setVaccineCategories(categories.vaccineCategories);
+      } catch (error) {
+        console.error('Failed to fetch vaccine categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const fetchVaccines = async () => {
     try {
       const response = await getAllVaccines();
-      setVaccines(response.vaccines);
-    }
-    catch (error) {
+      const sortedVaccines = response.vaccines.sort((a: any, b: any) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      setVaccines(sortedVaccines);
+    } catch (error) {
       console.error("Login failed:", error);
       throw error;
     }
-  }
+  };
 
   const vaccineDelete = async (id: number) => {
     try {
@@ -103,12 +128,40 @@ export default function VaccineManagement() {
                     ),
                 },
                 { title: "Age Range", dataIndex: "recommendedAgeRange", key: "recommendedAgeRange" },
+                {
+                  title: "Vaccine Category",
+                  dataIndex: "vaccineCategoryId",
+                  key: "vaccineCategoryId",
+                  render: (id: number) => {
+                    const category = vaccineCategories.find((cat: any) => cat.id === id);
+                    return category ? category.name : "N/A";
+                  },
+                },
                 { title: "Contraindication", dataIndex: "contraindications", key: "contraindications" },
                 { title: "Usage Instructions", dataIndex: "usageInstructions", key: "usageInstructions" },
                 { title: "Dose", dataIndex: "dose", key: "dose" },
                 { title: "Target Disease", dataIndex: "targetDisease", key: "targetDisease" },
                 { title: "Unit", dataIndex: "unit", key: "unit" },
-                { title: "Country", dataIndex: "country", key: "country" },
+                {
+                  title: "Country",
+                  dataIndex: "country",
+                  key: "country",
+                  render: (countryName: string) => {
+                    const country = countriesList.find(c => c.name === countryName);
+                    return country ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <img
+                          src={country.flagUrl}
+                          alt={country.name}
+                          style={{ width: 24, height: 16, objectFit: "cover", borderRadius: 2 }}
+                        />
+                        <span>{country.name}</span>
+                      </div>
+                    ) : (
+                      countryName
+                    );
+                  },
+                },
                 { title: "Producer", dataIndex: "producer", key: "producer" },
                 { title: "Quantity", dataIndex: "quantity", key: "quantity" },
                 { title: "Price", dataIndex: "price", key: "price" },

@@ -243,7 +243,7 @@ const CustomerLayout = () => {
         <Outlet />
       </div>
 
-      <Footer style={{ background: "#f0f2f5", padding: "40px 60px", marginTop: 80 }}>
+      <Footer className='text-left' style={{ background: "#f0f2f5", padding: "40px 60px", marginTop: 80 }}>
         <Row gutter={[32, 32]} justify="space-between">
           <Col xs={24} md={8}>
             <Title level={4}>About Healthshield</Title>
@@ -256,11 +256,11 @@ const CustomerLayout = () => {
           <Col xs={24} md={6}>
             <Title level={4}>Quick Links</Title>
             <Space direction="vertical">
-              <Link to="/about">About Us</Link>
-              <Link to="/vaccine-package">Vaccine Packages</Link>
-              <Link to="/appointment">Book Appointment</Link>
-              <Link to="/faq">FAQ</Link>
-              <Link to="/contact">Contact</Link>
+              <Link to="/">About Us</Link>
+              <Link to="/">Vaccine Packages</Link>
+              <Link to="/">Book Appointment</Link>
+              <Link to="/">FAQ</Link>
+              <Link to="/">Contact</Link>
             </Space>
           </Col>
 

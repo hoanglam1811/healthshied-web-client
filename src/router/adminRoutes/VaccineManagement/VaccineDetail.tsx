@@ -23,6 +23,7 @@ const VaccineDetailView = () => {
   const [maxAge, setMaxAge] = useState<any | null>(null);
   const [vaccineCategories, setVaccineCategories] = useState<any>([]);
   const [countriesList, setCountriesList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<any[]>([]);
 
   useEffect(() => {
     const countries = getCountries();
@@ -49,6 +50,13 @@ const VaccineDetailView = () => {
       setLoading(true);
       const data = await getVaccineById(id);
       setVaccine(data);
+      const uploadedFiles = data.images.map((image: any) => ({
+        uid: image.uid,
+        name: `Image-${image.id}`,
+        status: 'done',
+        url: image.imageUrl,
+      }));
+      setFileList(uploadedFiles);
       form.setFieldsValue({ ...data, minAge: parseInt(data.recommendedAgeRange.split("-")[0]), maxAge: parseInt(data.recommendedAgeRange.split("-")[1]) });
       setMinAge(parseInt(data.recommendedAgeRange.split("-")[0]));
       setMaxAge(parseInt(data.recommendedAgeRange.split("-")[1]));
@@ -61,13 +69,26 @@ const VaccineDetailView = () => {
   };
 
   useEffect(() => {
+    if (vaccine) {
+      const [minAgeValue, maxAgeValue] = vaccine.recommendedAgeRange.split("-");
+      setMinAge(minAgeValue);
+      setMaxAge(maxAgeValue);
+      form.setFieldsValue({
+        ...vaccine,
+        minAge: minAgeValue,
+        maxAge: maxAgeValue,
+      });
+    }
+  }, [vaccine]);
+
+  useEffect(() => {
     fetchVaccine();
   }, []);
 
   const handleUpdate = async (values: any) => {
     try {
       setLoading(true);
-      await updateVaccine(id, { ...values, recommendedAgeRange: `${minAge}-${maxAge}` });
+      await updateVaccine(id, { ...values, recommendedAgeRange: `${minAge}-${maxAge}`, images: fileList.map(file => ({ imageUrl: file.url })) });
       notification.success({ message: "Vaccine updated successfully!" });
       setIsEditing(false);
       fetchVaccine();
@@ -79,14 +100,36 @@ const VaccineDetailView = () => {
     }
   };
 
+  const handleMinAgeChange = (value: any) => {
+    setMinAge(value);
+    if (maxAge !== null && value >= maxAge) {
+      setMaxAge(null);
+      form.setFieldsValue({ maxAge: undefined });
+    }
+  };
+
+  const handleMaxAgeChange = (value: any) => {
+    setMaxAge(value);
+  };
+
   const generateAgeOptions = () => {
-    return Array.from({ length: 101 }, (_, i) => (
-      <Option key={i} value={i}>
-        {i} years
+    const monthOptions = Array.from({ length: 13 }, (_, i) => ({
+      label: `${i} month${i !== 1 ? 's' : ''}`,
+      value: `${i}m`,
+    }));
+  
+    const yearOptions = Array.from({ length: 100 }, (_, i) => ({
+      label: `${i + 1} year${i + 1 !== 1 ? 's' : ''}`,
+      value: `${i + 1}y`,
+    }));
+  
+    return [...monthOptions, ...yearOptions].map(({ label, value }) => (
+      <Option key={value} value={value}>
+        {label}
       </Option>
     ));
   };
-
+  
   return (
     <Layout>
       <Header style={{ background: "#001529", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -152,7 +195,7 @@ const VaccineDetailView = () => {
                           noStyle
                           rules={[{ required: true, message: "Select min age" }]}
                         >
-                          <Select placeholder="Min Age" style={{ width: "48%" }} onChange={setMinAge}>
+                          <Select placeholder="Min Age" style={{ width: "48%" }} onChange={handleMinAgeChange}>
                             {generateAgeOptions()}
                           </Select>
                         </Form.Item>
@@ -174,9 +217,9 @@ const VaccineDetailView = () => {
                             placeholder="Max Age"
                             disabled={minAge === null}
                             style={{ width: "48%" }}
-                            onChange={setMaxAge}
+                            onChange={handleMaxAgeChange}
                           >
-                            {generateAgeOptions().filter((opt: any) => opt.props.value > minAge)}
+                            {generateAgeOptions().filter((opt: any) => opt.key > minAge)}
                           </Select>
                         </Form.Item>
                       </Input.Group>

@@ -67,8 +67,7 @@ const CreateVaccineDialog = ({
         setLoading(true);
         console.log("Vaccine Data:", values);
 
-        const { minAge, maxAge } = values;
-        const recommendedAgeRange = `${minAge}-${maxAge}`;
+        const recommendedAgeRange = `${values.minAge}-${values.maxAge}`;
 
         try {
           if (fileList.length === 0) {
@@ -135,12 +134,23 @@ const CreateVaccineDialog = ({
   };
 
   const generateAgeOptions = () => {
-    return Array.from({ length: 101 }, (_, i) => (
-      <Option key={i} value={i}>
-        {i} years
+    const monthOptions = Array.from({ length: 13 }, (_, i) => ({
+      label: `${i} month${i !== 1 ? 's' : ''}`,
+      value: `${i}m`,
+    }));
+
+    const yearOptions = Array.from({ length: 100 }, (_, i) => ({
+      label: `${i + 1} year${i + 1 !== 1 ? 's' : ''}`,
+      value: `${i + 1}y`,
+    }));
+
+    return [...monthOptions, ...yearOptions].map(({ label, value }) => (
+      <Option key={value} value={value}>
+        {label}
       </Option>
     ));
   };
+
 
   return (
     <Modal
@@ -185,7 +195,7 @@ const CreateVaccineDialog = ({
                     alt="Main"
                     style={{ width: '100%', maxHeight: 300, objectFit: 'cover' }}
                   />
-                  <p className="!text-center !text-sm !text-gray-500 !mt-2">Main preview image</p>
+                  <p className="!text-center !text-lg !text-yellow-600">Preview image</p>
                 </>
               )}
             </Form.Item>

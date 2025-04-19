@@ -57,10 +57,32 @@ const VaccinePackageDetailView = () => {
         }
     };
 
+    const handleMinAgeChange = (value: any) => {
+        setMinAge(value);
+        if (maxAge !== null && value >= maxAge) {
+            setMaxAge(null);
+            form.setFieldsValue({ maxAge: undefined });
+        }
+    };
+
+    const handleMaxAgeChange = (value: any) => {
+        setMaxAge(value);
+    };
+
     const generateAgeOptions = () => {
-        return Array.from({ length: 101 }, (_, i) => (
-            <Option key={i} value={i}>
-                {i} years
+        const monthOptions = Array.from({ length: 13 }, (_, i) => ({
+            label: `${i} month${i !== 1 ? 's' : ''}`,
+            value: `${i}m`,
+        }));
+
+        const yearOptions = Array.from({ length: 100 }, (_, i) => ({
+            label: `${i + 1} year${i + 1 !== 1 ? 's' : ''}`,
+            value: `${i + 1}y`,
+        }));
+
+        return [...monthOptions, ...yearOptions].map(({ label, value }) => (
+            <Option key={value} value={value}>
+                {label}
             </Option>
         ));
     };
@@ -247,6 +269,7 @@ const VaccinePackageDetailView = () => {
                                             </Input.Group>
                                         </Form.Item>
                                     </Col>
+
 
                                     <Col span={24}>
                                         <Form.Item label="Description" name="description">

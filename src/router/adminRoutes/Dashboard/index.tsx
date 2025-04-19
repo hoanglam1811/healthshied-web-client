@@ -226,19 +226,6 @@ export default function AdminDashboard() {
                             pagination={{ pageSize: 5 }}
                         />
                     </Card>
-
-                    <Card title="Lịch tiêm chủng" style={{ marginTop: 24 }}>
-                        <Table
-                            dataSource={vaccineSchedules}
-                            columns={[
-                                { title: "Mã lịch hẹn", dataIndex: "id", key: "id" },
-                                { title: "Khách hàng", dataIndex: "customer", key: "customer" },
-                                { title: "Ngày đặt tiêm", dataIndex: "date", key: "date" },
-                                { title: "Vaccine", dataIndex: "vaccine", key: "vaccine" },
-                            ]}
-                            pagination={{ pageSize: 5 }}
-                        />
-                    </Card>
                 </Content>
             </Layout>
     );

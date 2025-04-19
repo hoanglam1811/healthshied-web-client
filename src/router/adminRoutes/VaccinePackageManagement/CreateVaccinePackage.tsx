@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Input, InputNumber, notification, Select, Upload, Image, Checkbox } from "antd";
-import { createVaccinePackage, getAllVaccinePackages } from "@/services/ApiServices/vaccinePackageService";
+import { createVaccinePackage } from "@/services/ApiServices/vaccinePackageService";
 import { getAllVaccines } from "@/services/ApiServices/vaccineService";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -35,9 +34,19 @@ const CreateVaccinePackageDialog = ({
     };
 
     const generateAgeOptions = () => {
-        return Array.from({ length: 101 }, (_, i) => (
-            <Option key={i} value={i}>
-                {i} years
+        const monthOptions = Array.from({ length: 13 }, (_, i) => ({
+            label: `${i} month${i !== 1 ? 's' : ''}`,
+            value: `${i}m`,
+        }));
+
+        const yearOptions = Array.from({ length: 100 }, (_, i) => ({
+            label: `${i + 1} year${i + 1 !== 1 ? 's' : ''}`,
+            value: `${i + 1}y`,
+        }));
+
+        return [...monthOptions, ...yearOptions].map(({ label, value }) => (
+            <Option key={value} value={value}>
+                {label}
             </Option>
         ));
     };
@@ -151,14 +160,21 @@ const CreateVaccinePackageDialog = ({
                 </Form.Item>
 
                 <Form.Item className="!mb-2">
-                    <Checkbox checked={noAgeLimit} onChange={(e) => {
-                        setNoAgeLimit(e.target.checked);
-                        if (e.target.checked) {
-                            setMinAge(null);
-                            setMaxAge(null);
-                            form.setFieldsValue({ minAge: undefined, maxAge: undefined });
-                        }
-                    }}>
+                    <Checkbox
+                        checked={noAgeLimit}
+                        onChange={(e) => {
+                            const checked = e.target.checked;
+                            setNoAgeLimit(checked);
+
+                            if (checked) {
+                                setMinAge(null);
+                                setMaxAge(null);
+                                form.setFieldsValue({ minAge: undefined, maxAge: undefined });
+                            } else {
+                                form.setFieldsValue({ minAge, maxAge });
+                            }
+                        }}
+                    >
                         No age limitation
                     </Checkbox>
                 </Form.Item>
@@ -167,48 +183,58 @@ const CreateVaccinePackageDialog = ({
                     <div className="flex gap-3">
                         <Form.Item
                             name="minAge"
-                            rules={noAgeLimit ? [] : [{ required: true, message: "Select min age" }]}
+                            rules={[{ required: !noAgeLimit, message: "Select min age" }]}
                             className="!mb-0 w-full"
                         >
                             <Select
                                 placeholder="Min Age"
                                 onChange={handleMinAgeChange}
-                                disabled={noAgeLimit}
+                                disabled={noAgeLimit}  // Disable when "No age limitation" is checked
                             >
                                 {generateAgeOptions()}
                             </Select>
                         </Form.Item>
                         <Form.Item
                             name="maxAge"
-                            rules={
-                                noAgeLimit
-                                    ? []
-                                    : [
-                                        { required: true, message: "Select max age" },
-                                        () => ({
-                                            validator(_, value) {
-                                                if (!value || minAge === null || value > minAge) {
-                                                    return Promise.resolve();
-                                                }
-                                                return Promise.reject(
-                                                    new Error("Max age must be greater than min age!")
-                                                );
-                                            },
-                                        }),
-                                    ]
-                            }
+                            rules={[
+                                { required: !noAgeLimit, message: "Select max age" },
+                                () => ({
+                                    validator(_, value) {
+                                        const parseAge = (age: string) => {
+                                            if (age?.endsWith("m")) return parseInt(age);
+                                            if (age?.endsWith("y")) return parseInt(age) * 12;
+                                            return 0;
+                                        };
+
+                                        if (!value || minAge === null || parseAge(value) > parseAge(minAge)) {
+                                            return Promise.resolve();
+                                        }
+
+                                        return Promise.reject(new Error("Max age must be greater than min age!"));
+                                    },
+                                }),
+                            ]}
                             className="!mb-0 w-full"
                         >
                             <Select
                                 placeholder="Max Age"
                                 onChange={handleMaxAgeChange}
-                                disabled={noAgeLimit || minAge === null}
+                                disabled={noAgeLimit || minAge === null}  // Disable when "No age limitation" is checked or minAge is null
                             >
-                                {generateAgeOptions().filter((option: any) => option.key > minAge)}
+                                {generateAgeOptions().filter((option: any) => {
+                                    const parseAge = (age: string) => {
+                                        if (age.endsWith("m")) return parseInt(age);
+                                        if (age.endsWith("y")) return parseInt(age) * 12;
+                                        return 0;
+                                    };
+
+                                    return minAge === null || parseAge(option.key) > parseAge(minAge);
+                                })}
                             </Select>
                         </Form.Item>
                     </div>
                 </Form.Item>
+
 
                 <Form.Item
                     label="Select Vaccines"

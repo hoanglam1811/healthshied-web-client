@@ -151,7 +151,6 @@ const CreateVaccineDialog = ({
     ));
   };
 
-
   return (
     <Modal
       title="Add New Vaccine"
@@ -228,17 +227,33 @@ const CreateVaccineDialog = ({
                     { required: true, message: "Select max age" },
                     () => ({
                       validator(_, value) {
-                        if (!value || minAge === null || value > minAge) {
+                        const parseAge = (age: string) => {
+                          if (age?.endsWith("m")) return parseInt(age);
+                          if (age?.endsWith("y")) return parseInt(age) * 12;
+                          return 0;
+                        };
+                  
+                        if (!value || minAge === null || parseAge(value) > parseAge(minAge)) {
                           return Promise.resolve();
                         }
+                  
                         return Promise.reject(new Error("Max age must be greater than min age!"));
                       },
                     }),
-                  ]}
+                  ]}                  
                   className="!mb-0 w-full"
                 >
                   <Select placeholder="Max Age" onChange={handleMaxAgeChange} disabled={minAge === null}>
-                    {generateAgeOptions().filter((option: any) => option.key > minAge)}
+                  {generateAgeOptions().filter((option: any) => {
+  const parseAge = (age: string) => {
+    if (age.endsWith("m")) return parseInt(age);
+    if (age.endsWith("y")) return parseInt(age) * 12;
+    return 0;
+  };
+
+  return minAge === null || parseAge(option.key) > parseAge(minAge);
+})}
+
                   </Select>
                 </Form.Item>
               </div>

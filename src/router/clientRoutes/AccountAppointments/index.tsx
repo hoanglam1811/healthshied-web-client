@@ -13,6 +13,7 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 import { Calendar, Badge } from "antd";
+import { getChildById } from "@/services/ApiServices/childService";
 
 
 const { Title, Text } = Typography;
@@ -27,6 +28,7 @@ const AccountAppointments = () => {
     const [filteredDates, setFilteredDates] = useState<RangeValue>(null);
     const userToken = useSelector((state: RootState) => state.token.user);
     const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+    const [children, setChildren] = useState<any[]>([]);
 
 
     const showDetails = (appointment: any) => {
@@ -43,9 +45,28 @@ const AccountAppointments = () => {
             try {
                 setLoading(true);
                 const res = await getAppointmentByClientId(userToken.id);
+                const appointments = res.appointments || [];
+                const uniqueChildIds = [...new Set(appointments.map((a: any) => a.childId))];
 
-                const mapped = (res.appointments || []).map((a: any) => {
+                const childrenPromises = uniqueChildIds.map(async (id) => {
+                    try {
+                        const child = await getChildById(id);
+                        return { id, name: child.fullName };
+                    } catch (err) {
+                        console.error("Failed to fetch child", id, err);
+                        return { id, name: "Undefined" };
+                    }
+                });
+
+                const childrenList = await Promise.all(childrenPromises);
+                console.log(childrenList)
+                setChildren(childrenList);
+
+                const mapped = appointments.map((a: any) => {
                     const parsedDate = dayjs(a.appointmentDate, "MM/DD/YYYY HH:mm:ss");
+
+                    const childInfo = childrenList.find((c) => c.id === a.childId);
+                    const childName = childInfo?.name || "Không rõ"; a
 
                     return {
                         ...a,
@@ -56,6 +77,7 @@ const AccountAppointments = () => {
                         vaccines: [],
                         vaccinePackages: [],
                         totalPrice: a.price || 0,
+                        childName: childName
                     };
                 });
 
@@ -122,6 +144,16 @@ const AccountAppointments = () => {
 
     const columns: ColumnsType<any> = [
         {
+            title: "#",
+            dataIndex: "index",
+            render: (_: any, __: any, index: number) => index + 1,
+            width: 50,
+        },
+        {
+            title: "Child Name",
+            dataIndex: "childName",
+        },
+        {
             title: "Date & Time",
             dataIndex: "appointmentDateObj",
             render: (date: dayjs.Dayjs) => <Text>{date?.format("YYYY-MM-DD HH:mm")}</Text>,
@@ -134,16 +166,6 @@ const AccountAppointments = () => {
                 const color = status === "CONFIRMED" ? "green" : status === "PENDING" ? "blue" : "red";
                 return <Tag color={color}>{status}</Tag>;
             },
-        },
-        {
-            title: "Description",
-            dataIndex: "description",
-        },
-        {
-            title: "Total Price",
-            dataIndex: "price",
-            render: (price: number) => <Text strong>${price?.toFixed(2)}</Text>,
-            sorter: (a, b) => a.price - b.price,
         },
         {
             title: "Actions",

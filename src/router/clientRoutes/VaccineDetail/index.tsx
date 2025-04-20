@@ -240,23 +240,20 @@ By keeping up with recommended vaccination schedules, individuals not only prote
                 })()}
               </div>
 
+
               <div className="!flex !gap-4">
                 <span className="!w-[200px] !font-semibold !text-black !mr-5">Producer</span>
                 <span className="!text-gray-500">{vaccine?.producer}</span>
               </div>
-              <p className="!mt-3 !mb-3">{vaccine?.description}</p>
-              <div className="!w-full !flex !justify-center !gap-4">
+              <p className="!mt-3 !mb-5">{vaccine?.description}</p>
+              <div className="!w-full !flex !justify-end !gap-4">
                 <Button
-                  className="!rounded-[35px] !w-[50%] !h-[56px] !text-white !bg-[#01A9A8]"
-                >
-                  <span className="!text-lg">Call advisor now</span>
-                </Button>
-                <Button
-                  className="!rounded-[35px] !w-[50%] !h-[56px] !text-[#01A9A8] !bg-[#E6F7FA] !mb-3"
+                  className="!rounded-[35px] !w-[30%] !h-[56px] !text-white !bg-[#01A9A8]"
                 >
                   <span className="!text-lg">Chat with doctor</span>
                 </Button>
               </div>
+
             </div>
           </div>
 

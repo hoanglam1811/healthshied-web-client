@@ -21,6 +21,7 @@ import { IoWarningOutline, IoCalendarOutline, IoDocumentText } from "react-icons
 import doctor from "../../../assets/doctor.png";
 import { createAppointment } from "@/services/ApiServices/appoinmentService";
 import TabPane from "antd/es/tabs/TabPane";
+import { getCountries } from "@/services/CountriesService";
 
 const { Title, Text } = Typography;
 
@@ -37,19 +38,20 @@ const vaccinationCenters = [
 const CustomArrow = ({ className, style, onClick, direction }: any) => {
   return (
     <div
-      className={className}
+      className={`absolute top-1/2 transform -translate-y-1/2 cursor-pointer shadow-md hover:scale-105 transition-all 
+        ${direction === "left" ? "left-3" : "right-3"} ${className || ""}`}
       style={{
         ...style,
-        fontSize: "24px",
-        color: "black",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        borderRadius: "50%",
-        width: "40px",
-        height: "40px",
+        fontSize: "20px",
+        color: "white",
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        borderRadius: "9999px",
+        width: "36px",
+        height: "36px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 2
+        zIndex: 10,
       }}
       onClick={onClick}
     >
@@ -81,6 +83,12 @@ const Home = () => {
   const registerFormRef = useRef<HTMLDivElement>(null);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [countriesList, setCountriesList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const countries = getCountries();
+    setCountriesList(countries);
+  }, []);
 
   useEffect(() => {
     if (location.state?.scrollTo === 'register' && registerFormRef.current) {
@@ -367,56 +375,87 @@ const Home = () => {
             </Link>
           </div>
 
-          <div style={{
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-          }}>
-            <div className="grid grid-cols-6 gap-4 items-center !mt-3">
-              <div className="col-span-4 h-[300px]" style={{
-                background: colorBgContainer,
-                borderRadius: borderRadiusLG,
-                border: "1px solid #f0f0f0",
-              }}>
-                <Carousel style={{ height: "100%" }} arrows
+          <div
+            style={{
+              background: colorBgContainer,
+              borderRadius: borderRadiusLG,
+            }}
+            className="!mt-5"
+          >
+            <div className="grid grid-cols-6 !gap-4 items-center !mt-3">
+              <div
+                className="col-span-4 h-[338px] relative overflow-hidden"
+                style={{
+                  background: colorBgContainer,
+                  border: "1px solid #f0f0f0",
+                }}
+              >
+                <Carousel
+                  className="h-full"
+                  arrows
                   prevArrow={<CustomArrow direction="left" />}
                   nextArrow={<CustomArrow direction="right" />}
-                  autoplay={{ dotDuration: true }}
+                  autoplay
                   dots={{ className: "custom-dots" }}
                 >
-                  <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo" className="max-h-[300px]" />
-                  </div>
-                  <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo" className="max-h-[300px]" />
-                  </div>
-                  <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo" className="max-h-[300px]" />
-                  </div>
-                  <div className="!flex justify-center w-full">
-                    <img src={logo} alt="Logo" className="max-h-[300px]" />
-                  </div>
+                  {[
+                    "https://cdn.tiemchunglongchau.com.vn/unsafe/1080x0/filters:quality(90)/Trang_chu_pc_2_75bfcd7d2a.png",
+                    "https://cdn.tiemchunglongchau.com.vn/unsafe/1080x0/filters:quality(90)/Trang_chu_pc_7ace5696f6.png",
+                    "https://cdn.tiemchunglongchau.com.vn/unsafe/1080x0/filters:quality(90)/Trang_chu_pc_1_a298bb7926.png",
+                    "https://cdn.tiemchunglongchau.com.vn/unsafe/1080x0/filters:quality(90)/808x298_76e9703d8a.jpg",
+                  ].map((src, i) => (
+                    <div
+                      key={i}
+                      className="h-[350px] w-full flex justify-center items-center overflow-hidden relative"
+                    >
+                      <img
+                        src={src}
+                        alt={`Banner ${i}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
                 </Carousel>
               </div>
-              <Card className="col-span-2 h-[300px]">
-                <img src={logo} alt="Logo" className="max-h-[200px]" />
-                Vaccine List
-              </Card>
-            </div>
 
-            <div className="container mx-auto !py-8">
-              <div className="grid grid-cols-4 !gap-6 text-center">
-                {["An toàn GSP", "Đội ngũ chuyên gia", "Nguồn gốc rõ ràng", "Dịch vụ tận tâm"].map((title, index) => (
-                  <div key={index} className="border-r last:border-r-0 pr-4">
-                    <img src={logo} alt="Icon" className="mx-auto w-12 mb-2" />
-                    <div className="font-semibold">{title}</div>
+              {/* Card section */}
+              <div className="!col-span-2 h-[300px] flex justify-center items-center text-center">
+                <div className="!w-full !px-4">
+                  <div className="!grid !grid-cols-2 !gap-6">
+                    {[
+                      {
+                        title: "GSP standard preservation",
+                        img: "https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_59c5ff874f.png",
+                      },
+                      {
+                        title: "Team of experts",
+                        img: "https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_1_5923799673.png",
+                      },
+                      {
+                        title: "Clear origin",
+                        img: "https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_2_4a1714c1da.png",
+                      },
+                      {
+                        title: "Dedicated service",
+                        img: "https://cdn.tiemchunglongchau.com.vn/unsafe/64x0/filters:quality(90)/ic_usp_3_626c50da92.png",
+                      },
+                    ].map((item, index) => (
+                      <div
+                        key={index}
+                        className="!flex !flex-col !items-center !text-center !pb-4"
+                      >
+                        <img src={item.img} alt={`Icon ${index + 1}`} className="!w-12 !mb-2" />
+                        <div className="!font-semibold !text-sm">{item.title}</div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
 
+            </div>
           </div>
 
-          <div className="!p-[40px_24px] !bg-white !mt-6 !mb-2 !rounded-[12px]">
+          <div className="!p-[40px_24px] !bg-white !mt-5 !mb-2 !rounded-[12px]">
             <div className="!flex !justify-between !mb-[24px]">
               <Title level={4} style={{ margin: 0 }}>
                 <TeamOutlined style={{ color: "#1890ff", marginRight: 8 }} />
@@ -480,26 +519,26 @@ const Home = () => {
                 [
                   {
                     key: '1',
-                    label: 'Sốt xuất huyết',
+                    label: 'Dengue Fever',
                     children: <div className="!text-left">
-                      <div className="!text-lg !font-bold !mb-3">Bảo vệ bản thân khỏi sốt xuất huyết Dengue thế nào?</div>
-                      <p className="!text-md !font-thin">Sốt xuất huyết Dengue là bệnh truyền nhiễm cấp tính do virus Dengue gây ra, lây truyền qua vết đốt của muỗi vằn Aedes. Bệnh có thể gây sốt cao, đau đầu, đau cơ, buồn nôn, nôn, phát ban và có thể dẫn đến các biến chứng nguy hiểm như xuất huyết, sốc, suy tạng, thậm chí tử vong. Hiện nay, vắc xin Qdenga là loại vắc xin sống, giảm độc lực được sử dụng để phòng ngừa bệnh sốt xuất huyết, dành cho trẻ từ 4 tuổi và người lớn. Tiêm phòng vắc xin là biện pháp hiệu quả giúp bảo vệ sức khỏe cho bạn và cộng đồng.</p>
+                      <div className="!text-lg !font-bold !mb-3">How to protect yourself from Dengue Fever?</div>
+                      <p className="!text-md !font-thin">Dengue fever is an acute infectious disease caused by the Dengue virus, transmitted through the bite of the Aedes mosquito. The disease can cause high fever, headache, muscle pain, nausea, vomiting, rash, and may lead to serious complications such as bleeding, shock, organ failure, and even death. Currently, Qdenga vaccine is a live, attenuated vaccine used to prevent Dengue fever, for children from 4 years old and adults. Getting vaccinated is an effective way to protect your health and the community.</p>
                     </div>,
                   },
                   {
                     key: '2',
-                    label: 'Viêm não mô cầu ACYW',
+                    label: 'Meningococcal ACYW',
                     children: <div className="!text-left">
-                      <div className="!text-lg !font-bold !mb-3">Viêm màng não do não mô cầu ACYW nguy hiểm thế nào?</div>
-                      <p className="!text-md !font-thin">Viêm màng não do não mô cầu ACYW là bệnh nhiễm trùng nguy hiểm do vi khuẩn Neisseria meningitidis gây ra, có thể dẫn đến viêm màng não, nhiễm trùng máu, thậm chí tử vong, đặc biệt nguy hiểm ở trẻ nhỏ. Chủ động tiêm vắc xin phòng bệnh là cách để bảo vệ bản thân và gia đình, giúp ngăn ngừa nguy cơ mắc bệnh và biến chứng nghiêm trọng.</p>
+                      <div className="!text-lg !font-bold !mb-3">How dangerous is Meningococcal ACYW Meningitis?</div>
+                      <p className="!text-md !font-thin">Meningococcal ACYW meningitis is a dangerous infection caused by the Neisseria meningitidis bacteria, which can lead to meningitis, blood infection, and even death, especially dangerous in young children. Proactively getting vaccinated is the best way to protect yourself and your family, preventing the risk of infection and serious complications.</p>
                     </div>,
                   },
                   {
                     key: '3',
-                    label: 'Viêm não mô cầu B',
+                    label: 'Meningococcal B',
                     children: <div className="!text-left">
-                      <div className="!text-lg !font-bold !mb-3">Làm sao để bảo vệ bản thân khỏi viêm màng não do não mô cầu B?</div>
-                      <p className="!text-md !font-thin">Viêm màng não do não mô cầu B là một bệnh nhiễm trùng nguy hiểm do vi khuẩn Neisseria meningitidis nhóm B gây ra. Bệnh có thể gây viêm màng não, nhiễm trùng máu và dẫn đến tử vong, đặc biệt nguy hiểm ở trẻ nhỏ. Để chủ động phòng ngừa bệnh, nên tiêm vắc xin Bexsero, loại vắc xin tái tổ hợp dành cho trẻ từ 2 tháng tuổi đến người lớn tròn 50 tuổi.</p>
+                      <div className="!text-lg !font-bold !mb-3">How to protect yourself from Meningococcal B Meningitis?</div>
+                      <p className="!text-md !font-thin">Meningococcal B meningitis is a dangerous infection caused by the Neisseria meningitidis group B bacteria. The disease can lead to meningitis, blood infection, and death, particularly dangerous in young children. To proactively prevent the disease, it is recommended to get the Bexsero vaccine, a recombinant vaccine for children from 2 months old to adults up to 50 years old.</p>
                     </div>,
                   },
                 ]
@@ -617,7 +656,26 @@ const Home = () => {
                                   columns={[
                                     { title: "Disease prevention", dataIndex: "targetDisease", key: "targetDisease" },
                                     { title: "Vaccine name", dataIndex: "name", key: "name" },
-                                    { title: "Country", dataIndex: "country", key: "country" },
+                                    {
+                                      title: "Country",
+                                      dataIndex: "country",
+                                      key: "country",
+                                      render: (countryName: string) => {
+                                        const country = countriesList.find(c => c.name === countryName);
+                                        return country ? (
+                                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                            <img
+                                              src={country.flagUrl}
+                                              alt={country.name}
+                                              style={{ width: 24, height: 16, objectFit: "cover", borderRadius: 2 }}
+                                            />
+                                            <span>{country.name}</span>
+                                          </div>
+                                        ) : (
+                                          countryName
+                                        );
+                                      },
+                                    },
                                     { title: "Dose", dataIndex: "dose", key: "dose" },
                                     {
                                       title: "Price ($)",

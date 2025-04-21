@@ -25,7 +25,7 @@ import { useEffect, useState } from "react";
 import { deleteAppointment, getAllAppointments, getAppointmentById, updateAppointment } from "@/services/ApiServices/appoinmentService";
 import { getChildById } from "@/services/ApiServices/childService";
 import { getAllergyByChildId } from "@/services/ApiServices/allergyService";
-
+import { getVaccinePackageById } from "@/services/ApiServices/vaccinePackageService";
 
 const { Content, Header } = Layout;
 const { Title, Text } = Typography;
@@ -51,6 +51,7 @@ export default function PendingAppointmentManagement() {
     const [childDetails, setChildDetails] = useState<any>(null);
     const [allergies, setAllergies] = useState<any>([]);
     const [childNames, setChildNames] = useState<{ [key: number]: string }>({});
+    const [selectedPackageDetail, setSelectedPackageDetail] = useState<any>(null);
 
     const fetchAppointments = async () => {
         setLoading(true);
@@ -99,11 +100,9 @@ export default function PendingAppointmentManagement() {
 
     const showChildModal = async (childId: any) => {
         try {
-            // Lấy thông tin trẻ theo childId
             const childData = await getChildById(childId);
             setChildDetails(childData);
 
-            // Lấy thông tin dị ứng của trẻ
             const allergyData = await getAllergyByChildId(childId);
             setAllergies(allergyData.allergies);
 
@@ -228,10 +227,8 @@ export default function PendingAppointmentManagement() {
                         style={{ width: 120 }}
                         onChange={(value) => handleUpdateStatus(record.id, value)}
                     >
-                        <Option value="pending">PENDING</Option>
                         <Option value="accepted">ACCEPTED</Option>
                         <Option value="rejected">REJECTED</Option>
-                        <Option value="done">DONE</Option>
                     </Select>
                     <Button onClick={() => showModal(record.id)}>Detail</Button>
                     <Popconfirm
@@ -264,6 +261,24 @@ export default function PendingAppointmentManagement() {
 
         fetchMissingChildNames();
     }, [appointments]);
+
+    useEffect(() => {
+        const fetchPackageDetail = async () => {
+            if (selectedAppointment?.packageId) {
+                try {
+                    const data = await getVaccinePackageById(selectedAppointment.packageId);
+                    setSelectedPackageDetail(data);
+                } catch (error) {
+                    console.error("Failed to fetch vaccine package details", error);
+                    setSelectedPackageDetail(null);
+                }
+            } else {
+                setSelectedPackageDetail(null);
+            }
+        };
+
+        fetchPackageDetail();
+    }, [selectedAppointment]);
 
 
     return (
@@ -421,16 +436,15 @@ export default function PendingAppointmentManagement() {
                             <Tag>{selectedAppointment.status}</Tag>
                             <br />
                             <Text strong>Description:</Text>{" "}
-                            <Text>{selectedAppointment.description}</Text>
+                            <Text>{selectedAppointment.description || "None"}</Text>
                             <br />
-                            <Text strong>Vaccine ID:</Text>{" "}
-                            <Text>{selectedAppointment.vaccineId || "None"}</Text>
-                            <br />
-                            <Text strong>Package ID:</Text>{" "}
-                            <Text>{selectedAppointment.packageId || "None"}</Text>
-                            <br />
-                            <Text strong>Child ID:</Text>{" "}
-                            <Text>{selectedAppointment.childId}</Text>
+                            <Text strong>Package:</Text>{" "}
+                            <Text>
+                                {selectedPackageDetail
+                                    ? `${selectedPackageDetail.name} (${selectedPackageDetail.vaccines?.map((v: any) => v.name).join(", ")})`
+                                    : selectedAppointment.packageId || "None"}
+                            </Text>
+
                             <br />
                             <Text strong>Total Price:</Text>{" "}
                             <Text style={{ color: "#1890ff" }}>

@@ -49,7 +49,6 @@ const Login = () => {
     
             notification.success({ message: "Login successfully!" });
             console.log(userInfo)
-            // Điều hướng theo role
             if (userInfo.role.toUpperCase() === "ADMIN") {
                 navigate("/admin/dashboard");
             } else if (userInfo.role.toUpperCase() === "STAFF") {

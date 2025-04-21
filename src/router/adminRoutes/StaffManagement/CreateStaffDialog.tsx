@@ -38,7 +38,7 @@ const CreateStaffDialog = ({
         })
         setIsModalOpen(false);
         form.resetFields();
-        notification.error({ message: "Add staff successfully!" })
+        notification.success({ message: "Add staff successfully!" })
         setLoading(false);
         await fetchStaffs();
       })

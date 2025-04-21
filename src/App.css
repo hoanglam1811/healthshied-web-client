@@ -112,3 +112,20 @@ input:-webkit-autofill:focus {
 .vaccine-detail-tab .ant-tabs-nav {
   width: 100%;
 }
+
+
+.setting-drwer {
+  background: #fff;
+  border-radius: 50%;
+  bottom: 42px;
+  right: 30px;
+  font-size: 1.25rem;
+  z-index: 990;
+  box-shadow: 0 2px 12px 0 rgb(0 0 0 / 16%);
+  width: 52px;
+  height: 52px;
+  text-align: center;
+  line-height: 60px;
+  position: fixed;
+  cursor: pointer;
+  }

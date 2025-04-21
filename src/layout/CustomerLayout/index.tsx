@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Card, Col, Divider, Dropdown, Form, Input, Layout, Menu, Modal, notification, Row, Space, theme, Tooltip, Typography } from 'antd';
+import { Breadcrumb, Button, Card, Col, Divider, Dropdown, Form, Input, Layout, Menu, Modal, notification, Popover, Row, Space, theme, Tooltip, Typography } from 'antd';
 import { Content, Header } from 'antd/es/layout/layout';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import logo from "@/assets/logo.png";
@@ -10,6 +10,10 @@ import { removeToken } from '@/reducers/tokenSlice';
 import { useEffect, useRef, useState } from 'react';
 import { getAllVaccines } from '@/services/ApiServices/vaccineService';
 import vaccineImg from '@/assets/vaccine.jpg';
+import { GEMINI_CONTEXT_PROMPT } from '@/constants/gemini';
+import { gemini } from '@/services/ApiServices/geminiService';
+import ReactMarkdown from 'react-markdown';
+import { IoChatboxOutline } from 'react-icons/io5';
 
 const { Footer } = Layout;
 const { Title, Text } = Typography;
@@ -27,6 +31,13 @@ const CustomerLayout = () => {
   const [index, setIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+
+  const aiChatRef = useRef<any>(null);
+
+  const [isOpen, setIsOpen] = useState(false);
+  // const [userMessage, setUserMessage] = useState("");
+  const [aiChatHistory, setAiChatHistory] = useState<any>(GEMINI_CONTEXT_PROMPT);
+  const [aiInput, setAiInput] = useState<string>("");
 
   const prompts = [
     "What vaccine do I need",
@@ -46,6 +57,55 @@ const CustomerLayout = () => {
     } catch (error) {
       console.log(error);
       notification.error({ message: "Something went wrong. Please try again later." });
+    }
+  }
+
+  const handleAiInput = async () => {
+    try {
+      //When first open
+      if (aiChatHistory == GEMINI_CONTEXT_PROMPT) {
+        const response = await gemini(aiChatHistory);
+        // console.log(response)
+        setAiChatHistory({
+          ...aiChatHistory,
+          contents: [
+            ...aiChatHistory.contents,
+            response?.candidates?.[0]?.content,
+          ]
+        })
+        return
+      }
+      if (aiInput == "") {
+        notification.error({ message: "You need to type something!!" })
+        return;
+      }
+      setAiInput("");
+      const updatedHistory = {
+        ...aiChatHistory,
+        contents: [
+          ...aiChatHistory.contents,
+          { role: "user", parts: [{ text: aiInput }] }
+        ]
+      };
+      // console.log(updatedHistory);
+
+      setAiChatHistory(updatedHistory);
+      const response = await gemini(updatedHistory);
+      // console.log(response)
+      setAiChatHistory({
+        ...updatedHistory,
+        contents: [
+          ...updatedHistory.contents,
+          response?.candidates?.[0]?.content,
+        ]
+      })
+
+    } catch (error: any) {
+      // setError(error.toString());
+      console.error("Error fetching skin types", error);
+    }
+    finally {
+      // setIsLoading(false);
     }
   }
 
@@ -69,8 +129,15 @@ const CustomerLayout = () => {
   ]
 
   useEffect(() => {
-    fetchVaccines()
+    fetchVaccines();
+    handleAiInput();
   }, [])
+
+  useEffect(() => {
+    if (aiChatRef.current) {
+      aiChatRef.current.scrollTop = aiChatRef.current.scrollHeight;
+    }
+  }, [aiChatHistory])
 
   useEffect(() => {
     const currentPrompt = prompts[index];
@@ -236,7 +303,64 @@ const CustomerLayout = () => {
             )}
           </div>
 
+          <div className="!flex !justify-center !items-center !sticky !top-0">
+            <Popover
+              content={
+                <div className="!w-[324px] !h-[455px] !p-2">
+                  <h3 className="!text-sm !font-bold !text-center">Bác sĩ HealthShield</h3>
 
+                  {/* Chat Messages (Placeholder) */}
+                  <div className="!h-[85%] !overflow-y-auto !p-2" ref={aiChatRef}>
+                    <div>
+                      {aiChatHistory?.contents.map((chat: any, index: number) => (
+                        <>
+                          {index ?
+                            chat.role == "user" ? (
+                              <div className="!flex !justify-end !mt-2" key={index}>
+                                <p className="!max-w-[200px] !p-[10px] !border !bg-[#0084FF] !text-white !rounded-[18px]">{chat?.parts?.[0]?.text}</p>
+                              </div>
+                            ) : (
+                              <div className="!flex !justify-start !mt-2" key={index}>
+                                <p className="!max-w-[200px] !p-[10px] !border bg-[#E4E6EB] !text-black !rounded-[18px]" >
+                                  <ReactMarkdown>{chat?.parts?.[0]?.text}</ReactMarkdown>
+                                </p>
+                              </div>
+                            )
+                            : <></>}
+                        </>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Chat Input */}
+                  <form className="!h-[15%] !mt-2 !flex" onSubmit={(e) => {
+                    e.preventDefault();
+                    handleAiInput();
+                  }}>
+                    <Input
+                      className="!h-[35px]"
+                      value={aiInput}
+                      onChange={(e) => setAiInput(e.target.value)}
+                      placeholder="Enter message..."
+                    />
+                    <Button htmlType="submit" type="primary" className="!ml-2">
+                      Send
+                    </Button>
+                  </form>
+                </div>
+              }
+              title={null}
+              trigger="click"
+              getPopupContainer={(triggerNode) => triggerNode.parentNode as HTMLElement}
+              // placement="topLeft"
+              open={isOpen}
+              onOpenChange={setIsOpen}
+            >
+              <div className="setting-drwer !flex !justify-center !items-center">
+                <IoChatboxOutline style={{ fontSize: "22px", cursor: "pointer" }} />
+              </div>
+            </Popover>
+          </div>
         </div>
       </Header>
       <div className="!mt-[64px]">

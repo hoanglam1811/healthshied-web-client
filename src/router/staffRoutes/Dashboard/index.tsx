@@ -7,6 +7,7 @@ import { getAllergyByChildId } from "@/services/ApiServices/allergyService";
 import { getVaccinePackageById } from "@/services/ApiServices/vaccinePackageService";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
+import { createVaccineRecord, getVaccineRecordById, updateVaccineRecord } from "@/services/ApiServices/vaccineRecordService";
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -48,6 +49,8 @@ export default function StaffDashboard() {
     const [isRecordModalVisible, setIsRecordModalVisible] = useState(false);
     const [selectedPackageDetail, setSelectedPackageDetail] = useState<any>(null);
     const user = useSelector((state: RootState) => state.token.user);
+    const [form] = Form.useForm();
+    const [vaccineRecord, setVaccineRecord] = useState<any>(null);
 
     const fetchAppointments = async () => {
         setLoading(true);
@@ -55,10 +58,16 @@ export default function StaffDashboard() {
             const response = await getAllAppointments();
             console.log(response.appointments);
             const data = response.appointments || [];
-            const mapped = data.map((item: any) => ({
+
+            const acceptedAppointments = data.filter(
+                (item: any) => item.status === "ACCEPTED" || item.status === "DONE"
+            );
+
+            const mapped = acceptedAppointments.map((item: any) => ({
                 ...item,
                 appointmentDateObj: dayjs(item.appointmentDate),
             }));
+
             setAppointments(mapped);
         } catch (err) {
             message.error("Failed to fetch appointments");
@@ -107,7 +116,7 @@ export default function StaffDashboard() {
             const allergyData = await getAllergyByChildId(childId);
             setAllergies(allergyData.allergies);
 
-            setModalVisible(true);
+            setIsChildModalVisible(true);
         } catch (error) {
             console.error("Failed to fetch child or allergy details", error);
         }
@@ -147,17 +156,60 @@ export default function StaffDashboard() {
         });
     };
 
+    const handleSubmitVaccineRecord = async () => {
+        try {
+            const values = await form.validateFields();
+            await createVaccineRecord({
+                appointmentId: selectedAppointment?.id,
+                reactionNotes: values.reactionNotes,
+            });
+
+            notification.success({ message: "Vaccine record created successfully!" });
+            setIsRecordModalVisible(false);
+            fetchAppointments();
+        } catch (error) {
+            console.error(error);
+            notification.error({ message: "Failed to create vaccine record." });
+        }
+    };
+
+    const handleUpdateVaccineRecord = async () => {
+        try {
+            const values = await form.validateFields();
+            await updateVaccineRecord(vaccineRecord.id, {
+                ...vaccineRecord,
+                reactionNotes: values.reactionNotes,
+            });
+
+            message.success("Vaccine record updated successfully!");
+            setIsRecordModalVisible(false);
+            fetchAppointments();
+        } catch (error) {
+            console.error(error);
+            message.error("Failed to update vaccine record.");
+        }
+    };
+
     const dateCellRender = (date: any) => {
         const appointmentsForThisDay = appointments.filter((item) =>
             item.appointmentDateObj.isSame(date, "day")
         );
-        return appointmentsForThisDay.length > 0 ? (
-            <div className="text-center text-blue-500 font-semibold">
-                {appointmentsForThisDay.map((appointment: any) => (
-                    <div key={appointment.id}>{childNames[appointment.childId] || appointment.childId}</div>
-                ))}
+
+        if (appointmentsForThisDay.length === 0) return null;
+
+        const hasAccepted = appointmentsForThisDay.some(item => item.status === "ACCEPTED");
+        const hasDone = appointmentsForThisDay.some(item => item.status === "DONE");
+
+        let textColor = "text-gray-500";
+        if (hasAccepted && hasDone) textColor = "text-purple-500";
+        else if (hasAccepted) textColor = "text-yellow-500";
+        else if (hasDone) textColor = "text-green-500";
+
+        return (
+            <div className={`text-center font-semibold ${textColor}`}>
+                {appointmentsForThisDay.length} appointment{appointmentsForThisDay.length > 1 ? "s" : ""}
             </div>
-        ) : null;
+        );
     };
 
     const getChildName = async (childId: number) => {
@@ -177,17 +229,47 @@ export default function StaffDashboard() {
     const openRecordModal = async (appointment: any) => {
         setSelectedAppointment(appointment);
         setIsRecordModalVisible(true);
+        form.resetFields();
 
         if (appointment.packageId) {
             try {
                 const res = await getVaccinePackageById(appointment.packageId);
-                console.log(res)
                 setPackageDetail(res);
             } catch (e) {
-                message.warning("Failed to load package detail");
+                console.error(e);
+                setPackageDetail(null);
+                notification.warning({
+                    message: "Load Package Failed",
+                    description: "Unable to load package detail. Please try again.",
+                    placement: "topRight",
+                });
             }
         } else {
             setPackageDetail(null);
+        }
+
+        try {
+            const record = await getVaccineRecordById(appointment.id);
+            setVaccineRecord(record.vacccinationRecords);
+
+            form.setFieldsValue({
+                reactionNotes: record.reactionNotes,
+            });
+
+            notification.info({
+                message: "Existing Record Found",
+                description: "This appointment already has a vaccination record.",
+                placement: "topRight",
+            });
+        } catch (error) {
+            setVaccineRecord(null);
+            form.setFieldsValue({ reactionNotes: "" });
+
+            notification.info({
+                message: "Create New Record",
+                description: "No vaccination record found. You can create a new one.",
+                placement: "topRight",
+            });
         }
     };
 
@@ -349,14 +431,14 @@ export default function StaffDashboard() {
 
                     <Modal
                         title="Child Details"
-                        visible={isChildModalVisible}
+                        open={isChildModalVisible}
                         onCancel={() => setIsChildModalVisible(false)}
                         footer={null}
                     >
                         {childDetails && (
                             <div>
                                 <p><strong>- Full Name:</strong> {childDetails.fullName}</p>
-                                <p><strong>- Birthday:</strong> {childDetails.birthday}</p>
+                                <p><strong>- Birthday:</strong> {dayjs(childDetails.birthday).format("MM/DD/YYYY")}</p>
                                 <p><strong>- Gender:</strong> {childDetails.gender}</p>
                                 <p><strong>- Status:</strong> {childDetails.status}</p>
 
@@ -375,13 +457,25 @@ export default function StaffDashboard() {
                     <Modal
                         title="Vaccination Result Recording"
                         open={isRecordModalVisible}
-                        onOk={() => setIsRecordModalVisible(false)}
+                        onOk={handleSubmitVaccineRecord}
                         onCancel={() => setIsRecordModalVisible(false)}
                         width={700}
                         centered
+                        footer={[
+                            vaccineRecord ? (
+                                <Button key="update" type="primary" onClick={handleUpdateVaccineRecord}>
+                                    Update Record
+                                </Button>
+                            ) : (
+                                <Button key="submit" type="primary" onClick={handleSubmitVaccineRecord}>
+                                    Submit Record
+                                </Button>
+                            ),
+                            <Button key="cancel" onClick={() => setIsRecordModalVisible(false)}>Cancel</Button>
+                        ]}
                     >
                         <Card style={{ background: "#f9f9f9", borderRadius: 8, padding: "16px" }}>
-                            <Form layout="vertical">
+                            <Form layout="vertical" form={form}>
                                 <Row gutter={[16, 16]}>
                                     <Col span={24}>
                                         <Form.Item label="Package">
@@ -413,7 +507,11 @@ export default function StaffDashboard() {
                                     </Col>
                                 </Row>
 
-                                <Form.Item label="Post-vaccination Reactions">
+                                <Form.Item
+                                    name="reactionNotes"
+                                    label="Post-vaccination Reactions"
+                                    rules={[{ required: true, message: "Please enter notes or 'No reaction'" }]}
+                                >
                                     <Input.TextArea rows={4} placeholder="Enter notes about any post-vaccination reactions..." />
                                 </Form.Item>
                             </Form>

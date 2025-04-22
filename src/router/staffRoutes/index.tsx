@@ -1,6 +1,7 @@
 import { Navigate, RouteObject } from "react-router-dom";
 import RouteNames from "../../constants/routeNames";
 import StaffDashboard from "../staffRoutes/Dashboard";
+import StaffScheduleByStaff from "./StaffShift";
 
 const publicRoutes: RouteObject[] = [
     // {
@@ -10,6 +11,10 @@ const publicRoutes: RouteObject[] = [
     {
         path: RouteNames.STAFF_DASHBOARD,
         element: <StaffDashboard />,
+    },
+    {
+        path: RouteNames.STAFF_SHIFT_PAGE,
+        element: <StaffScheduleByStaff />,
     }
     //   {
     //     path: RouteNames.FORGOT_PASSWORD,

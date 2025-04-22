@@ -25,12 +25,11 @@ const StaffLayout = () => {
                     />
                 </div>
                 <Menu theme="dark" mode="inline" defaultSelectedKeys={["dashboard"]}>
-                    <Menu.Item key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
-                    <Menu.Item key="schedule" icon={<CalendarOutlined />}>Lịch làm việc</Menu.Item>
-                    <Menu.Item key="tasks" icon={<SolutionOutlined />}>Nhiệm vụ</Menu.Item>
+                    <Menu.Item onClick={() => navigate(RouteNames.STAFF_DASHBOARD)} key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
+                    <Menu.Item onClick={() => navigate(RouteNames.STAFF_SHIFT_PAGE)} key="shift" icon={<SolutionOutlined />}>Shift</Menu.Item>
                 </Menu>
             </Sider>
-            <Outlet/>
+            <Outlet />
         </Layout>
     );
 };

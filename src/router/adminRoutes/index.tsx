@@ -13,7 +13,7 @@ import VaccinePackageManagement from "./VaccinePackageManagement";
 import VaccinePackageDetailView from "./VaccinePackageManagement/VaccinePackageDetail";
 import AppointmentManagement from "./AppointmentManagement";
 import VaccineCategoryManagement from "./VaccineCategoryManagement";
-import VaccineSchedule from "./VaccineSchedule";
+import StaffScheduleManagement from "./StaffScheduleManagement";
 
 const publicRoutes: RouteObject[] = [
     {
@@ -65,8 +65,8 @@ const publicRoutes: RouteObject[] = [
         element: <AppointmentManagement />,
     },
     {
-        path: RouteNames.VACCINE_SCHEDULE,
-        element: <VaccineSchedule/>,
+        path: RouteNames.STAFF_SCHEDULE_MANAGEMENT,
+        element: <StaffScheduleManagement/>,
     },
     {
         path: RouteNames.VACCINE_CATEGORY_MANAGEMENT,

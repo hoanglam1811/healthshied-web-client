@@ -871,7 +871,15 @@ const Home = () => {
                               value={appointmentTime}
                               onChange={setAppointmentTime}
                               className="!w-full !border !border-gray-300 !rounded-lg !shadow-sm"
+                              format="HH:mm"
+                              hideDisabledOptions
+                              showNow={false}
+                              minuteStep={15}
+                              disabledHours={() =>
+                                [...Array(24).keys()].filter((hour) => hour < 8 || hour > 19)
+                              }
                             />
+
                           </div>
                         </div>
 

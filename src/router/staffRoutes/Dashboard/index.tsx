@@ -7,7 +7,7 @@ import { getAllergyByChildId } from "@/services/ApiServices/allergyService";
 import { getVaccinePackageById } from "@/services/ApiServices/vaccinePackageService";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
-import { createVaccineRecord, getVaccineRecordById, updateVaccineRecord } from "@/services/ApiServices/vaccineRecordService";
+import { createVaccineRecord, getVaccineRecordByAppointmentId, getVaccineRecordById, updateVaccineRecord } from "@/services/ApiServices/vaccineRecordService";
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -38,6 +38,7 @@ export default function StaffDashboard() {
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [modalVisible, setModalVisible] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
+    const [recordLoading, setRecordLoading] = useState<boolean>(false);
     const [filteredRange, setFilteredRange] = useState<any>(null);
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -227,6 +228,7 @@ export default function StaffDashboard() {
     };
 
     const openRecordModal = async (appointment: any) => {
+        setRecordLoading(true);
         setSelectedAppointment(appointment);
         setIsRecordModalVisible(true);
         form.resetFields();
@@ -249,8 +251,8 @@ export default function StaffDashboard() {
         }
 
         try {
-            const record = await getVaccineRecordById(appointment.id);
-            setVaccineRecord(record.vacccinationRecords);
+            const record = await getVaccineRecordByAppointmentId(appointment.id);
+            setVaccineRecord(record);
 
             form.setFieldsValue({
                 reactionNotes: record.reactionNotes,
@@ -270,6 +272,9 @@ export default function StaffDashboard() {
                 description: "No vaccination record found. You can create a new one.",
                 placement: "topRight",
             });
+        }
+        finally{
+            setRecordLoading(false);
         }
     };
 
@@ -463,11 +468,11 @@ export default function StaffDashboard() {
                         centered
                         footer={[
                             vaccineRecord ? (
-                                <Button key="update" type="primary" onClick={handleUpdateVaccineRecord}>
+                                <Button loading={recordLoading} key="update" type="primary" onClick={handleUpdateVaccineRecord}>
                                     Update Record
                                 </Button>
                             ) : (
-                                <Button key="submit" type="primary" onClick={handleSubmitVaccineRecord}>
+                                <Button loading={recordLoading} key="submit" type="primary" onClick={handleSubmitVaccineRecord}>
                                     Submit Record
                                 </Button>
                             ),

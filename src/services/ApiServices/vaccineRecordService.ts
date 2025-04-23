@@ -29,6 +29,19 @@ export async function getVaccineRecordById(id: string) {
     }
 }
 
+export async function getVaccineRecordByAppointmentId(id: string) {
+    try {
+        const response = await axios.get(
+            `${BASE_URL}/api/vaccination-record/by-appointment/${id}`,
+            ngrokSkipWarning
+        );
+        return response.data;
+    } catch (error) {
+        console.error("VaccineRecord failed:", error);
+        throw error;
+    }
+}
+
 export async function createVaccineRecord(vaccine: any) {
     try {
         const response = await axios.post(

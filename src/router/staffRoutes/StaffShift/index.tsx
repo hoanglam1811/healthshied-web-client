@@ -21,7 +21,16 @@ const StaffScheduleByStaff = () => {
     useEffect(() => {
         if (user && user.id) {
             getStaffScheduleByStaffId(user.id)
-                .then((data) => setStaffSchedules(data))
+                .then((data) => {
+                    if (Array.isArray(data)) {
+                        setStaffSchedules(data);
+                    } else if (data && Array.isArray(data.staffSchedules)) {
+                        setStaffSchedules(data.staffSchedules);
+                    } else {
+                        console.warn("Unexpected response format:", data);
+                        setStaffSchedules([]);
+                    }
+                })
                 .catch((error) => console.error("Error fetching staff schedules:", error));
         }
     }, [user]);
@@ -64,9 +73,9 @@ const StaffScheduleByStaff = () => {
 
     const dateCellRender = (value: any) => {
         const dateStr = value.format('YYYY-MM-DD');
-        const schedules = staffSchedules.filter(
-            (schedule) => schedule.shiftDate === dateStr
-        );
+        const schedules = Array.isArray(staffSchedules)
+            ? staffSchedules.filter((schedule) => schedule.shiftDate === dateStr)
+            : [];
 
         return (
             <ul>

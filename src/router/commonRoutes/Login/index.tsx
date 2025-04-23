@@ -52,7 +52,7 @@ const Login = () => {
             if (userInfo.role.toUpperCase() === "ADMIN") {
                 navigate("/admin/dashboard");
             } else if (userInfo.role.toUpperCase() === "STAFF") {
-                navigate("/staff/products-management");
+                navigate("/staff/");
             } else {
                 navigate("/");
             }

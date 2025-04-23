@@ -8,6 +8,7 @@ import { getVaccinePackageById } from "@/services/ApiServices/vaccinePackageServ
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { createVaccineRecord, getVaccineRecordByAppointmentId, getVaccineRecordById, updateVaccineRecord } from "@/services/ApiServices/vaccineRecordService";
+import { getAllStaffSchedule } from "@/services/ApiServices/staffScheduleService";
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -49,26 +50,68 @@ export default function StaffDashboard() {
     const [isChildModalVisible, setIsChildModalVisible] = useState(false);
     const [isRecordModalVisible, setIsRecordModalVisible] = useState(false);
     const [selectedPackageDetail, setSelectedPackageDetail] = useState<any>(null);
-    const user = useSelector((state: RootState) => state.token.user);
+    const user = useSelector((state: any) => state.token.user);
     const [form] = Form.useForm();
     const [vaccineRecord, setVaccineRecord] = useState<any>(null);
+    const [shifts, setShifts] = useState<any[]>([]);
+    const [staffSchedules, setStaffSchedules] = useState<any[]>([]);
+
+    const compareAppointmentWithStaffSchedule = (appointmentDate: string, shiftTime: string) => {
+        const shiftTimeParts = shiftTime.split(" - ");
+
+        if (shiftTimeParts.length !== 3) {
+            console.warn("Shift time format is invalid:", shiftTime);
+            return false;
+        }
+
+        const shiftDateTimeStr = shiftTimeParts[1]; // e.g., "04/23/2025 08:00"
+        const shiftEndTimeStr = shiftTimeParts[2]; // e.g., "12:00"
+
+        const shiftStartTime = dayjs(shiftDateTimeStr, "MM/DD/YYYY HH:mm");
+        const shiftEndTime = dayjs(shiftEndTimeStr, "HH:mm")
+            .set("year", shiftStartTime.year())
+            .set("month", shiftStartTime.month())
+            .set("date", shiftStartTime.date());
+
+        const appointment = dayjs(appointmentDate);
+
+        const isAfterStart = appointment.isSameOrAfter(shiftStartTime);
+        const isBeforeEnd = appointment.isBefore(shiftEndTime);
+        const inRange = isAfterStart && isBeforeEnd;
+
+        console.log(`=== Checking Appointment Schedule ===`);
+        console.log(`Appointment Time   : ${appointment.format("YYYY-MM-DD HH:mm:ss")}`);
+        console.log(`Shift Start Time   : ${shiftStartTime.format("YYYY-MM-DD HH:mm:ss")}`);
+        console.log(`Shift End Time     : ${shiftEndTime.format("YYYY-MM-DD HH:mm:ss")}`);
+        console.log(`In Range Condition : ${isAfterStart} && ${isBeforeEnd}`);
+        console.log(`=> Appointment is in range: ${inRange}`);
+        console.log(`====================================`);
+
+        return inRange;
+    };
 
     const fetchAppointments = async () => {
         setLoading(true);
         try {
             const response = await getAllAppointments();
-            console.log(response.appointments);
             const data = response.appointments || [];
 
+            // Chỉ lấy các cuộc hẹn đã được chấp nhận hoặc hoàn thành
             const acceptedAppointments = data.filter(
                 (item: any) => item.status === "ACCEPTED" || item.status === "DONE"
             );
 
+            // Áp dụng dayjs để tạo đối tượng ngày cho mỗi cuộc hẹn
             const mapped = acceptedAppointments.map((item: any) => ({
                 ...item,
                 appointmentDateObj: dayjs(item.appointmentDate),
             }));
 
+            // Lấy dữ liệu lịch làm việc của nhân viên
+            const responseStaffSchedules = await getAllStaffSchedule();
+            setStaffSchedules(responseStaffSchedules.schedules || []);
+
+            // Cập nhật danh sách cuộc hẹn
             setAppointments(mapped);
         } catch (err) {
             message.error("Failed to fetch appointments");
@@ -192,9 +235,20 @@ export default function StaffDashboard() {
     };
 
     const dateCellRender = (date: any) => {
-        const appointmentsForThisDay = appointments.filter((item) =>
-            item.appointmentDateObj.isSame(date, "day")
-        );
+        const appointmentsForThisDay = appointments.filter((item) => {
+            // Kiểm tra đúng ngày
+            const isSameDay = item.appointmentDateObj.isSame(date, "day");
+
+            if (!isSameDay) return false;
+
+            // Kiểm tra có shift phù hợp không
+            const hasValidShift = staffSchedules.some((shift) => {
+                // Sử dụng hàm compareAppointmentWithStaffSchedule
+                return compareAppointmentWithStaffSchedule(item.appointmentDate, shift.startTime + " - " + shift.endTime);
+            });
+
+            return hasValidShift;
+        });
 
         if (appointmentsForThisDay.length === 0) return null;
 
@@ -202,9 +256,13 @@ export default function StaffDashboard() {
         const hasDone = appointmentsForThisDay.some(item => item.status === "DONE");
 
         let textColor = "text-gray-500";
-        if (hasAccepted && hasDone) textColor = "text-purple-500";
-        else if (hasAccepted) textColor = "text-yellow-500";
-        else if (hasDone) textColor = "text-green-500";
+        if (hasAccepted && hasDone) {
+            textColor = "text-purple-500";
+        } else if (hasAccepted) {
+            textColor = "text-yellow-500";
+        } else if (hasDone) {
+            textColor = "text-green-500";
+        }
 
         return (
             <div className={`text-center font-semibold ${textColor}`}>
@@ -212,6 +270,7 @@ export default function StaffDashboard() {
             </div>
         );
     };
+
 
     const getChildName = async (childId: number) => {
         if (childNames[childId]) {
@@ -283,7 +342,6 @@ export default function StaffDashboard() {
             if (selectedAppointment?.packageId) {
                 try {
                     const data = await getVaccinePackageById(selectedAppointment.packageId);
-                    console.log(data)
                     setSelectedPackageDetail(data);
                 } catch (error) {
                     console.error("Failed to fetch vaccine package details", error);

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Button, DatePicker, Modal, Form, Layout, Typography, Card, Select } from 'antd';
-import { createStaffSchedule, getStaffScheduleByStaffId } from '@/services/ApiServices/staffScheduleService';
+import { getStaffScheduleByStaffId } from '@/services/ApiServices/staffScheduleService';
 import { useSelector } from 'react-redux';
-import dayjs from 'dayjs';
+import moment from 'moment';
 import { RootState } from '@/store/store';
+import dayjs from 'dayjs';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -12,8 +13,6 @@ const { Option } = Select;
 const StaffScheduleByStaff = () => {
     const [staffSchedules, setStaffSchedules] = useState<any[]>([]);
     const [selectedDate, setSelectedDate] = useState<any>(null);
-    const [selectedShift, setSelectedShift] = useState<string>('MORNING');
-    const [isModalVisible, setIsModalVisible] = useState(false);
 
     const user = useSelector((state: RootState) => state.token.user);
     console.log(user);
@@ -22,10 +21,12 @@ const StaffScheduleByStaff = () => {
         if (user && user.id) {
             getStaffScheduleByStaffId(user.id)
                 .then((data) => {
-                    if (Array.isArray(data)) {
-                        setStaffSchedules(data);
-                    } else if (data && Array.isArray(data.staffSchedules)) {
-                        setStaffSchedules(data.staffSchedules);
+                    if (Array.isArray(data.schedules)) {
+                        const convertedSchedules = data.schedules.map((schedule: any) => ({
+                            ...schedule,
+                            shiftDate: moment(schedule.shiftDate, "MM/DD/YYYY hh:mm:ss").format('YYYY-MM-DD')
+                        }));
+                        setStaffSchedules(convertedSchedules);
                     } else {
                         console.warn("Unexpected response format:", data);
                         setStaffSchedules([]);
@@ -35,52 +36,35 @@ const StaffScheduleByStaff = () => {
         }
     }, [user]);
 
-    const handleCreateSchedule = () => {
-        if (user && user.id && selectedDate && selectedShift) {
-            createStaffSchedule({
-                staffId: Number(user.id),
-                shiftDate: selectedDate.format('YYYY-MM-DD'),
-                shiftTime: selectedShift,
-            })
-                .then((response) => {
-                    setStaffSchedules((prevSchedules) => [
-                        ...prevSchedules,
-                        response,
-                    ]);
-                    setIsModalVisible(false);
-                })
-                .catch((error) => {
-                    console.error("Error creating staff schedule:", error);
-                });
-        }
-    };
-
-    const handleDateChange = (date: any) => {
-        setSelectedDate(date);
-    };
-
-    const handleShiftChange = (value: string) => {
-        setSelectedShift(value);
-    };
-
-    const showModal = () => {
-        setIsModalVisible(true);
-    };
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
-
     const dateCellRender = (value: any) => {
         const dateStr = value.format('YYYY-MM-DD');
         const schedules = Array.isArray(staffSchedules)
-            ? staffSchedules.filter((schedule) => schedule.shiftDate === dateStr)
+            ? staffSchedules.filter((schedule) => {
+                const formattedDate = dayjs(schedule.shiftDate, ['MM/DD/YYYY HH:mm:ss', 'YYYY-MM-DD']).format('YYYY-MM-DD');
+                return formattedDate === dateStr;
+            })
             : [];
 
+        const getTimeRange = (shiftTime: string) => {
+            switch (shiftTime.toUpperCase()) {
+                case "MORNING":
+                    return " (8AM - 12PM)";
+                case "AFTERNOON":
+                    return " (12PM - 4PM)";
+                case "EVENING":
+                    return " (4PM - 8PM)";
+                default:
+                    return "";
+            }
+        };
+
         return (
-            <ul>
+            <ul style={{ paddingLeft: 16 }}>
                 {schedules.map((schedule, index) => (
-                    <li key={index}>{`Staff ${schedule.staffId} - ${schedule.shiftTime}`}</li>
+                    <li key={index}>
+                        {schedule.shiftTime}
+                        {getTimeRange(schedule.shiftTime)}
+                    </li>
                 ))}
             </ul>
         );
@@ -100,41 +84,6 @@ const StaffScheduleByStaff = () => {
                         dateCellRender={dateCellRender}
                     />
                 </Card>
-
-                <Modal
-                    title="Create New Schedule"
-                    visible={isModalVisible}
-                    onCancel={handleCancel}
-                    footer={null}
-                >
-                    <Form layout="vertical">
-                        <Form.Item label="Select Date">
-                            <DatePicker
-                                format="YYYY-MM-DD"
-                                onChange={handleDateChange}
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-
-                        <Form.Item label="Select Shift">
-                            <Select
-                                value={selectedShift}
-                                onChange={handleShiftChange}
-                                style={{ width: '100%' }}
-                            >
-                                <Option value="MORNING">Morning</Option>
-                                <Option value="AFTERNOON">Afternoon</Option>
-                                <Option value="EVENING">Evening</Option>
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item>
-                            <Button type="primary" onClick={handleCreateSchedule}>
-                                Create Schedule
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Modal>
             </Content>
         </Layout>
     );

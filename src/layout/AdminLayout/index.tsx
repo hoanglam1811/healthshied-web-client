@@ -48,11 +48,11 @@ const AdminLayout = () => {
           <Menu.Item onClick={() => navigate(RouteNames.ADMIN_DASHBOARD)} key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.APPOINTMENT_MANAGEMENT)} key="appointment-management" icon={<DashboardOutlined />}>Appointments</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.STAFF_MANAGEMENT)} key="staff-management" icon={<DashboardOutlined />}>Staffs</Menu.Item>
+          <Menu.Item onClick={() => navigate(RouteNames.STAFF_SCHEDULE_MANAGEMENT)} key="staff-schedule" icon={<CalendarOutlined />}>Staff Schedule</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.CUSTOMERS)} key="customers" icon={<UserOutlined />}>Customers</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.VACCINE_MANAGEMENT)} key="vaccine-management" icon={<DashboardOutlined />}>Vaccine</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.VACCINE_PACKAGE_MANAGEMENT)} key="vaccine-package" icon={<CalendarOutlined />}>Vaccine Package</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.VACCINE_CATEGORY_MANAGEMENT)} key="vaccine-category-management" icon={<DashboardOutlined />}>Vaccine Category</Menu.Item>
-          <Menu.Item onClick={() => navigate(RouteNames.VACCINE_SCHEDULE)} key="vaccine-schedule" icon={<CalendarOutlined />}>Vaccine Schedule</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.ORDERS)} key="orders" icon={<ShoppingCartOutlined />}>Orders</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.BLOG_MANAGEMENT)} key="blog" icon={<FaFileImage />}>Blog</Menu.Item>
           <Menu.Item onClick={() => navigate(RouteNames.FEEDBACK_MANAGEMENT)} key="feedback" icon={<FaComment />}>Feedback</Menu.Item>

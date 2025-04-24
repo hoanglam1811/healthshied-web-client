@@ -444,7 +444,6 @@ export default function PendingAppointmentManagement() {
                                     ? `${selectedPackageDetail.name} (${selectedPackageDetail.vaccines?.map((v: any) => v.name).join(", ")})`
                                     : selectedAppointment.packageId || "None"}
                             </Text>
-
                             <br />
                             <Text strong>Total Price:</Text>{" "}
                             <Text style={{ color: "#1890ff" }}>

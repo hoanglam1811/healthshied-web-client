@@ -1,54 +1,19 @@
-// ProfessionalTeam.tsx
-
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Tag, Avatar } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import home1 from "@/assets/benhvien.png";
 import home2 from "@/assets/bg2.png";
 import { getAllUsers } from '@/services/ApiServices/userService';
-
-const mockStaffs = [
-    {
-        name: 'Nguyễn Minh Hồng',
-        title: 'Thạc sĩ – Bác sĩ',
-        department: 'Y tế công cộng',
-        avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
-    },
-    {
-        name: 'Nguyễn Anh Tuấn',
-        title: 'Bác sĩ Chuyên khoa 1',
-        department: 'Chẩn đoán hình ảnh',
-        avatar: 'https://randomuser.me/api/portraits/men/76.jpg',
-    },
-    {
-        name: 'Lê Thị Quyên',
-        title: 'Bác sĩ',
-        department: 'Nội – Hồi sức tim',
-        avatar: 'https://randomuser.me/api/portraits/women/77.jpg',
-    },
-    {
-        name: 'Nguyễn Lê Băng Giang',
-        title: 'Bác sĩ',
-        department: 'Y học cổ truyền',
-        avatar: 'https://randomuser.me/api/portraits/women/78.jpg',
-    },
-    {
-        name: 'Nguyễn Văn My',
-        title: 'Bác sĩ',
-        department: 'Truyền nhiễm',
-        avatar: 'https://randomuser.me/api/portraits/men/79.jpg',
-    },
-    {
-        name: 'Nguyễn Văn Tường',
-        title: 'Bác sĩ',
-        department: 'Đa khoa',
-        avatar: 'https://randomuser.me/api/portraits/men/80.jpg',
-    },
-];
+import { useNavigate } from 'react-router-dom';
 
 const ProfessionalTeam = () => {
     const [staffList, setStaffList] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    const handleClick = (id: string) => {
+        navigate(`/professional-team/${id}`);
+    };
 
     useEffect(() => {
         const fetchStaff = async () => {
@@ -147,13 +112,13 @@ const ProfessionalTeam = () => {
                     {staffList.map((staff, index) => (
                         <div
                             key={index}
-                            className="!bg-white !p-4 !rounded-xl !shadow-sm !flex !items-center !gap-4 hover:!shadow-md !transition-all !duration-300"
+                            onClick={() => handleClick(staff.id)}
+                            className="!bg-white !p-4 !rounded-xl !shadow-sm !flex !items-center !gap-4 hover:!shadow-md !transition-all !duration-300 cursor-pointer"
                         >
-                            <Avatar size={64} src={`https://github.com/shadcn.png`} />
+                            <Avatar size={64} src={staff.avatar || `https://github.com/shadcn.png`} />
                             <div>
-                                <Tag className="!mb-1" color="blue">{staff.title || "Unknown"}</Tag>
+                                <Tag className="!mb-1" color="blue">{staff.position || "Unknown"}</Tag>
                                 <h4 className="!text-md !text-black !font-semibold">{staff.fullName}</h4>
-                                <p className="!text-gray-500">{staff.department || "Unknown"}</p>
                             </div>
                         </div>
                     ))}

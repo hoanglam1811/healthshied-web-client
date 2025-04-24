@@ -24,9 +24,10 @@ const StaffLayout = () => {
                         style={{ width: collapsed ? "50px" : "80%", transition: "0.3s" }}
                     />
                 </div>
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={["dashboard"]}>
+                <Menu className='!text-left' theme="dark" mode="inline" defaultSelectedKeys={["dashboard"]}>
                     <Menu.Item onClick={() => navigate(RouteNames.STAFF_DASHBOARD)} key="dashboard" icon={<DashboardOutlined />}>Dashboard</Menu.Item>
                     <Menu.Item onClick={() => navigate(RouteNames.STAFF_SHIFT_PAGE)} key="shift" icon={<SolutionOutlined />}>Shift</Menu.Item>
+                    <Menu.Item onClick={() => navigate(RouteNames.STAFF_PROFILE)} key="profile" icon={<UserOutlined />}>Profile</Menu.Item>
                 </Menu>
             </Sider>
             <Outlet />

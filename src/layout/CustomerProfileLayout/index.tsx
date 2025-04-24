@@ -36,7 +36,7 @@ const ProfileLayout = ({ children }: { children?: React.ReactNode }) => {
                     />
                 </div>
 
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={['profile']}>
+                <Menu className='!text-left' theme="dark" mode="inline" defaultSelectedKeys={['profile']}>
                     <Menu.Item
                         onClick={() => navigate(RouteNames.ACCOUNT)}
                         key="profile"

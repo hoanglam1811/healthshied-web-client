@@ -9,6 +9,7 @@ import CustomerLayout from "@/layout/CustomerLayout";
 import VaccineList from "./VaccineList";
 import VaccineDetail from "./VaccineDetail";
 import ProfessionalTeam from "./ProfessionalTeam";
+import ProfessionalTeamDetails from "./ProfessionalTeamDetails";
 
 const publicRoutes: RouteObject[] = [
   {
@@ -27,7 +28,10 @@ const publicRoutes: RouteObject[] = [
     path: RouteNames.PROFESSIONAL_TEAM,
     element: <ProfessionalTeam />,
   },
-  
+  {
+    path: RouteNames.PROFESSIONAL_TEAM_DETAILS,
+    element: <ProfessionalTeamDetails />,
+  },
 ];
 
 const privateRoutes: RouteObject[] = [
@@ -39,13 +43,13 @@ const clientRoutes: RouteObject[] = [
     element: <Navigate to={RouteNames.HOME} replace />,
   },
   {
-    element: <CustomerLayout/>,
+    element: <CustomerLayout />,
     children: [
       ...publicRoutes
     ]
   },
   {
-    element: <ProfileLayout/>,
+    element: <ProfileLayout />,
     children: [
       {
         path: RouteNames.ACCOUNT,

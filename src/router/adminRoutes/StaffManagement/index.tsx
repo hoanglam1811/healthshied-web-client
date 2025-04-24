@@ -17,7 +17,6 @@ export default function StaffManagement() {
 
   const [deletingStaffId, setDeletingStaffId] = useState<any>(null);
   const [staffs, setStaffs] = useState<any>(null);
-  const navigate = useNavigate();
 
   const fetchStaffs = async () => {
     try {
@@ -99,7 +98,6 @@ export default function StaffManagement() {
                   <Tag color={text === "Active" ? "green" : text === "Inactive" ? "red" : "blue"}>{text}</Tag>
                 )
               },
-              { title: "Create Date", dataIndex: "createdDate", key: "createdDate" },
               { title: "Action", dataIndex: "action", key: "action" },
             ]}
             pagination={{ pageSize: 5 }}

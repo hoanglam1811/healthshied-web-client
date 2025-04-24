@@ -35,6 +35,9 @@ const CreateStaffDialog = ({
           phone: values.phone,
           password: values.password,
           role: "Staff",
+          experience: "",
+          workProcess: "",
+          position: ""
         })
         setIsModalOpen(false);
         form.resetFields();

@@ -47,7 +47,9 @@ const RouteNames = {
   APPOINTMENT_MANAGEMENT: "/admin/appointment-management",
   VACCINE_CATEGORY_MANAGEMENT: "/admin/vaccine-category-management",
   STAFF_SHIFT_PAGE:"/staff/shift",
-  STAFF_SCHEDULE_MANAGEMENT:"/admin/staff-schedule-management"
+  STAFF_SCHEDULE_MANAGEMENT:"/admin/staff-schedule-management",
+  PROFESSIONAL_TEAM_DETAILS: "/professional-team/:id",
+  STAFF_PROFILE: "/staff/profile"
 };
 
 export default RouteNames;

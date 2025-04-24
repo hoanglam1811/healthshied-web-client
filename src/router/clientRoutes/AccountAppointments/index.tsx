@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Card, Table, Tag, Button, Modal, Typography, Input, Space, List, DatePicker } from "antd";
-import { SearchOutlined, CalendarOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons";
+import { Card, Table, Tag, Button, Modal, Typography, Input, Space, List, DatePicker, notification } from "antd";
+import { SearchOutlined, CalendarOutlined, EyeOutlined, CloseOutlined, FileTextOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { getAppointmentByClientId } from "@/services/ApiServices/appoinmentService";
+import { deleteAppointment, getAppointmentByClientId } from "@/services/ApiServices/appoinmentService";
 type RangeValue = [Dayjs, Dayjs] | null;
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -14,10 +14,24 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 import { Calendar, Badge } from "antd";
 import { getChildById } from "@/services/ApiServices/childService";
-
+import { getVaccinePackageById } from "@/services/ApiServices/vaccinePackageService";
+import { getVaccineRecordByAppointmentId } from "@/services/ApiServices/vaccineRecordService";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
+const getStatusColor = (status: string) => {
+    switch (status) {
+        case "ACCEPTED":
+        case "DONE":
+            return "green";
+        case "PENDING":
+            return "blue";
+        case "REJECTED":
+            return "red";
+        default:
+            return "default";
+    }
+};
 
 const AccountAppointments = () => {
     const [appointments, setAppointments] = useState<any[]>([]);
@@ -29,7 +43,27 @@ const AccountAppointments = () => {
     const userToken = useSelector((state: RootState) => state.token.user);
     const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
     const [children, setChildren] = useState<any[]>([]);
+    const [selectedPackageDetail, setSelectedPackageDetail] = useState<any>(null);
+    const [vaccinationRecord, setVaccinationRecord] = useState<any>(null);
+    const [isRecordModalVisible, setIsRecordModalVisible] = useState(false);
 
+    useEffect(() => {
+        const fetchPackageDetail = async () => {
+            if (selectedAppointment?.packageId) {
+                try {
+                    const data = await getVaccinePackageById(selectedAppointment.packageId);
+                    setSelectedPackageDetail(data);
+                } catch (error) {
+                    console.error("Failed to fetch vaccine package details", error);
+                    setSelectedPackageDetail(null);
+                }
+            } else {
+                setSelectedPackageDetail(null);
+            }
+        };
+
+        fetchPackageDetail();
+    }, [selectedAppointment]);
 
     const showDetails = (appointment: any) => {
         setSelectedAppointment(appointment);
@@ -92,6 +126,28 @@ const AccountAppointments = () => {
         fetchData();
     }, [userToken]);
 
+    const viewVaccinationRecord = async (appointment: any) => {
+        if (appointment.status !== "DONE") return;
+
+        try {
+            const data = await getVaccineRecordByAppointmentId(appointment.id);
+            if (!data) {
+                notification.error({
+                    message: "No Vaccination Record",
+                    description: "There are currently no recorded vaccination results for this appointment.",
+                });
+            } else {
+                setVaccinationRecord(data);
+                setIsRecordModalVisible(true);
+            }
+        } catch (err) {
+            console.error("Error fetching vaccination record", err);
+            notification.error({
+                message: "Error",
+                description: "Vaccination record could not be loaded. Please try again later.",
+            });
+        }
+    };
 
     const handleCancelAppointment = (id: number) => {
         Modal.confirm({
@@ -99,48 +155,25 @@ const AccountAppointments = () => {
             content: "Are you sure you want to cancel this appointment?",
             okText: "Yes",
             cancelText: "No",
-            onOk: () => {
-                setAppointments((prev) => prev.map(a => a.id === id ? { ...a, status: "Cancelled" } : a));
+            onOk: async () => {
+                try {
+                    await deleteAppointment(id);
+                    notification.success({
+                        message: "Appointment Cancelled",
+                        description: "The appointment was cancelled successfully.",
+                    });
+                    setAppointments((prev) =>
+                        prev.filter((a) => a.id !== id)
+                    );
+                } catch (error) {
+                    notification.error({
+                        message: "Cancellation Failed",
+                        description: "There was an error cancelling the appointment. Please try again.",
+                    });
+                }
             },
         });
     };
-    //     {
-    //         title: "Date & Time",
-    //         dataIndex: "date",
-    //         render: (_: any, record: any) => (
-    //             <Text>{`${record.date} ${record.time}`}</Text>
-    //         ),
-    //     },
-    //     {
-    //         title: "Doctor",
-    //         dataIndex: "doctor",
-    //         render: (text: any) => <Text strong>{text}</Text>,
-    //     },
-    //     {
-    //         title: "Status",
-    //         dataIndex: "status",
-    //         render: (status: any) => {
-    //             const color = status === "Confirmed" ? "green" : status === "Pending" ? "blue" : "red";
-    //             return <Tag color={color}>{status}</Tag>;
-    //         },
-    //     },
-    //     {
-    //         title: "Total Price",
-    //         dataIndex: "totalPrice",
-    //         render: (price: number) => <Text strong>${price.toFixed(2)}</Text>,
-    //     },
-    //     {
-    //         title: "Actions",
-    //         render: (record: any) => (
-    //             <Space>
-    //                 <Button icon={<EyeOutlined />} onClick={() => showDetails(record)}>View</Button>
-    //                 {record.status === "Pending" && (
-    //                     <Button danger icon={<CloseOutlined />} onClick={() => handleCancelAppointment(record.id)}>Cancel</Button>
-    //                 )}
-    //             </Space>
-    //         ),
-    //     },
-    // ];
 
     const columns: ColumnsType<any> = [
         {
@@ -162,16 +195,20 @@ const AccountAppointments = () => {
         {
             title: "Status",
             dataIndex: "status",
-            render: (status: string) => {
-                const color = status === "CONFIRMED" ? "green" : status === "PENDING" ? "blue" : "red";
-                return <Tag color={color}>{status}</Tag>;
-            },
+            render: (status: string) => (
+                <Tag color={getStatusColor(status)}>{status}</Tag>
+            ),
         },
         {
             title: "Actions",
             render: (record: any) => (
                 <Space>
                     <Button icon={<EyeOutlined />} onClick={() => showDetails(record)}>View</Button>
+                    {record.status === "DONE" && (
+                        <Button icon={<FileTextOutlined />} onClick={() => viewVaccinationRecord(record)}>
+                            Record
+                        </Button>
+                    )}
                     {record.status === "PENDING" && (
                         <Button danger icon={<CloseOutlined />} onClick={() => handleCancelAppointment(record.id)}>Cancel</Button>
                     )}
@@ -246,6 +283,23 @@ const AccountAppointments = () => {
                         </Card>
 
                         <Modal
+                            title="Vaccination Record"
+                            open={isRecordModalVisible}
+                            onCancel={() => setIsRecordModalVisible(false)}
+                            footer={null}
+                        >
+                            {vaccinationRecord ? (
+                                <>
+                                    <Text strong>Reaction Notes:</Text>{" "}
+                                    <Text>{vaccinationRecord.reactionNotes || "No note"}</Text>
+                                </>
+                            ) : (
+                                <Text>No recorded data found.</Text>
+                            )}
+                        </Modal>
+
+
+                        <Modal
                             title="Appointment Details"
                             open={isModalVisible}
                             onCancel={() => setIsModalVisible(false)}
@@ -257,19 +311,21 @@ const AccountAppointments = () => {
                                     <Text>{selectedAppointment.appointmentDateObj.format("YYYY-MM-DD HH:mm")}</Text>
                                     <br />
                                     <Text strong>Status:</Text>{" "}
-                                    <Tag>{selectedAppointment.status}</Tag>
+                                    <Tag color={getStatusColor(selectedAppointment.status)}>
+                                        {selectedAppointment.status}
+                                    </Tag>
+
                                     <br />
                                     <Text strong>Description:</Text>{" "}
                                     <Text>{selectedAppointment.description}</Text>
                                     <br />
-                                    <Text strong>Vaccine ID:</Text>{" "}
-                                    <Text>{selectedAppointment.vaccineId || "None"}</Text>
-                                    <br />
-                                    <Text strong>Package ID:</Text>{" "}
-                                    <Text>{selectedAppointment.packageId || "None"}</Text>
-                                    <br />
-                                    <Text strong>Child ID:</Text>{" "}
-                                    <Text>{selectedAppointment.childId}</Text>
+                                    <Text strong>Package:</Text>{" "}
+                                    <Text>
+                                        {selectedPackageDetail
+                                            ? `${selectedPackageDetail.name} (${selectedPackageDetail.vaccines?.map((v: any) => v.name).join(", ")})`
+                                            : selectedAppointment?.packageId || "None"}
+                                    </Text>
+
                                     <br />
                                     <Text strong>Total Price:</Text>{" "}
                                     <Text strong style={{ color: "#1890ff" }}>

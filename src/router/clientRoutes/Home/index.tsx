@@ -156,6 +156,10 @@ const Home = () => {
     email: "",
   });
 
+  const handleClick = (id: string) => {
+    navigate(`/professional-team/${id}`);
+  };
+
   useEffect(() => {
     async function fetchUserData() {
       try {
@@ -478,6 +482,7 @@ const Home = () => {
                     loading={loading}
                     bordered={false}
                     hoverable
+                    onClick={() => handleClick(staff.id)}
                     style={{
                       borderRadius: 12,
                       boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -493,12 +498,11 @@ const Home = () => {
                       </div>
                       <div className="!flex-1 !pl-4">
                         <Tag className="!mb-1" color="blue">
-                          Doctor
+                          {staff?.position || "Unknown"}
                         </Tag>
                         <Title level={5} style={{ margin: 0 }}>
                           {staff?.fullName || "Unknown"}
                         </Title>
-                        <Text type="secondary">General Department</Text>
                       </div>
                     </div>
                   </Card>

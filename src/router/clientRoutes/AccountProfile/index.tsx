@@ -47,7 +47,6 @@ const CustomerProfile = () => {
         }
     };
 
-
     const handleAddChild = async (values: any) => {
         try {
             const response = await createChild({ ...values, userId: user.id });
@@ -173,7 +172,6 @@ const CustomerProfile = () => {
             notification.error({ message: "Error", description: "Failed to delete child." });
         }
     };
-
 
     useEffect(() => {
         if (userToken) {

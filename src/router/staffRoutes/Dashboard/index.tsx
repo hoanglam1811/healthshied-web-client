@@ -235,6 +235,7 @@ export default function StaffDashboard() {
     };
 
     const dateCellRender = (date: any) => {
+        
         const appointmentsForThisDay = appointments.filter((item) => {
             // Kiểm tra đúng ngày
             const isSameDay = item.appointmentDateObj.isSame(date, "day");
@@ -244,11 +245,13 @@ export default function StaffDashboard() {
             // Kiểm tra có shift phù hợp không
             const hasValidShift = staffSchedules.some((shift) => {
                 // Sử dụng hàm compareAppointmentWithStaffSchedule
-                return compareAppointmentWithStaffSchedule(item.appointmentDate, shift.startTime + " - " + shift.endTime);
+                return compareAppointmentWithStaffSchedule(item.appointmentDate, shift.shiftTime);
             });
 
             return hasValidShift;
         });
+        console.log(appointmentsForThisDay);
+        
 
         if (appointmentsForThisDay.length === 0) return null;
 

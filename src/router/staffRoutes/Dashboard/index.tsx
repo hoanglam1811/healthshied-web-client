@@ -8,7 +8,7 @@ import { getVaccinePackageById } from "@/services/ApiServices/vaccinePackageServ
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { createVaccineRecord, getVaccineRecordByAppointmentId, getVaccineRecordById, updateVaccineRecord } from "@/services/ApiServices/vaccineRecordService";
-import { getAllStaffSchedule } from "@/services/ApiServices/staffScheduleService";
+import { getAllStaffSchedule, getStaffScheduleByStaffId } from "@/services/ApiServices/staffScheduleService";
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -92,6 +92,7 @@ export default function StaffDashboard() {
 
     const fetchAppointments = async () => {
         setLoading(true);
+        if(!user) return;
         try {
             const response = await getAllAppointments();
             const data = response.appointments || [];
@@ -108,7 +109,7 @@ export default function StaffDashboard() {
             }));
 
             // Lấy dữ liệu lịch làm việc của nhân viên
-            const responseStaffSchedules = await getAllStaffSchedule();
+            const responseStaffSchedules = await getStaffScheduleByStaffId(user.id);
             setStaffSchedules(responseStaffSchedules.schedules || []);
 
             // Cập nhật danh sách cuộc hẹn
